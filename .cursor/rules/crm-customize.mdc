@@ -1,0 +1,65 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+> ⚠️ You are customizing the **CRM view** within a Frappe-based application. Adhere strictly to the following project-specific guidelines.
+
+---
+
+### 🧩 Project Context
+
+- The CRM module resides within the **`crm` app** of a Frappe project.(/home/jezlan/v14/jezlan-15/apps/crm/crm)
+- The **frontend components** to be customized are located in the **`frontend` folder** inside the `crm` app. (/home/jezlan/v14/jezlan-15/apps/crm/frontend)
+
+---
+
+### 🛠️ Development Guidelines
+
+1. **Utilize Frappe UI Standards**
+   - Employ standard Frappe components, layouts, and methods for both backend and frontend development.
+   - Refer to the official Frappe UI documentation for guidance: [Frappe UI Documentation](https://ui.frappe.io/) .
+
+2. **Maintain Existing Design Consistency**
+   - Ensure that any UI modifications align with the current **font, layout, and visual style** used in the CRM module.
+   - Avoid introducing new styles unless explicitly required.
+
+3. **Follow Existing Code Structure and Style**
+   - Review and adhere to the **current coding conventions** present in the `crm` app for both JavaScript/TypeScript and Python.
+   - Preserve the existing folder structure and naming conventions.
+
+4. **Reference Existing CRM Code**
+   - Reuse existing code patterns from the `crm` app wherever feasible to maintain consistency and reduce redundancy.
+
+---
+
+### 📝 Documentation Requirements
+
+- For **any major changes**, including:
+  - UI modifications
+  - Functional logic alterations
+  - API additions or refactoring
+  - Data model adjustments
+
+  ➤ **Create a `.md` documentation file** detailing:
+   - The nature of the change
+   - The rationale behind the change
+   - Usage instructions for any new features (if applicable)
+
+- Save all `.md` files to the designated **documentation folder (/home/jezlan/v14/jezlan-15/apps/crm/frontend/docs)** as specified by the project.
+
+- For each major change, create or update a `README.md` file in the relevant folder (e.g., UI, functions, models) summarizing:
+  - The purpose of the module or feature
+  - Important notes or dependencies
+  - Any known limitations
+
+---
+
+### ✅ Final Notes
+
+- **Ensure existing functionality remains unaffected**.
+- Keep changes modular and commit regularly with descriptive commit messages.
+- Seek clarification if any requirement is unclear.
+
+---

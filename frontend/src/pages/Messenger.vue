@@ -1,61 +1,84 @@
 <template>
-  <div class="h-full flex">
+  <div class="flex h-full">
     <!-- Left Column: Conversations List -->
     <div class="w-80 border-r border-gray-200 flex flex-col">
-      <div class="p-4 border-b border-gray-200">
-        <h2 class="text-lg font-medium">Messages</h2>
+      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">{{ __('Messages') }}</h2>
+        <Button
+          appearance="minimal"
+          class="text-gray-600 hover:text-gray-900"
+          :icon="RefreshIcon"
+          @click="conversationsResource.reload()"
+        />
       </div>
       
       <!-- Conversations List -->
       <div class="flex-1 overflow-y-auto">
         <div
-          v-for="i in 10"
-          :key="i"
-          class="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100"
+          v-for="conversation in conversations"
+          :key="conversation.name"
+          class="group flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 transition-colors"
+          :class="{ 'bg-gray-50': selectedConversation === conversation.name }"
+          @click="selectedConversation = conversation.name"
         >
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-gray-200"></div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between">
-                <p class="text-sm font-medium truncate">Contact Name</p>
-                <p class="text-xs text-gray-500">3m ago</p>
-              </div>
-              <p class="text-sm text-gray-500 truncate">
-                Latest message preview...
-              </p>
+          <Avatar
+            :label="conversation.title"
+            size="md"
+            class="flex-shrink-0"
+          />
+          <div class="ml-3 flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-medium text-gray-900 truncate">{{ conversation.title }}</p>
+              <p class="text-xs text-gray-500">{{ formatTime(conversation.last_message_time) }}</p>
             </div>
+            <p class="text-sm text-gray-500 truncate">
+              {{ conversation.last_message }}
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Right Column: Chat View -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col bg-white" v-if="selectedConversation">
       <!-- Chat Header -->
-      <div class="p-4 border-b border-gray-200 flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-full bg-gray-200"></div>
-        <div>
-          <h3 class="font-medium">Contact Name</h3>
-          <p class="text-sm text-gray-500">Active now</p>
+      <div class="flex items-center p-4 border-b border-gray-200">
+        <Avatar
+          :label="selectedConversationTitle"
+          size="md"
+          class="flex-shrink-0"
+        />
+        <div class="ml-3">
+          <h3 class="text-base font-medium text-gray-900">{{ selectedConversationTitle }}</h3>
+          <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
         </div>
       </div>
 
       <!-- Messages Area -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-4">
-        <!-- Sample messages -->
-        <div v-for="i in 5" :key="i">
+      <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div v-for="message in messages" :key="message.name" class="flex flex-col space-y-1">
           <!-- Received message -->
-          <div class="flex items-end mb-4">
-            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 mr-2"></div>
-            <div class="bg-gray-100 rounded-lg rounded-bl-none px-4 py-2 max-w-[70%]">
-              <p class="text-sm">This is a received message.</p>
+          <div v-if="message.message_direction === 'Incoming'" class="flex items-end space-x-2">
+            <Avatar
+              :label="message.sender_user || message.sender_id"
+              size="sm"
+              class="flex-shrink-0"
+            />
+            <div class="flex flex-col">
+              <div class="bg-gray-100 rounded-2xl rounded-bl-none px-4 py-2 max-w-[70%]">
+                <p class="text-sm text-gray-900">{{ message.message }}</p>
+              </div>
+              <span class="text-xs text-gray-500 ml-2 mt-1">{{ formatTime(message.timestamp) }}</span>
             </div>
           </div>
 
           <!-- Sent message -->
-          <div class="flex items-end justify-end mb-4">
-            <div class="bg-blue-500 text-white rounded-lg rounded-br-none px-4 py-2 max-w-[70%]">
-              <p class="text-sm">This is a sent message.</p>
+          <div v-else class="flex items-end justify-end space-x-2">
+            <div class="flex flex-col items-end">
+              <div class="bg-blue-500 text-white rounded-2xl rounded-br-none px-4 py-2 max-w-[70%]">
+                <p class="text-sm">{{ message.message }}</p>
+              </div>
+              <span class="text-xs text-gray-500 mr-2 mt-1">{{ formatTime(message.timestamp) }}</span>
             </div>
           </div>
         </div>
@@ -64,33 +87,175 @@
       <!-- Message Input -->
       <div class="p-4 border-t border-gray-200">
         <div class="flex items-center space-x-2">
-          <button class="p-2 hover:bg-gray-100 rounded-full">
-            <span class="text-gray-500">
-              <!-- Emoji icon -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </span>
-          </button>
-          <input
+          <Button
+            appearance="minimal"
+            :icon="EmojiIcon"
+            class="text-gray-500 hover:text-gray-700"
+          />
+          <Input
+            v-model="newMessage"
             type="text"
             placeholder="Type a message..."
-            class="flex-1 border border-gray-200 rounded-full px-4 py-2 focus:outline-none focus:border-blue-500"
+            class="flex-1"
+            @keyup.enter="sendMessage"
           />
-          <button class="p-2 hover:bg-gray-100 rounded-full">
-            <span class="text-blue-500">
-              <!-- Send icon -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </span>
-          </button>
+          <Button
+            appearance="primary"
+            :icon="SendIcon"
+            :disabled="!newMessage.trim()"
+            @click="sendMessage"
+          />
         </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else class="flex-1 grid place-items-center bg-gray-50">
+      <div class="text-center">
+        <div class="mx-auto h-12 w-12 text-gray-400">
+          <MessengerIcon />
+        </div>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('No conversation selected') }}</h3>
+        <p class="mt-1 text-sm text-gray-500">{{ __('Choose a conversation to start messaging') }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-// Component logic will be added later
-</script> 
+import { ref, onMounted, watch, computed } from 'vue'
+import { createResource } from 'frappe-ui'
+import { Button, Input, Avatar } from 'frappe-ui'
+// import { __ } from 'frappe-ui/utils'
+import MessengerIcon from '@/components/Icons/Messenger.vue'
+import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
+import EmojiIcon from '@/components/Icons/EmojiIcon.vue'
+import SendIcon from '@/components/Icons/SendIcon.vue'
+
+// State management
+const messages = ref([])
+const newMessage = ref('')
+const conversations = ref([])
+const selectedConversation = ref(null)
+const messagesContainer = ref(null)
+
+// Computed properties
+const selectedConversationTitle = computed(() => {
+  const conversation = conversations.value.find(c => c.name === selectedConversation.value)
+  return conversation?.title || ''
+})
+
+const selectedConversationPlatform = computed(() => {
+  const conversation = conversations.value.find(c => c.name === selectedConversation.value)
+  return conversation?.platform === 'facebook' ? 'Facebook Messenger' : 'Instagram DM'
+})
+
+// Resource for fetching messages
+const messagesResource = createResource({
+  url: 'frappe.client.get_list',
+  params: {
+    doctype: 'Messenger Message',
+    fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
+    filters: { conversation: selectedConversation },
+    order_by: 'timestamp desc',
+    limit: 50
+  },
+  auto: false
+})
+
+// Resource for sending messages
+const sendMessageResource = createResource({
+  url: 'frappe.client.insert',
+  method: 'POST',
+  onSuccess: () => {
+    newMessage.value = ''
+    messagesResource.reload()
+  }
+})
+
+// Resource for fetching conversations
+const conversationsResource = createResource({
+  url: 'frappe.client.get_list',
+  params: {
+    doctype: 'Messenger Conversation',
+    fields: ['name', 'last_message', 'last_message_time', 'platform'],
+    order_by: 'last_message_time desc'
+  },
+  auto: true
+})
+
+// Format timestamp
+const formatTime = (timestamp) => {
+  if (!timestamp) return ''
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diff = now - date
+
+  // If less than 24 hours ago, show time
+  if (diff < 24 * 60 * 60 * 1000) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+  // If this year, show date without year
+  if (date.getFullYear() === now.getFullYear()) {
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+  }
+  // Otherwise show full date
+  return date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+// Load conversations and messages
+onMounted(async () => {
+  await conversationsResource.fetch()
+  conversations.value = conversationsResource.data || []
+})
+
+// Watch for conversation changes
+watch(selectedConversation, async (newVal) => {
+  if (newVal) {
+    await messagesResource.fetch()
+    messages.value = messagesResource.data || []
+    // Scroll to bottom after messages load
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    }, 100)
+  }
+})
+
+// Send message function
+const sendMessage = async () => {
+  if (!newMessage.value.trim() || !selectedConversation.value) return
+
+  await sendMessageResource.submit({
+    doc: {
+      doctype: 'Messenger Message',
+      message: newMessage.value,
+      conversation: selectedConversation.value,
+      message_direction: 'Outgoing',
+      timestamp: new Date().toISOString()
+    }
+  })
+}
+</script>
+
+<style scoped>
+/* Custom scrollbar styling */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #E5E7EB transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #E5E7EB;
+  border-radius: 3px;
+}
+</style> 

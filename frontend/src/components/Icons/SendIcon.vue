@@ -7,13 +7,13 @@
     stroke-width="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-    class="feather feather-refresh-cw"
+    class="feather feather-send"
   >
-    <path d="M23 4v6h-6M1 20v-6h6" />
-    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+    <line x1="22" y1="2" x2="11" y2="13" />
+    <polygon points="22 2 15 22 11 13 2 9 22 2" />
   </svg>
 </template>
 
 <script setup>
 // Simple icon component - no props or logic needed
-</script>
+</script> 

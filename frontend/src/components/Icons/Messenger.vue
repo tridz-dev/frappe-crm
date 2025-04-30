@@ -3,26 +3,17 @@
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
-    :width="size"
-    :height="size"
-    class=""
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="feather feather-message-circle"
   >
-    <path
-      fill="currentColor"
-      d="M12 2C6.477 2 2 6.145 2 11.259c0 2.913 1.454 5.512 3.726 7.21V22l3.405-1.869c.909.252 1.871.388 2.869.388 5.523 0 10-4.145 10-9.259C22 6.145 17.523 2 12 2zm1 13.5l-2.5-2.667L6 16l5.5-5.833L14 13l4.5-3.167L13 15.5z"
-    />
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
   </svg>
 </template>
 
 <script setup>
-defineProps({
-  size: {
-    type: [Number, String],
-    default: 24
-  },
-  class: {
-    type: String,
-    default: ''
-  }
-})
+// Simple icon component - no props or logic needed
 </script> 

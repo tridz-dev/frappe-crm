@@ -145,6 +145,7 @@ import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
 import HelpIcon from '@/components/Icons/HelpIcon.vue'
+import MessengerIcon from '@/components/Icons/Messenger.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import Notifications from '@/components/Notifications.vue'
 import Settings from '@/components/Settings/Settings.vue'
@@ -177,6 +178,11 @@ const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 const isFCSite = ref(window.is_fc_site)
 
 const links = [
+  {
+    label: 'Messenger',
+    icon: MessengerIcon,
+    to: 'Messenger',
+  },
   {
     label: 'Leads',
     icon: LeadsIcon,
