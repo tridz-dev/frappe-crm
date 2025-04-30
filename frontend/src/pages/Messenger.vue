@@ -60,7 +60,7 @@
           <!-- Received message -->
           <div v-if="message.message_direction === 'Incoming'" class="flex items-end space-x-2">
             <Avatar
-              :label="message.sender_user || message.sender_id"
+              :label="message.sender_display"
               size="sm"
               class="flex-shrink-0"
             />
@@ -147,7 +147,7 @@ const selectedConversationTitle = computed(() => {
 
 const selectedConversationPlatform = computed(() => {
   const conversation = conversations.value.find(c => c.name === selectedConversation.value)
-  return conversation?.platform === 'facebook' ? 'Facebook Messenger' : 'Instagram DM'
+  return conversation?.platform === 'Messenger' ? 'Facebook Messenger' : 'Instagram DM'
 })
 
 // Resource for fetching messages
@@ -159,6 +159,49 @@ const messagesResource = createResource({
     filters: { conversation: selectedConversation },
     order_by: 'timestamp desc',
     limit: 50
+  },
+  onSuccess: async (data) => {
+    // Get unique sender IDs that don't have sender_user
+    const senderIds = [...new Set(data
+      .filter(msg => !msg.sender_user && msg.sender_id)
+      .map(msg => msg.sender_id)
+    )]
+    
+    if (senderIds.length > 0) {
+      // Fetch user information for senders
+      const usersResource = createResource({
+        url: 'frappe.client.get_list',
+        params: {
+          doctype: 'Messenger User',
+          fields: ['user_id', 'username'],
+          filters: [['user_id', 'in', senderIds]]
+        }
+      })
+      
+      const users = await usersResource.fetch()
+      const userMap = {}
+      users.forEach(user => {
+        userMap[user.user_id] = user.username
+      })
+      
+      // Map messages with user information
+      messages.value = data.map(msg => ({
+        ...msg,
+        sender_display: msg.sender_user || userMap[msg.sender_id] || msg.sender_id
+      }))
+    } else {
+      messages.value = data.map(msg => ({
+        ...msg,
+        sender_display: msg.sender_user || msg.sender_id
+      }))
+    }
+    
+    // Scroll to bottom after messages load
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    }, 100)
   },
   auto: false
 })
@@ -178,8 +221,34 @@ const conversationsResource = createResource({
   url: 'frappe.client.get_list',
   params: {
     doctype: 'Messenger Conversation',
-    fields: ['name', 'last_message', 'last_message_time', 'platform'],
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
     order_by: 'last_message_time desc'
+  },
+  onSuccess: async (data) => {
+    // Get unique sender IDs
+    const senderIds = [...new Set(data.map(conv => conv.sender_id))]
+    
+    // Fetch user information for all senders
+    const usersResource = createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'Messenger User',
+        fields: ['user_id', 'username'],
+        filters: [['user_id', 'in', senderIds]]
+      }
+    })
+    
+    const users = await usersResource.fetch()
+    const userMap = {}
+    users.forEach(user => {
+      userMap[user.user_id] = user.username
+    })
+    
+    // Map conversations with user information
+    conversations.value = data.map(conv => ({
+      ...conv,
+      title: userMap[conv.sender_id] || conv.sender_id // Fallback to sender_id if username not found
+    }))
   },
   auto: true
 })
