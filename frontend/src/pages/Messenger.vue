@@ -19,7 +19,7 @@
           :key="conversation.name"
           class="group flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 transition-colors"
           :class="{ 'bg-gray-50': selectedConversation === conversation.name }"
-          @click="selectedConversation = conversation.name"
+          @click="handleConversationSelect(conversation)"
         >
           <Avatar
             :label="conversation.title"
@@ -55,58 +55,19 @@
       </div>
 
       <!-- Messages Area -->
-      <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
-        <div v-for="message in messages" :key="message.name" class="flex flex-col space-y-1">
-          <!-- Received message -->
-          <div v-if="message.message_direction === 'Incoming'" class="flex items-end space-x-2">
-            <Avatar
-              :label="message.sender_display"
-              size="sm"
-              class="flex-shrink-0"
-            />
-            <div class="flex flex-col">
-              <div class="bg-gray-100 rounded-2xl rounded-bl-none px-4 py-2 max-w-[70%]">
-                <p class="text-sm text-gray-900">{{ message.message }}</p>
-              </div>
-              <span class="text-xs text-gray-500 ml-2 mt-1">{{ formatTime(message.timestamp) }}</span>
-            </div>
-          </div>
-
-          <!-- Sent message -->
-          <div v-else class="flex items-end justify-end space-x-2">
-            <div class="flex flex-col items-end">
-              <div class="bg-blue-500 text-white rounded-2xl rounded-br-none px-4 py-2 max-w-[70%]">
-                <p class="text-sm">{{ message.message }}</p>
-              </div>
-              <span class="text-xs text-gray-500 mr-2 mt-1">{{ formatTime(message.timestamp) }}</span>
-            </div>
-          </div>
-        </div>
+      <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4">
+        <MessengerArea 
+          :messages="messages"
+          @reply="handleReply"
+        />
       </div>
 
       <!-- Message Input -->
-      <div class="p-4 border-t border-gray-200">
-        <div class="flex items-center space-x-2">
-          <Button
-            appearance="minimal"
-            :icon="EmojiIcon"
-            class="text-gray-500 hover:text-gray-700"
-          />
-          <Input
-            v-model="newMessage"
-            type="text"
-            placeholder="Type a message..."
-            class="flex-1"
-            @keyup.enter="sendMessage"
-          />
-          <Button
-            appearance="primary"
-            :icon="SendIcon"
-            :disabled="!newMessage.trim()"
-            @click="sendMessage"
-          />
-        </div>
-      </div>
+      <MessengerBox
+        :conversation="selectedConversation"
+        v-model:reply="reply"
+        @send="handleSendMessage"
+      />
     </div>
 
     <!-- Empty State -->
@@ -126,7 +87,8 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { createResource } from 'frappe-ui'
 import { Button, Input, Avatar } from 'frappe-ui'
-// import { __ } from 'frappe-ui/utils'
+import MessengerArea from '@/components/MessengerArea.vue'
+import MessengerBox from '@/components/MessengerBox.vue'
 import MessengerIcon from '@/components/Icons/Messenger.vue'
 import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
 import EmojiIcon from '@/components/Icons/EmojiIcon.vue'
@@ -134,21 +96,10 @@ import SendIcon from '@/components/Icons/SendIcon.vue'
 
 // State management
 const messages = ref([])
-const newMessage = ref('')
 const conversations = ref([])
 const selectedConversation = ref(null)
 const messagesContainer = ref(null)
-
-// Computed properties
-const selectedConversationTitle = computed(() => {
-  const conversation = conversations.value.find(c => c.name === selectedConversation.value)
-  return conversation?.title || ''
-})
-
-const selectedConversationPlatform = computed(() => {
-  const conversation = conversations.value.find(c => c.name === selectedConversation.value)
-  return conversation?.platform === 'Messenger' ? 'Facebook Messenger' : 'Instagram DM'
-})
+const reply = ref({})
 
 // Resource for fetching messages
 const messagesResource = createResource({
@@ -156,52 +107,9 @@ const messagesResource = createResource({
   params: {
     doctype: 'Messenger Message',
     fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
-    filters: { conversation: selectedConversation },
+    filters: [],
     order_by: 'timestamp desc',
     limit: 50
-  },
-  onSuccess: async (data) => {
-    // Get unique sender IDs that don't have sender_user
-    const senderIds = [...new Set(data
-      .filter(msg => !msg.sender_user && msg.sender_id)
-      .map(msg => msg.sender_id)
-    )]
-    
-    if (senderIds.length > 0) {
-      // Fetch user information for senders
-      const usersResource = createResource({
-        url: 'frappe.client.get_list',
-        params: {
-          doctype: 'Messenger User',
-          fields: ['user_id', 'username'],
-          filters: [['user_id', 'in', senderIds]]
-        }
-      })
-      
-      const users = await usersResource.fetch()
-      const userMap = {}
-      users.forEach(user => {
-        userMap[user.user_id] = user.username
-      })
-      
-      // Map messages with user information
-      messages.value = data.map(msg => ({
-        ...msg,
-        sender_display: msg.sender_user || userMap[msg.sender_id] || msg.sender_id
-      }))
-    } else {
-      messages.value = data.map(msg => ({
-        ...msg,
-        sender_display: msg.sender_user || msg.sender_id
-      }))
-    }
-    
-    // Scroll to bottom after messages load
-    setTimeout(() => {
-      if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-      }
-    }, 100)
   },
   auto: false
 })
@@ -211,7 +119,6 @@ const sendMessageResource = createResource({
   url: 'frappe.client.insert',
   method: 'POST',
   onSuccess: () => {
-    newMessage.value = ''
     messagesResource.reload()
   }
 })
@@ -253,6 +160,17 @@ const conversationsResource = createResource({
   auto: true
 })
 
+// Computed properties
+const selectedConversationTitle = computed(() => {
+  const conversation = conversations.value.find(c => c.name === selectedConversation.value)
+  return conversation?.title || ''
+})
+
+const selectedConversationPlatform = computed(() => {
+  const conversation = conversations.value.find(c => c.name === selectedConversation.value)
+  return conversation?.platform === 'Messenger' ? 'Facebook Messenger' : 'Instagram DM'
+})
+
 // Format timestamp
 const formatTime = (timestamp) => {
   if (!timestamp) return ''
@@ -272,39 +190,53 @@ const formatTime = (timestamp) => {
   return date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-// Load conversations and messages
-onMounted(async () => {
-  await conversationsResource.fetch()
-  conversations.value = conversationsResource.data || []
-})
+// Function to handle conversation selection
+async function handleConversationSelect(conversation) {
+  selectedConversation.value = conversation.name
+  
+  // Update message resource params and fetch messages
+  messagesResource.params = {
+    doctype: 'Messenger Message',
+    fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
+    filters: [['conversation', '=', conversation.name]],
+    order_by: 'timestamp desc',
+    limit: 50
+  }
+  
+  await messagesResource.reload()
+  messages.value = messagesResource.data.reverse() // Show oldest messages first
+  
+  // Scroll to bottom after messages load
+  setTimeout(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    }
+  }, 100)
+}
 
 // Watch for conversation changes
 watch(selectedConversation, async (newVal) => {
   if (newVal) {
     await messagesResource.fetch()
-    messages.value = messagesResource.data || []
-    // Scroll to bottom after messages load
-    setTimeout(() => {
-      if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-      }
-    }, 100)
   }
 })
 
-// Send message function
-const sendMessage = async () => {
-  if (!newMessage.value.trim() || !selectedConversation.value) return
-
-  await sendMessageResource.submit({
+// Handle sending messages
+function handleSendMessage(messageData) {
+  sendMessageResource.submit({
     doc: {
       doctype: 'Messenger Message',
-      message: newMessage.value,
-      conversation: selectedConversation.value,
+      message: messageData.message,
+      conversation: messageData.conversation,
       message_direction: 'Outgoing',
       timestamp: new Date().toISOString()
     }
   })
+}
+
+// Handle message reply
+function handleReply(message) {
+  reply.value = message
 }
 </script>
 

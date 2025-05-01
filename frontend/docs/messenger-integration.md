@@ -13,39 +13,59 @@ This document describes the integration between the CRM module and the `frappe-m
 
 ### Key Components
 
-#### Resource APIs Used
-1. **Message Fetching**
-   ```javascript
-   createResource({
-     url: 'frappe.client.get_list',
-     doctype: 'Messenger Message',
-     // Includes sender information handling
-   })
-   ```
+#### Message Fetching
+```javascript
+// Resource definition
+const messagesResource = createResource({
+  url: 'frappe.client.get_list',
+  doctype: 'Messenger Message',
+  auto: false // Don't fetch automatically
+})
 
-2. **User Information Fetching**
-   ```javascript
-   createResource({
-     url: 'frappe.client.get_list',
-     doctype: 'Messenger User',
-     // Maps user_id to username
-   })
-   ```
+// Conversation selection handler
+async function handleConversationSelect(conversation) {
+  // Update selected conversation
+  selectedConversation.value = conversation.name
+  
+  // Update message resource params
+  messagesResource.params = {
+    doctype: 'Messenger Message',
+    fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
+    filters: [['conversation', '=', conversation.name]],
+    order_by: 'timestamp desc',
+    limit: 50
+  }
+  
+  // Fetch and display messages
+  await messagesResource.reload()
+  messages.value = messagesResource.data.reverse()
+}
+```
 
-3. **Conversation Management**
-   ```javascript
-   createResource({
-     url: 'frappe.client.get_list',
-     doctype: 'Messenger Conversation',
-     // Includes user information resolution
-   })
-   ```
+#### User Information Resolution
+```javascript
+createResource({
+  url: 'frappe.client.get_list',
+  doctype: 'Messenger User',
+  // Maps user_id to username
+})
+```
+
+#### Conversation Management
+```javascript
+createResource({
+  url: 'frappe.client.get_list',
+  doctype: 'Messenger Conversation',
+  // Includes user information resolution
+})
+```
 
 ### Message Handling
 - Outgoing messages are created with `message_direction = "Outgoing"`
 - Messages are automatically refreshed after sending
 - Messages are ordered by timestamp in descending order
 - Sender information is resolved using `Messenger User` doctype
+- Messages are fetched when a conversation is selected
 
 ### User Resolution
 - Conversations display usernames by matching `sender_id` with `user_id`
@@ -56,6 +76,13 @@ This document describes the integration between the CRM module and the `frappe-m
 - Left sidebar: Displays conversation list with resolved usernames
 - Main area: Shows selected conversation messages with sender information
 - Input area: Allows message composition and sending
+
+### Event Flow
+1. User clicks on a conversation
+2. `handleConversationSelect` is called
+3. Message resource parameters are updated
+4. Messages are fetched and displayed
+5. View scrolls to latest message
 
 ## Dependencies
 - Frappe UI library
