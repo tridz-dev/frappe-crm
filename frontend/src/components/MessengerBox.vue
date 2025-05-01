@@ -46,7 +46,7 @@
         :placeholder="placeholder"
         @focus="rows = 6"
         @blur="rows = 1"
-        @keydown.enter.stop="(e) => sendTextMessage(e)"
+        @keydown.enter.exact="(e) => sendTextMessage(e)"
       />
     </div>
   </div>
@@ -77,7 +77,7 @@ function show() {
 function sendTextMessage(event) {
   if (event.shiftKey) return
   
-  if (!content.value.trim()) return
+  if (!content.value.trim() || !props.conversation) return
   
   emit('send', {
     message: content.value,

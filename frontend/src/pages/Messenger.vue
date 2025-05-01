@@ -214,25 +214,64 @@ async function handleConversationSelect(conversation) {
   }, 100)
 }
 
+// Function to get current conversation details
+function getCurrentConversation() {
+  return conversations.value.find(c => c.name === selectedConversation.value)
+}
+
+// Handle sending messages
+async function handleSendMessage(messageData) {
+  const currentConversation = getCurrentConversation()
+  if (!currentConversation) return
+
+  // Format timestamp to match Frappe's datetime format (YYYY-MM-DD HH:mm:ss)
+  const now = new Date()
+  const timestamp = now.getFullYear() + '-' + 
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0') + ' ' +
+    String(now.getHours()).padStart(2, '0') + ':' +
+    String(now.getMinutes()).padStart(2, '0') + ':' +
+    String(now.getSeconds()).padStart(2, '0')
+
+  const newMessage = {
+    doctype: 'Messenger Message',
+    message: messageData.message,
+    conversation: messageData.conversation,
+    message_direction: 'Outgoing',
+    recipient_id: currentConversation.sender_id,
+    timestamp: timestamp,
+    reply_to: messageData.reply_to || ''
+  }
+
+  try {
+    const response = await sendMessageResource.submit({
+      doc: newMessage
+    })
+    
+    // Add the new message to the messages array with the returned name
+    messages.value.push({
+      ...newMessage,
+      name: response.name // Add the document name from response
+    })
+
+    // Scroll to bottom after adding new message
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    }, 100)
+  } catch (error) {
+    console.error('Failed to send message:', error)
+    // Optionally show error to user
+  }
+}
+
 // Watch for conversation changes
 watch(selectedConversation, async (newVal) => {
   if (newVal) {
-    await messagesResource.fetch()
+    await messagesResource.reload()
   }
 })
-
-// Handle sending messages
-function handleSendMessage(messageData) {
-  sendMessageResource.submit({
-    doc: {
-      doctype: 'Messenger Message',
-      message: messageData.message,
-      conversation: messageData.conversation,
-      message_direction: 'Outgoing',
-      timestamp: new Date().toISOString()
-    }
-  })
-}
 
 // Handle message reply
 function handleReply(message) {
