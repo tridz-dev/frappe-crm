@@ -53,16 +53,19 @@ import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
 import ERPNextIcon from '@/components/Icons/ERPNextIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
+import MessengerIcon from '@/components/Icons/Messenger.vue'
 import GeneralSettings from '@/components/Settings/GeneralSettings.vue'
 import InviteMemberPage from '@/components/Settings/InviteMemberPage.vue'
 import ProfileSettings from '@/components/Settings/ProfileSettings.vue'
 import WhatsAppSettings from '@/components/Settings/WhatsAppSettings.vue'
+import MessengerSettings from '@/components/Settings/MessengerSettings.vue'
 import ERPNextSettings from '@/components/Settings/ERPNextSettings.vue'
 import TelephonySettings from '@/components/Settings/TelephonySettings.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { usersStore } from '@/stores/users'
 import {
   isWhatsappInstalled,
+  isMessengerInstalled,
   showSettings,
   activeSettingsPage,
 } from '@/composables/settings'
@@ -117,6 +120,12 @@ const tabs = computed(() => {
           icon: WhatsAppIcon,
           component: markRaw(WhatsAppSettings),
           condition: () => isWhatsappInstalled.value && isManager(),
+        },
+        {
+          label: __('Messenger'),
+          icon: MessengerIcon,
+          component: markRaw(MessengerSettings),
+          condition: () => isMessengerInstalled.value && isManager(),
         },
         {
           label: __('ERPNext'),

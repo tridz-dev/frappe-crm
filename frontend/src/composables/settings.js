@@ -3,6 +3,10 @@ import { computed, ref } from 'vue'
 
 export const whatsappEnabled = ref(false)
 export const isWhatsappInstalled = ref(false)
+export const messengerEnabled = ref(false)
+export const isMessengerInstalled = ref(false)
+
+// Check if WhatsApp is enabled
 createResource({
   url: 'crm.api.whatsapp.is_whatsapp_enabled',
   cache: 'Is Whatsapp Enabled',
@@ -11,12 +15,34 @@ createResource({
     whatsappEnabled.value = Boolean(data)
   },
 })
+
+// Check if WhatsApp is installed
 createResource({
   url: 'crm.api.whatsapp.is_whatsapp_installed',
   cache: 'Is Whatsapp Installed',
   auto: true,
   onSuccess: (data) => {
     isWhatsappInstalled.value = Boolean(data)
+  },
+})
+
+// Check if Messenger is enabled
+createResource({
+  url: 'crm.api.messenger.is_messenger_enabled',
+  cache: 'Is Messenger Enabled',
+  auto: true,
+  onSuccess: (data) => {
+    messengerEnabled.value = Boolean(data)
+  },
+})
+
+// Check if Messenger is installed
+createResource({
+  url: 'crm.api.messenger.is_messenger_installed',
+  cache: 'Is Messenger Installed',
+  auto: true,
+  onSuccess: (data) => {
+    isMessengerInstalled.value = Boolean(data)
   },
 })
 

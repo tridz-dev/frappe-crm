@@ -147,6 +147,7 @@ declare module 'vue' {
     Messenger: typeof import('./src/components/Icons/Messenger.vue')['default']
     MessengerArea: typeof import('./src/components/MessengerArea.vue')['default']
     MessengerBox: typeof import('./src/components/MessengerBox.vue')['default']
+    MessengerSettings: typeof import('./src/components/Settings/MessengerSettings.vue')['default']
     MinimizeIcon: typeof import('./src/components/Icons/MinimizeIcon.vue')['default']
     MissedCallIcon: typeof import('./src/components/Icons/MissedCallIcon.vue')['default']
     MobileAppHeader: typeof import('./src/components/Mobile/MobileAppHeader.vue')['default']
