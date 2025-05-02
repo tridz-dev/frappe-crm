@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full">
+  <div v-if="messengerEnabled" class="flex h-full">
     <!-- Left Column: Conversations List -->
     <div class="w-80 border-r border-gray-200 flex flex-col">
       <div class="flex items-center justify-between p-4 border-b border-gray-200">
@@ -81,6 +81,15 @@
       </div>
     </div>
   </div>
+  <div v-else class="flex h-full items-center justify-center">
+    <div class="text-center">
+      <MessengerIcon class="mx-auto h-12 w-12 text-gray-400" />
+      <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('Messenger not available') }}</h3>
+      <p class="mt-1 text-sm text-gray-500">
+        {{ __('Please ensure Messenger is enabled in Messenger Settings.') }}
+      </p>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -93,6 +102,7 @@ import MessengerIcon from '@/components/Icons/Messenger.vue'
 import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
 import EmojiIcon from '@/components/Icons/EmojiIcon.vue'
 import SendIcon from '@/components/Icons/SendIcon.vue'
+import { messengerEnabled } from '@/composables/settings'
 
 // State management
 const messages = ref([])
@@ -294,6 +304,13 @@ watch(selectedConversation, async (newVal) => {
 function handleReply(message) {
   reply.value = message
 }
+
+// Only fetch conversations if messenger is enabled
+watch(messengerEnabled, (enabled) => {
+  if (enabled) {
+    conversationsResource.fetch()
+  }
+})
 </script>
 
 <style scoped>
