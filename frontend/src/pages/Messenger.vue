@@ -12,8 +12,21 @@
         />
       </div>
       
-      <!-- Conversations List -->
-      <div class="flex-1 overflow-y-auto">
+      <!-- Conversations List with infinite scroll -->
+      <div 
+        class="flex-1 overflow-y-auto" 
+        @scroll="(e) => {
+          const el = e.target
+          if (el.scrollTop <= 50) {
+            loadMoreConversations()
+          }
+        }"
+      >
+        <!-- Loading indicator for conversations -->
+        <div v-if="conversationsLoading" class="p-4 text-center text-gray-500">
+          {{ __('Loading more conversations...') }}
+        </div>
+        
         <div
           v-for="conversation in conversations"
           :key="conversation.name"
@@ -63,8 +76,22 @@
         </div>
       </div>
 
-      <!-- Messages Area -->
-      <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4">
+      <!-- Messages Area with infinite scroll -->
+      <div 
+        ref="messagesContainer" 
+        class="flex-1 overflow-y-auto p-4"
+        @scroll="(e) => {
+          const el = e.target
+          if (el.scrollHeight - el.scrollTop - el.clientHeight <= 50) {
+            loadMoreMessages()
+          }
+        }"
+      >
+        <!-- Loading indicator for messages -->
+        <div v-if="messagesLoading" class="p-4 text-center text-gray-500">
+          {{ __('Loading more messages...') }}
+        </div>
+        
         <MessengerArea 
           :messages="messages"
           @reply="handleReply"
@@ -120,6 +147,12 @@ const conversations = ref([])
 const selectedConversation = ref(null)
 const messagesContainer = ref(null)
 const reply = ref({})
+const conversationsLoading = ref(false)
+const messagesLoading = ref(false)
+const conversationPage = ref(0)
+const messagePage = ref(0)
+const hasMoreConversations = ref(true)
+const hasMoreMessages = ref(true)
 
 // Resource for fetching messages
 const messagesResource = createResource({
@@ -129,7 +162,7 @@ const messagesResource = createResource({
     fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
     filters: [],
     order_by: 'timestamp desc',
-    limit: 50
+    limit: 100
   },
   auto: false
 })
@@ -191,6 +224,9 @@ const selectedConversationPlatform = computed(() => {
   return conversation?.platform === 'Messenger' ? 'Facebook Messenger' : 'Instagram DM'
 })
 
+const conversationLimit = computed(() => 20)
+const messageLimit = computed(() => 20)
+
 // Format timestamp
 const formatTime = (timestamp) => {
   if (!timestamp) return ''
@@ -214,17 +250,22 @@ const formatTime = (timestamp) => {
 async function handleConversationSelect(conversation) {
   selectedConversation.value = conversation.name
   
-  // Update message resource params and fetch messages
+  // Reset message pagination
+  messagePage.value = 0
+  hasMoreMessages.value = true
+  messages.value = []
+  
+  // Update message resource params and fetch initial messages
   messagesResource.params = {
     doctype: 'Messenger Message',
     fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
     filters: [['conversation', '=', conversation.name]],
-    order_by: 'timestamp desc',
-    limit: 50
+    order_by: 'timestamp asc',
+    limit_page_length: messageLimit.value
   }
   
   await messagesResource.reload()
-  messages.value = messagesResource.data.reverse() // Show oldest messages first
+  messages.value = messagesResource.data
   
   // Scroll to bottom after messages load
   setTimeout(() => {
@@ -321,6 +362,92 @@ watch(messengerEnabled, (enabled) => {
     conversationsResource.fetch()
   }
 })
+
+// Add these methods before the existing methods
+async function loadMoreConversations() {
+  if (!hasMoreConversations.value || conversationsLoading.value) return
+  
+  conversationsLoading.value = true
+  try {
+    const nextPage = conversationPage.value + 1
+    const response = await createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'Messenger Conversation',
+        fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
+        order_by: 'last_message_time desc',
+        limit_start: nextPage * conversationLimit.value,
+        limit_page_length: conversationLimit.value
+      }
+    }).fetch()
+
+    if (response.length < conversationLimit.value) {
+      hasMoreConversations.value = false
+    }
+
+    // Get user information for new conversations
+    const senderIds = [...new Set(response.map(conv => conv.sender_id))]
+    const usersResource = createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'Messenger User',
+        fields: ['user_id', 'username'],
+        filters: [['user_id', 'in', senderIds]]
+      }
+    })
+    
+    const users = await usersResource.fetch()
+    const userMap = {}
+    users.forEach(user => {
+      userMap[user.user_id] = user.username
+    })
+    
+    // Map conversations with user information
+    const newConversations = response.map(conv => ({
+      ...conv,
+      title: userMap[conv.sender_id] || conv.sender_id
+    }))
+
+    conversations.value = [...conversations.value, ...newConversations]
+    conversationPage.value = nextPage
+  } catch (error) {
+    console.error('Failed to load more conversations:', error)
+  } finally {
+    conversationsLoading.value = false
+  }
+}
+
+async function loadMoreMessages() {
+  if (!hasMoreMessages.value || messagesLoading.value || !selectedConversation.value) return
+  
+  messagesLoading.value = true
+  try {
+    const nextPage = messagePage.value + 1
+    const response = await createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'Messenger Message',
+        fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
+        filters: [['conversation', '=', selectedConversation.value]],
+        order_by: 'timestamp asc',
+        limit_start: nextPage * messageLimit.value,
+        limit_page_length: messageLimit.value
+      }
+    }).fetch()
+
+    if (response.length < messageLimit.value) {
+      hasMoreMessages.value = false
+    }
+
+    // Add new messages to the existing list
+    messages.value = [...messages.value, ...response]
+    messagePage.value = nextPage
+  } catch (error) {
+    console.error('Failed to load more messages:', error)
+  } finally {
+    messagesLoading.value = false
+  }
+}
 </script>
 
 <style scoped>
