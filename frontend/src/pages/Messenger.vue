@@ -251,8 +251,23 @@ async function handleSendMessage(messageData) {
     // Add the new message to the messages array with the returned name
     messages.value.push({
       ...newMessage,
-      name: response.name // Add the document name from response
+      name: response.name
     })
+
+    // Update the conversation in the list with new last message
+    const conversationIndex = conversations.value.findIndex(c => c.name === currentConversation.name)
+    if (conversationIndex !== -1) {
+      conversations.value[conversationIndex] = {
+        ...conversations.value[conversationIndex],
+        last_message: messageData.message,
+        last_message_time: timestamp
+      }
+
+      // Re-sort conversations to move this one to top
+      conversations.value.sort((a, b) => {
+        return new Date(b.last_message_time) - new Date(a.last_message_time)
+      })
+    }
 
     // Scroll to bottom after adding new message
     setTimeout(() => {
@@ -260,9 +275,11 @@ async function handleSendMessage(messageData) {
         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
       }
     }, 100)
+
+    // Also refresh conversations list from server to ensure sync
+    conversationsResource.reload()
   } catch (error) {
     console.error('Failed to send message:', error)
-    // Optionally show error to user
   }
 }
 
