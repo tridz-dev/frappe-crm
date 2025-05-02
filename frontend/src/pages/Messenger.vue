@@ -80,16 +80,11 @@
       <div 
         ref="messagesContainer" 
         class="flex-1 overflow-y-auto p-4"
-        @scroll="(e) => {
-          const el = e.target
-          if (el.scrollHeight - el.scrollTop - el.clientHeight <= 50) {
-            loadMoreMessages()
-          }
-        }"
+        @scroll="handleMessagesScroll"
       >
         <!-- Loading indicator for messages -->
         <div v-if="messagesLoading" class="p-4 text-center text-gray-500">
-          {{ __('Loading more messages...') }}
+          {{ __('Loading older messages...') }}
         </div>
         
         <MessengerArea 
@@ -246,7 +241,7 @@ const formatTime = (timestamp) => {
   return date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-// Function to handle conversation selection
+// Modify handleConversationSelect function
 async function handleConversationSelect(conversation) {
   selectedConversation.value = conversation.name
   
@@ -255,17 +250,32 @@ async function handleConversationSelect(conversation) {
   hasMoreMessages.value = true
   messages.value = []
   
-  // Update message resource params and fetch initial messages
+  // First get total count of messages
+  const countResource = createResource({
+    url: 'frappe.client.get_count',
+    params: {
+      doctype: 'Messenger Message',
+      filters: [['conversation', '=', conversation.name]]
+    }
+  })
+  
+  const totalMessages = await countResource.fetch()
+  
+  // Update message resource params to get latest batch of messages
   messagesResource.params = {
     doctype: 'Messenger Message',
     fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
     filters: [['conversation', '=', conversation.name]],
     order_by: 'timestamp asc',
+    limit_start: Math.max(0, totalMessages - messageLimit.value),
     limit_page_length: messageLimit.value
   }
   
   await messagesResource.reload()
   messages.value = messagesResource.data
+  
+  // Set hasMoreMessages based on whether there are older messages
+  hasMoreMessages.value = totalMessages > messageLimit.value
   
   // Scroll to bottom after messages load
   setTimeout(() => {
@@ -280,7 +290,7 @@ function getCurrentConversation() {
   return conversations.value.find(c => c.name === selectedConversation.value)
 }
 
-// Handle sending messages
+// Modify handleSendMessage to use the scrollToBottom function
 async function handleSendMessage(messageData) {
   const currentConversation = getCurrentConversation()
   if (!currentConversation) return
@@ -309,13 +319,13 @@ async function handleSendMessage(messageData) {
       doc: newMessage
     })
     
-    // Add the new message to the messages array with the returned name
+    // Add the new message to the messages array
     messages.value.push({
       ...newMessage,
       name: response.name
     })
 
-    // Update the conversation in the list with new last message
+    // Update conversation in the list
     const conversationIndex = conversations.value.findIndex(c => c.name === currentConversation.name)
     if (conversationIndex !== -1) {
       conversations.value[conversationIndex] = {
@@ -324,20 +334,20 @@ async function handleSendMessage(messageData) {
         last_message_time: timestamp
       }
 
-      // Re-sort conversations to move this one to top
+      // Re-sort conversations
       conversations.value.sort((a, b) => {
         return new Date(b.last_message_time) - new Date(a.last_message_time)
       })
     }
 
-    // Scroll to bottom after adding new message
+    // Use the scrollToBottom function
     setTimeout(() => {
       if (messagesContainer.value) {
         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
       }
     }, 100)
 
-    // Also refresh conversations list from server to ensure sync
+    // Refresh conversations list
     conversationsResource.reload()
   } catch (error) {
     console.error('Failed to send message:', error)
@@ -417,35 +427,68 @@ async function loadMoreConversations() {
   }
 }
 
+// Modify loadMoreMessages function
 async function loadMoreMessages() {
   if (!hasMoreMessages.value || messagesLoading.value || !selectedConversation.value) return
   
   messagesLoading.value = true
   try {
-    const nextPage = messagePage.value + 1
-    const response = await createResource({
+    // Get current first message timestamp
+    const firstMessageTimestamp = messages.value[0]?.timestamp
+
+    if (!firstMessageTimestamp) {
+      messagesLoading.value = false
+      return
+    }
+
+    // Fetch older messages before the first displayed message
+    const olderMessages = await createResource({
       url: 'frappe.client.get_list',
       params: {
         doctype: 'Messenger Message',
         fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
-        filters: [['conversation', '=', selectedConversation.value]],
-        order_by: 'timestamp asc',
-        limit_start: nextPage * messageLimit.value,
+        filters: [
+          ['conversation', '=', selectedConversation.value],
+          ['timestamp', '<', firstMessageTimestamp]
+        ],
+        order_by: 'timestamp desc',
         limit_page_length: messageLimit.value
       }
     }).fetch()
 
-    if (response.length < messageLimit.value) {
+    if (olderMessages.length > 0) {
+      // Preserve scroll position
+      const scrollElement = messagesContainer.value
+      const oldScrollHeight = scrollElement.scrollHeight
+      const oldScrollTop = scrollElement.scrollTop
+
+      // Add older messages at the beginning
+      messages.value = [...olderMessages.reverse(), ...messages.value]
+
+      // Update hasMoreMessages flag
+      hasMoreMessages.value = olderMessages.length === messageLimit.value
+
+      // Restore scroll position after DOM update
+      setTimeout(() => {
+        const newScrollHeight = scrollElement.scrollHeight
+        scrollElement.scrollTop = oldScrollTop + (newScrollHeight - oldScrollHeight)
+      }, 0)
+    } else {
       hasMoreMessages.value = false
     }
-
-    // Add new messages to the existing list
-    messages.value = [...messages.value, ...response]
-    messagePage.value = nextPage
   } catch (error) {
     console.error('Failed to load more messages:', error)
   } finally {
     messagesLoading.value = false
+  }
+}
+
+// Add scroll handler for messages container
+function handleMessagesScroll(e) {
+  const el = e.target
+  // Load more when scrolled near top (threshold of 100px)
+  if (el.scrollTop <= 100) {
+    loadMoreMessages()
   }
 }
 </script>
