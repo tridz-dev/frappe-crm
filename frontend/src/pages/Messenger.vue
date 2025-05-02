@@ -21,11 +21,20 @@
           :class="{ 'bg-gray-50': selectedConversation === conversation.name }"
           @click="handleConversationSelect(conversation)"
         >
-          <Avatar
-            :label="conversation.title"
-            size="md"
-            class="flex-shrink-0"
-          />
+          <div class="relative">
+            <Avatar
+              :label="conversation.title"
+              size="md"
+              class="flex-shrink-0"
+            />
+            <!-- Platform Icon -->
+            <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
+              <component 
+                :is="conversation.platform === 'Messenger' ? MessengerIcon : InstagramIcon"
+                class="size-3.5 text-ink-gray-6"
+              />
+            </div>
+          </div>
           <div class="ml-3 flex-1 min-w-0">
             <div class="flex items-center justify-between">
               <p class="text-sm font-medium text-gray-900 truncate">{{ conversation.title }}</p>
@@ -99,6 +108,7 @@ import { Button, Input, Avatar } from 'frappe-ui'
 import MessengerArea from '@/components/MessengerArea.vue'
 import MessengerBox from '@/components/MessengerBox.vue'
 import MessengerIcon from '@/components/Icons/Messenger.vue'
+import InstagramIcon from '@/components/Icons/InstagramIcon.vue'
 import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
 import EmojiIcon from '@/components/Icons/EmojiIcon.vue'
 import SendIcon from '@/components/Icons/SendIcon.vue'

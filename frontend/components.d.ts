@@ -125,6 +125,7 @@ declare module 'vue' {
     InboundCallIcon: typeof import('./src/components/Icons/InboundCallIcon.vue')['default']
     InboxIcon: typeof import('./src/components/Icons/InboxIcon.vue')['default']
     IndicatorIcon: typeof import('./src/components/Icons/IndicatorIcon.vue')['default']
+    InstagramIcon: typeof import('./src/components/Icons/InstagramIcon.vue')['default']
     InviteIcon: typeof import('./src/components/Icons/InviteIcon.vue')['default']
     InviteMemberPage: typeof import('./src/components/Settings/InviteMemberPage.vue')['default']
     KanbanIcon: typeof import('./src/components/Icons/KanbanIcon.vue')['default']
