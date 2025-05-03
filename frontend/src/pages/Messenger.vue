@@ -124,7 +124,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
 import { createResource } from 'frappe-ui'
 import { Button, Input, Avatar } from 'frappe-ui'
 import MessengerArea from '@/components/MessengerArea.vue'
@@ -148,6 +148,24 @@ const conversationPage = ref(0)
 const messagePage = ref(0)
 const hasMoreConversations = ref(true)
 const hasMoreMessages = ref(true)
+
+// Function to handle ESC key press
+function handleEscKey(event) {
+  if (event.key === 'Escape' && selectedConversation.value) {
+    selectedConversation.value = null
+    reply.value = {}
+  }
+}
+
+// Add event listeners when component is mounted
+onMounted(() => {
+  window.addEventListener('keydown', handleEscKey)
+})
+
+// Clean up event listeners when component is unmounted
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleEscKey)
+})
 
 // Resource for fetching messages
 const messagesResource = createResource({
