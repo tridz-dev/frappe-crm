@@ -179,11 +179,6 @@ const isFCSite = ref(window.is_fc_site)
 
 const links = [
   {
-    label: 'Messenger',
-    icon: MessengerIcon,
-    to: 'Messenger',
-  },
-  {
     label: 'Leads',
     icon: LeadsIcon,
     to: 'Leads',
@@ -223,6 +218,11 @@ const links = [
     icon: Email2Icon,
     to: 'Email Templates',
   },
+  {
+    label: 'Messenger',
+    icon: MessengerIcon,
+    to: 'Messenger',
+  }
 ]
 
 const allViews = computed(() => {

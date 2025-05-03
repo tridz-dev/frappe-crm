@@ -51,7 +51,15 @@
           <div class="ml-3 flex-1 min-w-0">
             <div class="flex items-center justify-between">
               <p class="text-sm font-medium text-gray-900 truncate">{{ conversation.title }}</p>
-              <p class="text-xs text-gray-500">{{ formatTime(conversation.last_message_time) }}</p>
+              <div class="flex flex-col items-end gap-0.5">
+                <p class="text-xs text-gray-500">{{ formatTime(conversation.last_message_time) }}</p>
+                <div
+                  v-if="unreadMessageCounts[conversation.name]"
+                  class="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-surface-gray-6 px-1 text-xs font-medium text-white ring-1 ring-white"
+                >
+                  {{ unreadMessageCounts[conversation.name] }}
+                </div>
+              </div>
             </div>
             <p class="text-sm text-gray-500 truncate">
               {{ conversation.last_message }}
@@ -87,6 +95,7 @@
           {{ __('Loading older messages...') }}
         </div>
         
+        <!-- Message Component -->
         <MessengerArea 
           :messages="messages"
           @reply="handleReply"
@@ -126,7 +135,7 @@
 <script setup>
 import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
 import { createResource } from 'frappe-ui'
-import { Button, Input, Avatar } from 'frappe-ui'
+import { Button, Input, Avatar, Badge } from 'frappe-ui'
 import MessengerArea from '@/components/MessengerArea.vue'
 import MessengerBox from '@/components/MessengerBox.vue'
 import MessengerIcon from '@/components/Icons/Messenger.vue'
@@ -148,6 +157,7 @@ const conversationPage = ref(0)
 const messagePage = ref(0)
 const hasMoreConversations = ref(true)
 const hasMoreMessages = ref(true)
+const unreadMessageCounts = ref({})
 
 // Function to handle ESC key press
 function handleEscKey(event) {
@@ -160,11 +170,13 @@ function handleEscKey(event) {
 // Add event listeners when component is mounted
 onMounted(() => {
   window.addEventListener('keydown', handleEscKey)
+  fetchUnreadCounts() // Initial fetch of unread counts
 })
 
 // Clean up event listeners when component is unmounted
 onUnmounted(() => {
   window.removeEventListener('keydown', handleEscKey)
+  clearInterval(unreadCountsInterval)
 })
 
 // Resource for fetching messages
@@ -226,6 +238,17 @@ const conversationsResource = createResource({
   auto: true
 })
 
+// Resource for marking messages as read
+const markMessagesAsReadResource = createResource({
+  url: 'frappe.client.set_value',
+  onSuccess: (response) => {
+    // Update local unread count
+    if (selectedConversation.value) {
+      unreadMessageCounts.value[selectedConversation.value] = 0
+    }
+  }
+})
+
 // Computed properties
 const selectedConversationTitle = computed(() => {
   const conversation = conversations.value.find(c => c.name === selectedConversation.value)
@@ -259,7 +282,24 @@ const formatTime = (timestamp) => {
   return date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-// Modify handleConversationSelect function
+// Function to mark messages as read
+async function markMessagesAsRead(conversationName) {
+  try {
+    await markMessagesAsReadResource.submit({
+      doctype: 'Messenger Message',
+      name: messages.value.find(m => !m.is_read && m.message_direction === 'Incoming')?.name,
+      fieldname: 'is_read',
+      value: 1
+    })
+    
+    // Reload messages to get updated read status
+    await messagesResource.reload()
+  } catch (error) {
+    console.error('Failed to mark messages as read:', error)
+  }
+}
+
+// Modify handleConversationSelect to mark messages as read
 async function handleConversationSelect(conversation) {
   selectedConversation.value = conversation.name
   
@@ -282,7 +322,7 @@ async function handleConversationSelect(conversation) {
   // Update message resource params to get latest batch of messages
   messagesResource.params = {
     doctype: 'Messenger Message',
-    fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
+    fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation', 'is_read'],
     filters: [['conversation', '=', conversation.name]],
     order_by: 'timestamp asc',
     limit_start: Math.max(0, totalMessages - messageLimit.value),
@@ -291,6 +331,11 @@ async function handleConversationSelect(conversation) {
   
   await messagesResource.reload()
   messages.value = messagesResource.data
+  
+  // Mark messages as read after loading them
+  if (unreadMessageCounts.value[conversation.name] > 0) {
+    await markMessagesAsRead(conversation.name)
+  }
   
   // Set hasMoreMessages based on whether there are older messages
   hasMoreMessages.value = totalMessages > messageLimit.value
@@ -509,6 +554,46 @@ function handleMessagesScroll(e) {
     loadMoreMessages()
   }
 }
+
+// Add function to fetch unread counts
+async function fetchUnreadCounts() {
+  try {
+    const unreadCountsResource = createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'Messenger Message',
+        fields: ['conversation', 'count(name) as unread_count'],
+        filters: [
+          ['message_direction', '=', 'Incoming'],
+          ['is_read', '=', 0]
+        ],
+        group_by: 'conversation'
+      }
+    })
+    
+    const counts = await unreadCountsResource.fetch()
+    counts.forEach(count => {
+      unreadMessageCounts.value[count.conversation] = count.unread_count
+    })
+  } catch (error) {
+    console.error('Failed to fetch unread counts:', error)
+  }
+}
+
+// Add polling for unread counts
+let unreadCountsInterval
+onMounted(() => {
+  window.addEventListener('keydown', handleEscKey)
+  fetchUnreadCounts()
+  
+  // Poll for unread counts every 30 seconds
+  unreadCountsInterval = setInterval(fetchUnreadCounts, 30000)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleEscKey)
+  clearInterval(unreadCountsInterval)
+})
 </script>
 
 <style scoped>
