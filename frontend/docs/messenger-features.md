@@ -62,105 +62,82 @@ This document details the major features and changes implemented in the CRM Mess
 - **Functionality**: Tracks and displays unread incoming messages
 - **Implementation**:
   - Backend storage using `is_read` field in Messenger Message DocType
+  - Bulk update functionality for marking messages as read
   - Visual indicators for unread messages count
-  - Automatic marking of messages as read when conversation is opened
-  - Real-time unread count updates (30-second polling)
+  - Real-time unread count updates with refresh sync
 
 #### Components
 - **Unread Badge**:
   - Displays count of unread messages per conversation
-  - Located next to conversation timestamp
+  - Located under conversation timestamp
   - Uses CRM's standard notification badge styling
-  - Matches Frappe CRM's sidebar notification design
+  - Updates in real-time with conversation refresh
   
-- **Message Separator**:
-  - Visual separator for unread messages section
-  - Blue highlight to draw attention
-  - Only appears when unread messages exist
-
 #### Technical Implementation
 - **Backend**:
   - New `is_read` field in Messenger Message DocType
-  - Uses Frappe's standard `set_value` API for marking messages as read
-  - Efficient single-message update approach
-  - Automatic status sync with message reload
+  - Custom API endpoint for bulk message updates
+  - Efficient SQL-based status updates
+  - Automatic count synchronization
 
 - **Frontend**:
   - Reactive unread counts state management
-  - Automatic polling for updates
-  - Efficient DOM updates for unread indicators
-  - Fixed message display using proper array prop passing
-  - Consistent styling with CRM notification system
+  - Automatic polling for updates (30-second intervals)
+  - Refresh button sync support
+  - Efficient bulk status updates
+  - Proper infinite scroll handling
 
-### UI/UX Improvements
-1. **Message Display Fix**:
-   - Corrected MessengerArea component integration
-   - Messages now properly displayed as an array
-   - Added message wrapper for better structure
+### State Management Improvements
+1. **Unread Count Sync**:
+   - Reset counts on refresh
+   - Update on conversation selection
+   - Sync with infinite scroll
+   - Handle bulk updates efficiently
 
-2. **Badge Styling Consistency**:
-   - Moved unread badge to timestamp section
-   - Aligned with CRM's notification badge design
-   - Uses `bg-surface-gray-6` background with white text
-   - Improved visibility and placement
+2. **Message Status Updates**:
+   - Bulk update all unread messages
+   - Proper state management
+   - Efficient SQL updates
+   - Real-time count updates
 
-3. **Read Status Management**:
-   - Improved message read status updating
-   - Uses efficient single-message update approach
-   - Automatic status sync after conversation selection
-   - Proper state management for unread counts
-
-4. **Visual Hierarchy**:
-   - Clear distinction between read and unread messages
-   - Intuitive placement of unread indicators
-   - Consistent with overall CRM design language
-   - Better integration with conversation timestamp
-
-### State Management
-- Uses Vue 3 Composition API with `ref` and `computed` properties
-- Reactive state handling for conversations and messages
-- Efficient pagination and data loading
-- Real-time unread message tracking
-- Improved read status synchronization
+3. **Refresh Handling**:
+   - Proper count sync on refresh
+   - Automatic state updates
+   - Efficient data fetching
+   - Consistent state management
 
 ### Performance Optimizations
-- Lazy loading of messages and conversations
-- Scroll position preservation
-- Efficient DOM updates
-- Debounced scroll handlers
-- Optimized unread message counting
-- Single-message update strategy
+- Bulk SQL updates for message status
+- Efficient count queries
+- Optimized state management
+- Proper infinite scroll handling
+- Reduced API calls
 
 ## Dependencies
-- Frappe UI components (Button, Avatar, Badge, Input)
+- Frappe UI components (Button, Avatar, Input)
 - Vue 3 Composition API
 - Frappe backend API integration
-- Messenger Message DocType with unread tracking
+- Custom Messenger Message DocType methods
 
 ## Limitations and Known Issues
 1. Message history limited to 100 messages per load
-2. Real-time updates require manual refresh
-3. Platform-specific features may be limited
-4. Unread count updates every 30 seconds (not instant)
-5. Unread status only tracks incoming messages
+2. 30-second polling interval for unread counts
+3. Requires page refresh for immediate count updates
+4. Bulk updates limited to single conversation
 
 ## Future Improvements
-1. Real-time message notifications
-2. Enhanced search capabilities
-3. Media message support
-4. Message status indicators
-5. Instant unread status updates using WebSocket
-6. Per-user unread message tracking
-7. Batch update optimization for multiple unread messages
+1. Real-time WebSocket updates
+2. Per-user read status
+3. Optimized bulk operations
+4. Enhanced state management
+5. Improved refresh handling
 
 ## Usage Instructions
 1. Navigate to the Messenger view in CRM
-2. Select a conversation from the left panel
-3. Use ESC key to return to conversation list
-4. Scroll up to load more messages/conversations
-5. Reply to messages using the input box at bottom
-6. Unread message counts visible next to conversation timestamps
-7. Blue separator indicates start of unread messages
+2. Select a conversation to mark its messages as read
+3. Use refresh button to sync unread counts
+4. Scroll up to load more messages
+5. Unread counts update automatically every 30 seconds
 
 ---
 

@@ -155,7 +155,7 @@ import {
   unreadNotificationsCount,
   notificationsStore,
 } from '@/stores/notifications'
-import { showSettings, activeSettingsPage } from '@/composables/settings'
+import { showSettings, activeSettingsPage, messengerEnabled, isMessengerInstalled } from '@/composables/settings'
 import { FeatherIcon, call } from 'frappe-ui'
 import {
   TrialBanner,
@@ -169,61 +169,69 @@ import { capture } from '@/telemetry'
 import router from '@/router'
 import { useStorage } from '@vueuse/core'
 import { ref, reactive, computed, h, markRaw, onMounted } from 'vue'
+import { createResource } from 'frappe-ui'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()
 
 const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
-
 const isFCSite = ref(window.is_fc_site)
 
-const links = [
-  {
-    label: 'Leads',
-    icon: LeadsIcon,
-    to: 'Leads',
-  },
-  {
-    label: 'Deals',
-    icon: DealsIcon,
-    to: 'Deals',
-  },
-  {
-    label: 'Contacts',
-    icon: ContactsIcon,
-    to: 'Contacts',
-  },
-  {
-    label: 'Organizations',
-    icon: OrganizationsIcon,
-    to: 'Organizations',
-  },
-  {
-    label: 'Notes',
-    icon: NoteIcon,
-    to: 'Notes',
-  },
-  {
-    label: 'Tasks',
-    icon: TaskIcon,
-    to: 'Tasks',
-  },
-  {
-    label: 'Call Logs',
-    icon: PhoneIcon,
-    to: 'Call Logs',
-  },
-  {
-    label: 'Email Templates',
-    icon: Email2Icon,
-    to: 'Email Templates',
-  },
-  {
-    label: 'Messenger',
-    icon: MessengerIcon,
-    to: 'Messenger',
+const links = computed(() => {
+  const baseLinks = [
+    {
+      label: 'Leads',
+      icon: LeadsIcon,
+      to: 'Leads',
+    },
+    {
+      label: 'Deals',
+      icon: DealsIcon,
+      to: 'Deals',
+    },
+    {
+      label: 'Contacts',
+      icon: ContactsIcon,
+      to: 'Contacts',
+    },
+    {
+      label: 'Organizations',
+      icon: OrganizationsIcon,
+      to: 'Organizations',
+    },
+    {
+      label: 'Notes',
+      icon: NoteIcon,
+      to: 'Notes',
+    },
+    {
+      label: 'Tasks',
+      icon: TaskIcon,
+      to: 'Tasks',
+    },
+    {
+      label: 'Call Logs',
+      icon: PhoneIcon,
+      to: 'Call Logs',
+    },
+    {
+      label: 'Email Templates',
+      icon: Email2Icon,
+      to: 'Email Templates',
+    }
+  ]
+
+  // Only add Messenger link if both installed and enabled
+  if (isMessengerInstalled.value && messengerEnabled.value) {
+    baseLinks.push({
+      label: 'Messenger',
+      icon: MessengerIcon,
+      to: 'Messenger',
+    })
   }
-]
+
+  return baseLinks
+})
 
 const allViews = computed(() => {
   let _views = [
@@ -231,7 +239,7 @@ const allViews = computed(() => {
       name: 'All Views',
       hideLabel: true,
       opened: true,
-      views: links,
+      views: links.value,
     },
   ]
   if (getPublicViews().length) {

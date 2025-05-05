@@ -240,11 +240,11 @@ const conversationsResource = createResource({
 
 // Resource for marking messages as read
 const markMessagesAsReadResource = createResource({
-  url: 'frappe.client.set_value',
+  url: 'frappe_messenger.frappe_messenger.doctype.messenger_message.messenger_message.mark_messages_as_read',
   onSuccess: (response) => {
     // Update local unread count
     if (selectedConversation.value) {
-      unreadMessageCounts.value[selectedConversation.value] = 0
+      unreadMessageCounts.value[selectedConversation.value] = response || 0
     }
   }
 })
@@ -282,18 +282,42 @@ const formatTime = (timestamp) => {
   return date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
+// Function to fetch unread counts for all conversations
+async function fetchUnreadCounts() {
+  try {
+    const unreadCountsResource = createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'Messenger Message',
+        fields: ['conversation', 'count(name) as unread_count'],
+        filters: [
+          ['message_direction', '=', 'Incoming'],
+          ['is_read', '=', 0]
+        ],
+        group_by: 'conversation'
+      }
+    })
+    
+    const counts = await unreadCountsResource.fetch()
+    // Reset all counts first
+    conversations.value.forEach(conv => {
+      unreadMessageCounts.value[conv.name] = 0
+    })
+    // Then update with new counts
+    counts.forEach(count => {
+      unreadMessageCounts.value[count.conversation] = count.unread_count
+    })
+  } catch (error) {
+    console.error('Failed to fetch unread counts:', error)
+  }
+}
+
 // Function to mark messages as read
 async function markMessagesAsRead(conversationName) {
   try {
     await markMessagesAsReadResource.submit({
-      doctype: 'Messenger Message',
-      name: messages.value.find(m => !m.is_read && m.message_direction === 'Incoming')?.name,
-      fieldname: 'is_read',
-      value: 1
+      conversation: conversationName
     })
-    
-    // Reload messages to get updated read status
-    await messagesResource.reload()
   } catch (error) {
     console.error('Failed to mark messages as read:', error)
   }
@@ -490,7 +514,7 @@ async function loadMoreConversations() {
   }
 }
 
-// Modify loadMoreMessages function
+// Modify loadMoreMessages to handle unread messages in infinite scroll
 async function loadMoreMessages() {
   if (!hasMoreMessages.value || messagesLoading.value || !selectedConversation.value) return
   
@@ -509,7 +533,7 @@ async function loadMoreMessages() {
       url: 'frappe.client.get_list',
       params: {
         doctype: 'Messenger Message',
-        fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
+        fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation', 'is_read'],
         filters: [
           ['conversation', '=', selectedConversation.value],
           ['timestamp', '<', firstMessageTimestamp]
@@ -555,30 +579,10 @@ function handleMessagesScroll(e) {
   }
 }
 
-// Add function to fetch unread counts
-async function fetchUnreadCounts() {
-  try {
-    const unreadCountsResource = createResource({
-      url: 'frappe.client.get_list',
-      params: {
-        doctype: 'Messenger Message',
-        fields: ['conversation', 'count(name) as unread_count'],
-        filters: [
-          ['message_direction', '=', 'Incoming'],
-          ['is_read', '=', 0]
-        ],
-        group_by: 'conversation'
-      }
-    })
-    
-    const counts = await unreadCountsResource.fetch()
-    counts.forEach(count => {
-      unreadMessageCounts.value[count.conversation] = count.unread_count
-    })
-  } catch (error) {
-    console.error('Failed to fetch unread counts:', error)
-  }
-}
+// Add watcher for conversation refresh
+watch(() => conversationsResource.data, async () => {
+  await fetchUnreadCounts()
+}, { deep: true })
 
 // Add polling for unread counts
 let unreadCountsInterval
