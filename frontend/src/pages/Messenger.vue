@@ -144,6 +144,7 @@ import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
 import EmojiIcon from '@/components/Icons/EmojiIcon.vue'
 import SendIcon from '@/components/Icons/SendIcon.vue'
 import { messengerEnabled } from '@/composables/settings'
+import { globalStore } from '@/stores/global'
 
 // State management
 const messages = ref([])
@@ -159,6 +160,8 @@ const hasMoreConversations = ref(true)
 const hasMoreMessages = ref(true)
 const unreadMessageCounts = ref({})
 
+const { $socket } = globalStore()
+
 // Function to handle ESC key press
 function handleEscKey(event) {
   if (event.key === 'Escape' && selectedConversation.value) {
@@ -171,12 +174,57 @@ function handleEscKey(event) {
 onMounted(() => {
   window.addEventListener('keydown', handleEscKey)
   fetchUnreadCounts() // Initial fetch of unread counts
+  
+  // Listen for messenger message updates
+  $socket.on('messenger:message_update', (data) => {
+    if (data.conversation_id === selectedConversation.value) {
+      // Add new message to messages array
+      if (data.type === 'new') {
+        messages.value.push(data.message)
+        // Scroll to bottom after new message
+        setTimeout(() => {
+          if (messagesContainer.value) {
+            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+          }
+        }, 100)
+      }
+    }
+  })
+
+  // Listen for conversation updates
+  $socket.on('messenger:conversation_update', (data) => {
+    if (data.type === 'update') {
+      // Update conversation in list
+      const index = conversations.value.findIndex(c => c.name === data.conversation.name)
+      if (index !== -1) {
+        conversations.value[index] = {
+          ...conversations.value[index],
+          ...data.conversation
+        }
+        // Re-sort conversations by last message time
+        conversations.value.sort((a, b) => new Date(b.last_message_time) - new Date(a.last_message_time))
+      }
+    }
+  })
+
+  // Listen for unread count updates
+  $socket.on('messenger:unread_update', (data) => {
+    if (data.conversation_id) {
+      unreadMessageCounts.value[data.conversation_id] = data.unread_count
+    }
+  })
+  
+  // Poll for unread counts every 30 seconds
+  unreadCountsInterval = setInterval(fetchUnreadCounts, 30000)
 })
 
 // Clean up event listeners when component is unmounted
 onUnmounted(() => {
   window.removeEventListener('keydown', handleEscKey)
   clearInterval(unreadCountsInterval)
+  $socket.off('messenger:message_update')
+  $socket.off('messenger:conversation_update')
+  $socket.off('messenger:unread_update')
 })
 
 // Resource for fetching messages
@@ -583,21 +631,6 @@ function handleMessagesScroll(e) {
 watch(() => conversationsResource.data, async () => {
   await fetchUnreadCounts()
 }, { deep: true })
-
-// Add polling for unread counts
-let unreadCountsInterval
-onMounted(() => {
-  window.addEventListener('keydown', handleEscKey)
-  fetchUnreadCounts()
-  
-  // Poll for unread counts every 30 seconds
-  unreadCountsInterval = setInterval(fetchUnreadCounts, 30000)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleEscKey)
-  clearInterval(unreadCountsInterval)
-})
 </script>
 
 <style scoped>

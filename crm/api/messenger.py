@@ -15,6 +15,49 @@ def is_messenger_installed():
         return False
     return True
 
+
+def on_update(doc, method):
+    """Trigger realtime updates when messenger message is updated."""
+    try:
+        # Emit conversation update event
+        conversation = frappe.get_doc("Messenger Conversation", doc.conversation)
+        frappe.publish_realtime(
+            "messenger:conversation_update",
+            {
+                "conversation": conversation.as_dict(),
+                "type": "update"
+            }
+        )
+        
+        # Emit message update event
+        frappe.publish_realtime(
+            "messenger:message_update",
+            {
+                "message": doc.as_dict(),
+                "conversation_id": doc.conversation,
+                "type": "new"
+            }
+        )
+        
+        # Update and emit unread count
+        unread_count = frappe.db.count("Messenger Message", {
+            "conversation": doc.conversation,
+            "message_direction": "Incoming",
+            "is_read": 0
+        })
+        
+        frappe.publish_realtime(
+            "messenger:unread_update",
+            {
+                "conversation_id": doc.conversation,
+                "unread_count": unread_count
+            }
+        )
+            
+    except Exception as e:
+        frappe.log_error("Messenger Update Error", str(e))
+
+
 # def validate(doc, method):
 #     """Validate messenger message document before insert."""
 #     if doc.type == "Incoming" and doc.get("from"):
