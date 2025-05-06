@@ -472,6 +472,8 @@ async function handleSendMessage(messageData) {
     message_direction: 'Outgoing',
     recipient_id: currentConversation.sender_id,
     timestamp: timestamp,
+    content_type: messageData.content_type || 'text',
+    attach: messageData.attach || '',
     reply_to: messageData.reply_to || ''
   }
 
@@ -501,7 +503,7 @@ async function handleSendMessage(messageData) {
       })
     }
 
-    // Use the scrollToBottom function
+    // Scroll to bottom
     setTimeout(() => {
       if (messagesContainer.value) {
         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight

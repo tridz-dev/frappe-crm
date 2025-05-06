@@ -49,18 +49,18 @@
                   controls
                   class="h-40 cursor-pointer rounded-md"
                 />
-                <div v-if="message.message && message.message !== message.attach"
+                <!-- <div v-if="message.message && message.message !== message.attach"
                   v-html="formatMessage(message.message)"
-                />
+                /> -->
               </div>
 
               <!-- Audio Message -->
               <div v-else-if="message.content_type === 'audio'" class="flex items-center gap-2">
                 <audio :src="message.attach" controls class="cursor-pointer" />
-                <div v-if="message.message && message.message !== message.attach"
+                <!-- <div v-if="message.message && message.message !== message.attach"
                   v-html="formatMessage(message.message)"
                   class="ml-2"
-                />
+                /> -->
               </div>
 
               <!-- Document Message -->
