@@ -23,22 +23,57 @@
           class="group/message relative max-w-[90%] rounded-md bg-surface-gray-1 text-ink-gray-9 p-1.5 pl-2 text-base shadow-sm"
         >
           <div class="flex gap-2 justify-between">
-            <div
-              class="absolute -right-0.5 -top-0.5 flex cursor-pointer gap-1 rounded-full bg-surface-white pb-2 pl-2 pr-1.5 pt-1.5 opacity-0 group-hover/message:opacity-100"
-              :style="{
-                background:
-                  'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 35%, rgba(238, 130, 238, 0) 100%)',
-              }"
-            >
-              <Dropdown :options="messageOptions(message)">
-                <FeatherIcon name="chevron-down" class="size-4 text-ink-gray-5" />
-              </Dropdown>
+            <!-- Message Content -->
+            <div class="flex flex-col gap-2">
+              <!-- Text Message -->
+              <div v-if="!message.content_type || message.content_type === 'text'"
+                v-html="formatMessage(message.message)"
+              />
+
+              <!-- Image Message -->
+              <div v-else-if="message.content_type === 'image'" class="flex flex-col gap-2">
+                <img
+                  :src="message.attach"
+                  class="h-40 cursor-pointer rounded-md"
+                  @click="() => openFileInNewTab(message.attach)"
+                />
+                <!-- <div v-if="message.message && message.message !== message.attach" 
+                  v-html="formatMessage(message.message)"
+                /> -->
+              </div>
+
+              <!-- Video Message -->
+              <div v-else-if="message.content_type === 'video'" class="flex flex-col gap-2">
+                <video
+                  :src="message.attach"
+                  controls
+                  class="h-40 cursor-pointer rounded-md"
+                />
+                <div v-if="message.message && message.message !== message.attach"
+                  v-html="formatMessage(message.message)"
+                />
+              </div>
+
+              <!-- Audio Message -->
+              <div v-else-if="message.content_type === 'audio'" class="flex items-center gap-2">
+                <audio :src="message.attach" controls class="cursor-pointer" />
+                <div v-if="message.message && message.message !== message.attach"
+                  v-html="formatMessage(message.message)"
+                  class="ml-2"
+                />
+              </div>
+
+              <!-- Document Message -->
+              <div v-else-if="message.content_type === 'file'" class="flex items-center gap-2">
+                <DocumentIcon
+                  class="size-10 cursor-pointer rounded-md text-gray-400"
+                  @click="() => openFileInNewTab(message.attach)"
+                />
+                <div class="text-gray-500">
+                  {{ message.message && message.message !== message.attach ? message.message : 'file' }}
+                </div>
+              </div>
             </div>
-            
-            <!-- Text Message -->
-            <div
-              v-html="formatMessage(message.message)"
-            />
 
             <div class="-mb-1 flex shrink-0 items-end gap-1 text-ink-gray-5">
               <Tooltip :text="formatDate(message.timestamp, 'ddd, MMM D, YYYY')">
@@ -52,15 +87,6 @@
             </div>
           </div>
         </div>
-        <div
-          class="flex items-center justify-center opacity-0 transition-all ease-in group-hover:opacity-100"
-        >
-          <Button
-            class="rounded-full !size-6 mt-0.5"
-          >
-            <FeatherIcon name="smile" class="text-ink-gray-3" />
-          </Button>
-        </div>
       </div>
     </template>
   </div>
@@ -69,8 +95,9 @@
 <script setup>
 import { computed } from 'vue'
 import { formatDate } from '@/utils'
-import { Tooltip, Dropdown, Button } from 'frappe-ui'
+import { Tooltip } from 'frappe-ui'
 import CheckIcon from '@/components/Icons/CheckIcon.vue'
+import DocumentIcon from '@/components/Icons/DocumentIcon.vue'
 
 const props = defineProps({
   messages: Array,
@@ -138,15 +165,8 @@ function formatMessage(message) {
   return message
 }
 
-function messageOptions(message) {
-  return [
-    {
-      label: 'Reply',
-      onClick: () => {
-        emit('reply', message)
-      },
-    }
-  ]
+function openFileInNewTab(url) {
+  window.open(url, '_blank')
 }
 </script>
 

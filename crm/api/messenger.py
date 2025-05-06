@@ -20,6 +20,8 @@ def on_update(doc, method):
     """Trigger realtime updates when messenger message is updated."""
     try:
         # Emit conversation update event
+        if doc.message_direction == "Outgoing":
+            return
         conversation = frappe.get_doc("Messenger Conversation", doc.conversation)
         frappe.publish_realtime(
             "messenger:conversation_update",

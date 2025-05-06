@@ -180,7 +180,22 @@ onMounted(() => {
     if (data.conversation_id === selectedConversation.value) {
       // Add new message to messages array
       if (data.type === 'new') {
-        messages.value.push(data.message)
+        // For file type messages, only add if attachment exists
+        if (['image', 'video', 'audio', 'document'].includes(data.message.content_type)) {
+          if (data.message.attach) {
+            // If message already exists, update it
+            const existingIndex = messages.value.findIndex(m => m.name === data.message.name)
+            if (existingIndex !== -1) {
+              messages.value[existingIndex] = data.message
+            } else {
+              messages.value.push(data.message)
+            }
+          }
+        } else {
+          // For text messages, add normally
+          messages.value.push(data.message)
+        }
+        
         // Scroll to bottom after new message
         setTimeout(() => {
           if (messagesContainer.value) {
@@ -394,7 +409,18 @@ async function handleConversationSelect(conversation) {
   // Update message resource params to get latest batch of messages
   messagesResource.params = {
     doctype: 'Messenger Message',
-    fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation', 'is_read'],
+    fields: [
+      'name',
+      'message',
+      'sender_id',
+      'sender_user',
+      'timestamp',
+      'message_direction',
+      'conversation',
+      'is_read',
+      'content_type',
+      'attach'
+    ],
     filters: [['conversation', '=', conversation.name]],
     order_by: 'timestamp asc',
     limit_start: Math.max(0, totalMessages - messageLimit.value),
@@ -581,7 +607,18 @@ async function loadMoreMessages() {
       url: 'frappe.client.get_list',
       params: {
         doctype: 'Messenger Message',
-        fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation', 'is_read'],
+        fields: [
+          'name',
+          'message',
+          'sender_id',
+          'sender_user',
+          'timestamp',
+          'message_direction',
+          'conversation',
+          'is_read',
+          'content_type',
+          'attach'
+        ],
         filters: [
           ['conversation', '=', selectedConversation.value],
           ['timestamp', '<', firstMessageTimestamp]
