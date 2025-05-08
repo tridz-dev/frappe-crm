@@ -43,7 +43,7 @@
             <!-- Platform Icon -->
             <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
               <component 
-                :is="conversation.platform === 'Messenger' ? MessengerIcon : InstagramIcon"
+                :is="getPlatformIcon(conversation.platform)"
                 class="size-3.5 text-ink-gray-6"
               />
             </div>
@@ -140,6 +140,8 @@ import MessengerArea from '@/components/MessengerArea.vue'
 import MessengerBox from '@/components/MessengerBox.vue'
 import MessengerIcon from '@/components/Icons/Messenger.vue'
 import InstagramIcon from '@/components/Icons/InstagramIcon.vue'
+import ChatIcon from '@/components/Icons/ChatIcon.vue'
+import CommentIcon from '@/components/Icons/CommentIcon.vue'
 import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
 import EmojiIcon from '@/components/Icons/EmojiIcon.vue'
 import SendIcon from '@/components/Icons/SendIcon.vue'
@@ -208,6 +210,7 @@ onMounted(() => {
 
   // Listen for conversation updates
   $socket.on('messenger:conversation_update', (data) => {
+    console.log("Conversation update",data)
     if (data.type === 'update') {
       // Update conversation in list
       const index = conversations.value.findIndex(c => c.name === data.conversation.name)
@@ -320,7 +323,16 @@ const selectedConversationTitle = computed(() => {
 
 const selectedConversationPlatform = computed(() => {
   const conversation = conversations.value.find(c => c.name === selectedConversation.value)
-  return conversation?.platform === 'Messenger' ? 'Facebook Messenger' : 'Instagram DM'
+  if (!conversation?.platform) return ''
+  
+  switch (conversation.platform) {
+    case 'Messenger':
+      return 'Facebook Messenger'
+    case 'Instagram':
+      return 'Instagram DM'
+    default:
+      return `${conversation.platform} DM`
+  }
 })
 
 const conversationLimit = computed(() => 20)
@@ -670,6 +682,18 @@ function handleMessagesScroll(e) {
 watch(() => conversationsResource.data, async () => {
   await fetchUnreadCounts()
 }, { deep: true })
+
+// Add the getPlatformIcon function
+function getPlatformIcon(platform) {
+  switch (platform) {
+    case 'Messenger':
+      return MessengerIcon
+    case 'Instagram':
+      return InstagramIcon
+    default:
+      return ChatIcon
+  }
+}
 </script>
 
 <style scoped>

@@ -37,6 +37,7 @@ declare module 'vue' {
     CallUI: typeof import('./src/components/Telephony/CallUI.vue')['default']
     CameraIcon: typeof import('./src/components/Icons/CameraIcon.vue')['default']
     CertificateIcon: typeof import('./src/components/Icons/CertificateIcon.vue')['default']
+    ChatIcon: typeof import('./src/components/Icons/ChatIcon.vue')['default']
     CheckCircleIcon: typeof import('./src/components/Icons/CheckCircleIcon.vue')['default']
     CheckIcon: typeof import('./src/components/Icons/CheckIcon.vue')['default']
     CollapseSidebar: typeof import('./src/components/Icons/CollapseSidebar.vue')['default']
