@@ -37,6 +37,7 @@
           <div class="relative">
             <Avatar
               :label="conversation.title"
+              :image="conversation.profile"
               size="md"
               class="flex-shrink-0"
             />
@@ -75,6 +76,7 @@
       <div class="flex items-center p-4 border-b border-gray-200">
         <Avatar
           :label="selectedConversationTitle"
+          :image="selectedConversationProfile"
           size="md"
           class="flex-shrink-0"
         />
@@ -161,6 +163,7 @@ const messagePage = ref(0)
 const hasMoreConversations = ref(true)
 const hasMoreMessages = ref(true)
 const unreadMessageCounts = ref({})
+const userProfiles = ref({})
 
 const { $socket } = globalStore()
 
@@ -210,19 +213,45 @@ onMounted(() => {
 
   // Listen for conversation updates
   $socket.on('messenger:conversation_update', (data) => {
-    console.log("Conversation update",data)
+    console.log("Conversation update", data)
     if (data.type === 'update') {
       // Update conversation in list
       const index = conversations.value.findIndex(c => c.name === data.conversation.name)
       if (index !== -1) {
+        // Fetch updated user profile if needed
+        if (data.conversation.sender_id && !userProfiles.value[data.conversation.sender_id]) {
+          fetchUserProfile(data.conversation.sender_id)
+        }
+        
         conversations.value[index] = {
           ...conversations.value[index],
-          ...data.conversation
+          ...data.conversation,
+          profile: userProfiles.value[data.conversation.sender_id]?.profile || null
         }
         // Re-sort conversations by last message time
         conversations.value.sort((a, b) => new Date(b.last_message_time) - new Date(a.last_message_time))
-      }
-    }
+      }else{
+        
+          fetchUserProfile(data.conversation.sender_id).then(() => {
+            const newConversation = {
+              ...data.conversation,
+              title: userProfiles.value[data.conversation.sender_id]?.username || data.conversation.sender_id,
+              profile: userProfiles.value[data.conversation.sender_id]?.profile || null
+            }
+            
+            conversations.value = [
+              newConversation,
+              ...conversations.value
+            ].sort((a, b) => 
+              new Date(b.last_message_time) - new Date(a.last_message_time)
+            )
+            
+            // Immediately check unread counts for new conversation
+            fetchUnreadCounts()
+          })
+          }
+        }
+      
   })
 
   // Listen for unread count updates
@@ -233,7 +262,7 @@ onMounted(() => {
   })
   
   // Poll for unread counts every 30 seconds
-  unreadCountsInterval = setInterval(fetchUnreadCounts, 30000)
+  // unreadCountsInterval = setInterval(fetchUnreadCounts, 30000)
 })
 
 // Clean up event listeners when component is unmounted
@@ -250,7 +279,18 @@ const messagesResource = createResource({
   url: 'frappe.client.get_list',
   params: {
     doctype: 'Messenger Message',
-    fields: ['name', 'message', 'sender_id', 'sender_user', 'timestamp', 'message_direction', 'conversation'],
+    fields: [
+      'name',
+      'message',
+      'sender_id',
+      'sender_user',
+      'timestamp',
+      'message_direction',
+      'conversation',
+      'is_read',
+      'content_type',
+      'attach'
+    ],
     filters: [],
     order_by: 'timestamp desc',
     limit: 100
@@ -284,7 +324,7 @@ const conversationsResource = createResource({
       url: 'frappe.client.get_list',
       params: {
         doctype: 'Messenger User',
-        fields: ['user_id', 'username'],
+        fields: ['user_id', 'username', 'profile'],
         filters: [['user_id', 'in', senderIds]]
       }
     })
@@ -292,13 +332,15 @@ const conversationsResource = createResource({
     const users = await usersResource.fetch()
     const userMap = {}
     users.forEach(user => {
-      userMap[user.user_id] = user.username
+      userMap[user.user_id] = user
+      userProfiles.value[user.user_id] = user
     })
     
     // Map conversations with user information
     conversations.value = data.map(conv => ({
       ...conv,
-      title: userMap[conv.sender_id] || conv.sender_id // Fallback to sender_id if username not found
+      title: userMap[conv.sender_id]?.username || conv.sender_id,
+      profile: userMap[conv.sender_id]?.profile || null
     }))
   },
   auto: true
@@ -333,6 +375,11 @@ const selectedConversationPlatform = computed(() => {
     default:
       return `${conversation.platform} DM`
   }
+})
+
+const selectedConversationProfile = computed(() => {
+  const conversation = conversations.value.find(c => c.name === selectedConversation.value)
+  return conversation?.profile || null
 })
 
 const conversationLimit = computed(() => 20)
@@ -692,6 +739,33 @@ function getPlatformIcon(platform) {
       return InstagramIcon
     default:
       return ChatIcon
+  }
+}
+
+// Add function to fetch user profile
+async function fetchUserProfile(userId) {
+  if (userProfiles.value[userId]) return userProfiles.value[userId]
+  
+  try {
+    const userResource = createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'Messenger User',
+        fields: ['user_id', 'username', 'profile'],
+        filters: [['user_id', '=', userId]],
+        limit: 1
+      }
+    })
+    
+    const users = await userResource.fetch()
+    if (users.length > 0) {
+      userProfiles.value[userId] = users[0]
+      return users[0]
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to fetch user profile:', error)
+    return null
   }
 }
 </script>
