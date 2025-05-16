@@ -2,7 +2,8 @@
   <div v-if="messengerEnabled" class="flex h-full">
     <!-- Left Column: Conversations List -->
     <div class="w-80 border-r border-gray-200 flex flex-col">
-      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+      <div class="p-4 space-y-2 border-b border-gray-200">
+        <div class="flex items-center justify-between gap-x-2">
         <h2 class="text-lg font-medium text-gray-900">{{ __('Messages') }}</h2>
         <Button
           appearance="minimal"
@@ -10,8 +11,22 @@
           :icon="RefreshIcon"
           @click="conversationsResource.reload()"
         />
+        </div>
+        <Dropdown
+          :options="platformOptions"
+          placement="bottom-start"
+          class="w-full"
+        >
+          <template #default>
+            <Button
+              appearance="minimal"
+              class="min-w-[200px] justify-between text-gray-600 hover:text-gray-900"
+              :label="selectedPlatformFilter === 'all' ? __('All') : selectedPlatformFilter"
+              :icon-right="ChevronDownIcon"
+            />
+          </template>
+      </Dropdown>
       </div>
-      
       <!-- Conversations List with infinite scroll -->
       <div 
         class="flex-1 overflow-y-auto" 
@@ -28,7 +43,7 @@
         </div>
         
         <div
-          v-for="conversation in conversations"
+          v-for="conversation in filteredConversations"
           :key="conversation.name"
           class="group flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 transition-colors"
           :class="{ 'bg-gray-50': selectedConversation === conversation.name }"
@@ -135,9 +150,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
+import { ref, onMounted, watch, computed, onUnmounted, nextTick, h } from 'vue'
 import { createResource } from 'frappe-ui'
-import { Button, Input, Avatar, Badge } from 'frappe-ui'
+import { Button, Input, Avatar, Badge,Dropdown  } from 'frappe-ui'
+import ChevronDownIcon from '@/components/Icons/ChevronDownIcon.vue'
 import MessengerArea from '@/components/MessengerArea.vue'
 import MessengerBox from '@/components/MessengerBox.vue'
 import MessengerIcon from '@/components/Icons/Messenger.vue'
@@ -164,6 +180,7 @@ const hasMoreConversations = ref(true)
 const hasMoreMessages = ref(true)
 const unreadMessageCounts = ref({})
 const userProfiles = ref({})
+const selectedPlatformFilter = ref('all')
 
 const { $socket } = globalStore()
 
@@ -274,6 +291,133 @@ onUnmounted(() => {
   $socket.off('messenger:unread_update')
 })
 
+// Add platform resource
+const platformsResource = createResource({
+  url: 'frappe.client.get_list',
+  params: {
+    doctype: 'Messenger Platform',
+    fields: ['platform'],
+    order_by: 'platform asc'
+  },
+  onSuccess: (data) => {
+
+    // Update platform options with backend data
+    platformOptions.value = [
+      { 
+        label: __('All'), 
+        value: 'all',
+        onClick: () => handlePlatformSelect('all'),
+        icon: ChatIcon
+      },
+      ...data.map(platform => ({
+        label: platform.platform,
+        value: platform.platform,
+        onClick: () => handlePlatformSelect(platform.platform),
+        icon: getPlatformIcon(platform.platform)
+      }))
+    ]
+  },
+  auto: true
+})
+
+// Update platform options to be reactive
+const platformOptions = ref([
+  { 
+    label: __('All'), 
+    value: 'all',
+    onClick: () => handlePlatformSelect('all'),
+    icon: ChatIcon
+  }
+])
+
+// Update getPlatformIcon function to handle more platforms
+function getPlatformIcon(platform) {
+  switch (platform?.toLowerCase()) {
+    case 'messenger':
+      return MessengerIcon
+    case 'instagram':
+      return InstagramIcon
+    default:
+      return ChatIcon
+  }
+}
+
+// Update platform selection handler
+function handlePlatformSelect(platform) {
+  // Update the filter value
+  selectedPlatformFilter.value = platform
+  
+  // Reset conversations
+  conversationPage.value = 0
+  conversations.value = []
+  
+  // Update resource params with platform filter
+  conversationsResource.params = {
+    doctype: 'Messenger Conversation',
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
+    order_by: 'last_message_time desc',
+    filters: platform !== 'all' ? [['platform', '=', platform]] : []
+  }
+  
+  // Force reload conversations
+  conversationsResource.reload()
+}
+
+// Update filtered conversations computed
+const filteredConversations = computed(() => {
+
+  if (selectedPlatformFilter.value === 'all') {
+    return conversations.value
+  }
+  
+  const filtered = conversations.value.filter(conv => {
+    const matches = conv.platform?.toLowerCase() === selectedPlatformFilter.value.toLowerCase()
+    return matches
+  })
+  
+
+  return filtered
+})
+
+// Update conversations resource
+const conversationsResource = createResource({
+  url: 'frappe.client.get_list',
+  params: {
+    doctype: 'Messenger Conversation',
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
+    order_by: 'last_message_time desc'
+  },
+  onSuccess: async (data) => {
+    // Get unique sender IDs
+    const senderIds = [...new Set(data.map(conv => conv.sender_id))]
+    
+    // Fetch user information
+    const usersResource = createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'Messenger User',
+        fields: ['user_id', 'username', 'profile'],
+        filters: [['user_id', 'in', senderIds]]
+      }
+    })
+    
+    const users = await usersResource.fetch()
+    const userMap = {}
+    users.forEach(user => {
+      userMap[user.user_id] = user
+      userProfiles.value[user.user_id] = user
+    })
+    
+    // Update conversations
+    conversations.value = data.map(conv => ({
+      ...conv,
+      title: userMap[conv.sender_id]?.username || conv.sender_id,
+      profile: userMap[conv.sender_id]?.profile || null
+    }))
+  },
+  auto: true
+})
+
 // Resource for fetching messages
 const messagesResource = createResource({
   url: 'frappe.client.get_list',
@@ -305,45 +449,6 @@ const sendMessageResource = createResource({
   onSuccess: () => {
     messagesResource.reload()
   }
-})
-
-// Resource for fetching conversations
-const conversationsResource = createResource({
-  url: 'frappe.client.get_list',
-  params: {
-    doctype: 'Messenger Conversation',
-    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
-    order_by: 'last_message_time desc'
-  },
-  onSuccess: async (data) => {
-    // Get unique sender IDs
-    const senderIds = [...new Set(data.map(conv => conv.sender_id))]
-    
-    // Fetch user information for all senders
-    const usersResource = createResource({
-      url: 'frappe.client.get_list',
-      params: {
-        doctype: 'Messenger User',
-        fields: ['user_id', 'username', 'profile'],
-        filters: [['user_id', 'in', senderIds]]
-      }
-    })
-    
-    const users = await usersResource.fetch()
-    const userMap = {}
-    users.forEach(user => {
-      userMap[user.user_id] = user
-      userProfiles.value[user.user_id] = user
-    })
-    
-    // Map conversations with user information
-    conversations.value = data.map(conv => ({
-      ...conv,
-      title: userMap[conv.sender_id]?.username || conv.sender_id,
-      profile: userMap[conv.sender_id]?.profile || null
-    }))
-  },
-  auto: true
 })
 
 // Resource for marking messages as read
@@ -609,7 +714,9 @@ async function loadMoreConversations() {
         fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
         order_by: 'last_message_time desc',
         limit_start: nextPage * conversationLimit.value,
-        limit_page_length: conversationLimit.value
+        limit_page_length: conversationLimit.value,
+        filters: selectedPlatformFilter.value !== 'all' ? 
+          [['platform', '=', selectedPlatformFilter.value]] : []
       }
     }).fetch()
 
@@ -730,18 +837,6 @@ watch(() => conversationsResource.data, async () => {
   await fetchUnreadCounts()
 }, { deep: true })
 
-// Add the getPlatformIcon function
-function getPlatformIcon(platform) {
-  switch (platform) {
-    case 'Messenger':
-      return MessengerIcon
-    case 'Instagram':
-      return InstagramIcon
-    default:
-      return ChatIcon
-  }
-}
-
 // Add function to fetch user profile
 async function fetchUserProfile(userId) {
   if (userProfiles.value[userId]) return userProfiles.value[userId]
@@ -768,6 +863,9 @@ async function fetchUserProfile(userId) {
     return null
   }
 }
+
+// Add debug watch for filtered conversations
+
 </script>
 
 <style scoped>

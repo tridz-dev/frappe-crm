@@ -40,6 +40,7 @@ declare module 'vue' {
     ChatIcon: typeof import('./src/components/Icons/ChatIcon.vue')['default']
     CheckCircleIcon: typeof import('./src/components/Icons/CheckCircleIcon.vue')['default']
     CheckIcon: typeof import('./src/components/Icons/CheckIcon.vue')['default']
+    ChevronDownIcon: typeof import('./src/components/Icons/ChevronDownIcon.vue')['default']
     CollapseSidebar: typeof import('./src/components/Icons/CollapseSidebar.vue')['default']
     Column: typeof import('./src/components/FieldLayout/Column.vue')['default']
     ColumnSettings: typeof import('./src/components/ColumnSettings.vue')['default']
