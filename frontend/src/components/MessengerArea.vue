@@ -82,7 +82,7 @@
                 </div>
               </Tooltip>
               <div v-if="message.message_direction == 'Outgoing'">
-                <CheckIcon class="size-4" />
+                <MessageStatusIcon :status="message.status || 'Sent'" />
               </div>
             </div>
           </div>
@@ -98,6 +98,7 @@ import { formatDate } from '@/utils'
 import { Tooltip } from 'frappe-ui'
 import CheckIcon from '@/components/Icons/CheckIcon.vue'
 import DocumentIcon from '@/components/Icons/DocumentIcon.vue'
+import MessageStatusIcon from '@/components/MessageStatusIcon.vue'
 
 const props = defineProps({
   messages: Array,

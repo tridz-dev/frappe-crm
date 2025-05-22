@@ -147,6 +147,7 @@ declare module 'vue' {
     MarkAsDoneIcon: typeof import('./src/components/Icons/MarkAsDoneIcon.vue')['default']
     MaximizeIcon: typeof import('./src/components/Icons/MaximizeIcon.vue')['default']
     MenuIcon: typeof import('./src/components/Icons/MenuIcon.vue')['default']
+    MessageStatusIcon: typeof import('./src/components/MessageStatusIcon.vue')['default']
     Messenger: typeof import('./src/components/Icons/Messenger.vue')['default']
     MessengerArea: typeof import('./src/components/MessengerArea.vue')['default']
     MessengerBox: typeof import('./src/components/MessengerBox.vue')['default']

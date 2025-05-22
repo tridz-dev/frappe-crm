@@ -278,8 +278,17 @@ onMounted(() => {
     }
   })
   
-  // Poll for unread counts every 30 seconds
-  // unreadCountsInterval = setInterval(fetchUnreadCounts, 30000)
+  // Listen for message status updates
+  $socket.on('messenger:message_status_update', (data) => {
+    console.log("Message status update", data)
+    if (data.message_id) {
+      // Find and update the message status
+      const messageIndex = messages.value.findIndex(m => m.name === data.message_id)
+      if (messageIndex !== -1) {
+        messages.value[messageIndex].status = data.status
+      }
+    }
+  })
 })
 
 // Clean up event listeners when component is unmounted
@@ -289,6 +298,7 @@ onUnmounted(() => {
   $socket.off('messenger:message_update')
   $socket.off('messenger:conversation_update')
   $socket.off('messenger:unread_update')
+  $socket.off('messenger:message_status_update')
 })
 
 // Add platform resource
@@ -433,7 +443,8 @@ const messagesResource = createResource({
       'conversation',
       'is_read',
       'content_type',
-      'attach'
+      'attach',
+      'status'
     ],
     filters: [],
     order_by: 'timestamp desc',
@@ -583,7 +594,8 @@ async function handleConversationSelect(conversation) {
       'conversation',
       'is_read',
       'content_type',
-      'attach'
+      'attach',
+      'status'
     ],
     filters: [['conversation', '=', conversation.name]],
     order_by: 'timestamp asc',
@@ -638,7 +650,8 @@ async function handleSendMessage(messageData) {
     timestamp: timestamp,
     content_type: messageData.content_type || 'text',
     attach: messageData.attach || '',
-    reply_to: messageData.reply_to || ''
+    reply_to: messageData.reply_to || '',
+    status: 'Sent' // Add initial status
   }
 
   try {

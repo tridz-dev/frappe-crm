@@ -19,6 +19,14 @@ def is_messenger_installed():
 def on_update(doc, method):
     """Trigger realtime updates when messenger message is updated."""
     try:
+        print("Message status update .......", doc.status)
+        frappe.publish_realtime(
+            "messenger:message_status_update",
+            {
+                "message_id": doc.message_id,
+                "status": doc.status
+            }
+        )
         # Emit conversation update event
         if doc.message_direction == "Outgoing":
             return
@@ -55,6 +63,7 @@ def on_update(doc, method):
                 "unread_count": unread_count
             }
         )
+        
             
     except Exception as e:
         frappe.log_error("Messenger Update Error", str(e))
