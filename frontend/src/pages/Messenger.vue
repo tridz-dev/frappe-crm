@@ -88,17 +88,25 @@
     <!-- Right Column: Chat View -->
     <div class="flex-1 flex flex-col bg-white" v-if="selectedConversation">
       <!-- Chat Header -->
-      <div class="flex items-center p-4 border-b border-gray-200">
-        <Avatar
-          :label="selectedConversationTitle"
-          :image="selectedConversationProfile"
-          size="md"
-          class="flex-shrink-0"
-        />
-        <div class="ml-3">
-          <h3 class="text-base font-medium text-gray-900">{{ selectedConversationTitle }}</h3>
-          <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
+      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <div class="flex items-center">
+          <Avatar
+            :label="selectedConversationTitle"
+            :image="selectedConversationProfile"
+            size="md"
+            class="flex-shrink-0"
+          />
+          <div class="ml-3">
+            <h3 class="text-base font-medium text-gray-900">{{ selectedConversationTitle }}</h3>
+            <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
+          </div>
         </div>
+        <AssignTo
+          v-if="selectedConversation"
+          :data="currentConversation"
+          doctype="Messenger Conversation"
+          v-model="assignees"
+        />
       </div>
 
       <!-- Messages Area with infinite scroll -->
@@ -165,6 +173,8 @@ import EmojiIcon from '@/components/Icons/EmojiIcon.vue'
 import SendIcon from '@/components/Icons/SendIcon.vue'
 import { messengerEnabled } from '@/composables/settings'
 import { globalStore } from '@/stores/global'
+import AssignTo from '@/components/AssignTo.vue'
+import { call } from 'frappe-ui'
 
 // State management
 const messages = ref([])
@@ -181,6 +191,7 @@ const hasMoreMessages = ref(true)
 const unreadMessageCounts = ref({})
 const userProfiles = ref({})
 const selectedPlatformFilter = ref('all')
+const assignees = ref([])
 
 const { $socket } = globalStore()
 
@@ -561,7 +572,53 @@ async function markMessagesAsRead(conversationName) {
   }
 }
 
-// Modify handleConversationSelect to mark messages as read
+// Add function to handle assignment changes
+async function handleAssignmentChange(newAssignees) {
+  if (!selectedConversation.value || !currentConversation.value) return
+  
+  try {
+    // Get the new assignee (we only support single assignment for now)
+    const newAssignee = newAssignees[0]?.name
+    
+    // Update local state
+    assignees.value = newAssignees
+    
+    // Update conversation in the list
+    const conversationIndex = conversations.value.findIndex(c => c.name === selectedConversation.value)
+    if (conversationIndex !== -1) {
+      conversations.value[conversationIndex] = {
+        ...conversations.value[conversationIndex],
+        assignees: newAssignees
+      }
+    }
+  } catch (error) {
+    console.error('Failed to assign conversation:', error)
+  }
+}
+
+
+
+// Add function to get current conversation details
+function getCurrentConversation() {
+  if (!selectedConversation.value) return null
+  const conversation = conversations.value.find(c => c.name === selectedConversation.value)
+  if (!conversation) return null
+  
+  return {
+    name: conversation.name,
+    title: conversation.title,
+    platform: conversation.platform,
+    sender_id: conversation.sender_id,
+    last_message: conversation.last_message,
+    last_message_time: conversation.last_message_time,
+    profile: conversation.profile
+  }
+}
+
+// Add computed property for current conversation
+const currentConversation = computed(() => getCurrentConversation())
+
+// Modify handleConversationSelect to properly set up conversation data
 async function handleConversationSelect(conversation) {
   selectedConversation.value = conversation.name
   
@@ -569,6 +626,51 @@ async function handleConversationSelect(conversation) {
   messagePage.value = 0
   hasMoreMessages.value = true
   messages.value = []
+  
+  // Fetch assignees for the conversation
+  try {
+  const assigneesResource = createResource({
+    url: 'frappe.client.get_list',
+    params: {
+      doctype: 'ToDo',
+      fields: ['allocated_to'],
+      filters: [
+        ['reference_type', '=', 'Messenger Conversation'],
+        ['reference_name', '=', conversation.name],
+        ['status', '=', 'Open']
+      ]
+    }
+  })
+
+  const assigneesList = await assigneesResource.fetch()
+
+  // Extract unique user IDs
+  const userIds = [...new Set(assigneesList.map(a => a.allocated_to))]
+
+  // Fetch full names from the User doctype
+  const userDetailsResource  = createResource({
+    url: 'frappe.client.get_list',
+    params: {
+      doctype: 'User',
+      fields: ['name', 'full_name'],
+      filters: [['name', 'in', userIds]]
+    }
+  })
+  const userDetails = await userDetailsResource.fetch()
+
+  const userMap = Object.fromEntries(
+    userDetails.map(user => [user.name, user.full_name])
+  )
+
+  assignees.value = assigneesList.map(a => ({
+    name: a.allocated_to,
+    image: null,
+    label: userMap[a.allocated_to] || a.allocated_to
+  }))
+} catch (error) {
+  console.error('Failed to fetch assignees:', error)
+}
+
   
   // First get total count of messages
   const countResource = createResource({
@@ -620,11 +722,6 @@ async function handleConversationSelect(conversation) {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
     }
   }, 100)
-}
-
-// Function to get current conversation details
-function getCurrentConversation() {
-  return conversations.value.find(c => c.name === selectedConversation.value)
 }
 
 // Modify handleSendMessage to use the scrollToBottom function
@@ -876,6 +973,9 @@ async function fetchUserProfile(userId) {
     return null
   }
 }
+
+// Add watcher for assignees changes
+watch(assignees, handleAssignmentChange)
 
 // Add debug watch for filtered conversations
 
