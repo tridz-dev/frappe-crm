@@ -321,9 +321,11 @@ onMounted(() => {
     console.log("Message status update", data)
     if (data.message_id) {
       // Find and update the message status
-      const messageIndex = messages.value.findIndex(m => m.name === data.message_id)
+      const messageIndex = messages.value.findIndex(m => m.name === data.name)
       if (messageIndex !== -1) {
         messages.value[messageIndex].status = data.status
+      }else{
+        console.warn("Message not found for ID:", data.name);
       }
     }
   })

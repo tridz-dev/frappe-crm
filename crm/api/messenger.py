@@ -24,7 +24,8 @@ def on_update(doc, method):
             "messenger:message_status_update",
             {
                 "message_id": doc.message_id,
-                "status": doc.status
+                "status": doc.status,
+                "name":doc.name
             }
         )
         # Emit conversation update event
