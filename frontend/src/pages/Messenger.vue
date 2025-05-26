@@ -4,28 +4,36 @@
     <div class="w-80 border-r border-gray-200 flex flex-col">
       <div class="p-4 space-y-2 border-b border-gray-200">
         <div class="flex items-center justify-between gap-x-2">
-        <h2 class="text-lg font-medium text-gray-900">{{ __('Messages') }}</h2>
-        <Button
-          appearance="minimal"
-          class="text-gray-600 hover:text-gray-900"
-          :icon="RefreshIcon"
-          @click="conversationsResource.reload()"
-        />
+          <h2 class="text-lg font-medium text-gray-900">{{ __('Messages') }}</h2>
+          <Button
+            appearance="minimal"
+            class="text-gray-600 hover:text-gray-900"
+            :icon="RefreshIcon"
+            @click="conversationsResource.reload()"
+          />
         </div>
-        <Dropdown
-          :options="platformOptions"
-          placement="bottom-start"
-          class="w-full"
-        >
-          <template #default>
-            <Button
-              appearance="minimal"
-              class="min-w-[200px] justify-between text-gray-600 hover:text-gray-900"
-              :label="selectedPlatformFilter === 'all' ? __('All') : selectedPlatformFilter"
-              :icon-right="ChevronDownIcon"
-            />
-          </template>
-      </Dropdown>
+        <div class="flex items-center gap-2">
+          <Dropdown
+            :options="platformOptions"
+            placement="bottom-start"
+            class="w-full"
+          >
+            <template #default>
+              <Button
+                appearance="minimal"
+                class="min-w-[200px] justify-between text-gray-600 hover:text-gray-900"
+                :label="selectedPlatformFilter === 'all' ? __('All') : selectedPlatformFilter"
+                :icon-right="ChevronDownIcon"
+              />
+            </template>
+          </Dropdown>
+          <Filter
+            v-model="list"
+            doctype="Messenger Conversation"
+            :default_filters="{}"
+            @update="updateFilter"
+          />
+        </div>
       </div>
       <!-- Conversations List with infinite scroll -->
       <div 
@@ -160,7 +168,7 @@
 <script setup>
 import { ref, onMounted, watch, computed, onUnmounted, nextTick, h } from 'vue'
 import { createResource } from 'frappe-ui'
-import { Button, Input, Avatar, Badge,Dropdown  } from 'frappe-ui'
+import { Button, Input, Avatar, Badge, Dropdown } from 'frappe-ui'
 import ChevronDownIcon from '@/components/Icons/ChevronDownIcon.vue'
 import MessengerArea from '@/components/MessengerArea.vue'
 import MessengerBox from '@/components/MessengerBox.vue'
@@ -175,6 +183,7 @@ import { messengerEnabled } from '@/composables/settings'
 import { globalStore } from '@/stores/global'
 import AssignTo from '@/components/AssignTo.vue'
 import { call } from 'frappe-ui'
+import Filter from '@/components/Filter.vue'
 
 // State management
 const messages = ref([])
@@ -194,6 +203,24 @@ const selectedPlatformFilter = ref('all')
 const assignees = ref([])
 
 const { $socket } = globalStore()
+
+// Add filter functionality
+const list = ref(null)
+
+function updateFilter(filters) {
+  // console.log("update clicked ... ")
+  // console.log("updateFilter", filters)
+  // Update conversations resource params with new filters
+  conversationsResource.params = {
+    ...conversationsResource.params,
+    filters: {
+      ...conversationsResource.params.filters,
+      ...filters
+    }
+  }
+  // console.log("conversationsResource.params", conversationsResource.params)
+  conversationsResource.reload()
+}
 
 // Function to handle ESC key press
 function handleEscKey(event) {
