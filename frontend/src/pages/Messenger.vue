@@ -207,18 +207,46 @@ const { $socket } = globalStore()
 // Add filter functionality
 const list = ref(null)
 
+// Add a computed property to track current filters
+const currentFilters = computed(() => {
+  return conversationsResource.params?.filters || {}
+})
+
 function updateFilter(filters) {
   // console.log("update clicked ... ")
   // console.log("updateFilter", filters)
+  
   // Update conversations resource params with new filters
   conversationsResource.params = {
-    ...conversationsResource.params,
+    doctype: 'Messenger Conversation',
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
+    order_by: 'last_message_time desc',
     filters: {
-      ...conversationsResource.params.filters,
       ...filters
     }
   }
-  // console.log("conversationsResource.params", conversationsResource.params)
+  
+  // Initialize list model if not already initialized
+  if (!list.value) {
+    list.value = {
+      data: {
+        params: {
+          doctype: 'Messenger Conversation',
+          filters: filters
+        }
+      },
+      params: {
+        doctype: 'Messenger Conversation',
+        filters: filters
+      }
+    }
+  } else {
+    // Update existing list model
+    list.value.data.params.filters = filters
+    list.value.params.filters = filters
+  }
+  
+  console.log("conversationsResource.params", conversationsResource.params)
   conversationsResource.reload()
 }
 
@@ -464,6 +492,12 @@ const conversationsResource = createResource({
       title: userMap[conv.sender_id]?.username || conv.sender_id,
       profile: userMap[conv.sender_id]?.profile || null
     }))
+
+    // Update list model with current filters
+    if (list.value) {
+      list.value.data.params.filters = conversationsResource.params.filters
+      list.value.params.filters = conversationsResource.params.filters
+    }
   },
   auto: true
 })
@@ -1005,6 +1039,14 @@ async function fetchUserProfile(userId) {
 
 // Add watcher for assignees changes
 watch(assignees, handleAssignmentChange)
+
+// Add a watcher to keep list and conversationsResource in sync
+watch(() => conversationsResource.params.filters, (newFilters) => {
+  if (list.value) {
+    list.value.data.params.filters = newFilters
+    list.value.params.filters = newFilters
+  }
+}, { deep: true })
 
 // Add debug watch for filtered conversations
 
