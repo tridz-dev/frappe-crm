@@ -174,6 +174,7 @@ import MessengerArea from '@/components/MessengerArea.vue'
 import MessengerBox from '@/components/MessengerBox.vue'
 import MessengerIcon from '@/components/Icons/Messenger.vue'
 import InstagramIcon from '@/components/Icons/InstagramIcon.vue'
+import WhatsAppIcon from '../components/Icons/WhatsAppIcon.vue'
 import ChatIcon from '@/components/Icons/ChatIcon.vue'
 import CommentIcon from '@/components/Icons/CommentIcon.vue'
 import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
@@ -415,6 +416,8 @@ function getPlatformIcon(platform) {
       return MessengerIcon
     case 'instagram':
       return InstagramIcon
+    case 'whatsapp':
+      return WhatsAppIcon
     default:
       return ChatIcon
   }
