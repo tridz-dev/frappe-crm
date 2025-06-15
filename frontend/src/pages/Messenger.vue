@@ -76,7 +76,7 @@
             <div class="flex items-center justify-between">
               <p class="text-sm font-medium text-gray-900 truncate">{{ conversation.title }}</p>
               <div class="flex flex-col items-end gap-0.5">
-                <p class="text-xs text-gray-500">{{ formatTime(conversation.last_message_time) }}</p>
+                <p class="text-xs text-gray-500">{{ formatTimeAgo(conversation.last_message_time) }}</p>
                 <div
                   v-if="unreadMessageCounts[conversation.name]"
                   class="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-surface-gray-6 px-1 text-xs font-medium text-white ring-1 ring-white"
@@ -608,6 +608,57 @@ const selectedConversationProfile = computed(() => {
 const conversationLimit = computed(() => 20)
 const messageLimit = computed(() => 20)
 
+// Add formatTimeAgo function before the existing formatTime function
+function formatTimeAgo(timestamp) {
+  if (!timestamp) return ''
+  
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diff = now - date
+  
+  // Convert to seconds
+  const seconds = Math.floor(diff / 1000)
+  
+  // Less than a minute
+  if (seconds < 60) {
+    return __('Just now')
+  }
+  
+  // Less than an hour
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) {
+    return minutes === 1 ? __('1 minute ago') : __('{0} minutes ago', [minutes])
+  }
+  
+  // Less than a day
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) {
+    return hours === 1 ? __('1 hour ago') : __('{0} hours ago', [hours])
+  }
+  
+  // Less than a week
+  const days = Math.floor(hours / 24)
+  if (days < 7) {
+    return days === 1 ? __('1 day ago') : __('{0} days ago', [days])
+  }
+  
+  // Less than a month
+  const weeks = Math.floor(days / 7)
+  if (weeks < 4) {
+    return weeks === 1 ? __('1 week ago') : __('{0} weeks ago', [weeks])
+  }
+  
+  // Less than a year
+  const months = Math.floor(days / 30)
+  if (months < 12) {
+    return months === 1 ? __('1 month ago') : __('{0} months ago', [months])
+  }
+  
+  // More than a year
+  const years = Math.floor(months / 12)
+  return years === 1 ? __('1 year ago') : __('{0} years ago', [years])
+}
+
 // Format timestamp
 const formatTime = (timestamp) => {
   if (!timestamp) return ''
@@ -1117,7 +1168,7 @@ async function handleViewLead() {
       router.push({
         name: 'Lead',
         params: { leadId: conversation.reference_name },
-        query: { tab: 'data' }
+        hash: '#data'
       })
     } else {
       globalStore().$toast.error(__('No lead found for this conversation'))
