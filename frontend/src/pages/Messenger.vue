@@ -109,12 +109,24 @@
             <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
           </div>
         </div>
-        <AssignTo
-          v-if="selectedConversation"
-          :data="currentConversation"
-          doctype="Messenger Conversation"
-          v-model="assignees"
-        />
+        <div class="flex items-center gap-2">
+          <AssignTo
+            v-if="selectedConversation"
+            :data="currentConversation"
+            doctype="Messenger Conversation"
+            v-model="assignees"
+          />
+          <!-- Add Menu Button -->
+          <Dropdown :options="conversationMenuOptions" placement="bottom-end">
+            <template #default>
+              <Button
+                appearance="minimal"
+                class="text-gray-600 hover:text-gray-900"
+                :icon="MoreVerticalIcon"
+              />
+            </template>
+          </Dropdown>
+        </div>
       </div>
 
       <!-- Messages Area with infinite scroll -->
@@ -185,6 +197,8 @@ import { globalStore } from '@/stores/global'
 import AssignTo from '@/components/AssignTo.vue'
 import { call } from 'frappe-ui'
 import Filter from '@/components/Filter.vue'
+import MoreVerticalIcon from '@/components/Icons/MoreVerticalIcon.vue'
+import { useRouter } from 'vue-router'
 
 // State management
 const messages = ref([])
@@ -204,6 +218,7 @@ const selectedPlatformFilter = ref('all')
 const assignees = ref([])
 
 const { $socket } = globalStore()
+const router = useRouter()
 
 // Add filter functionality
 const list = ref(null)
@@ -220,7 +235,7 @@ function updateFilter(filters) {
   // Update conversations resource params with new filters
   conversationsResource.params = {
     doctype: 'Messenger Conversation',
-    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat'],
     order_by: 'last_message_time desc',
     filters: {
       ...filters
@@ -358,6 +373,19 @@ onMounted(() => {
       }
     }
   })
+
+  // Listen for block status updates
+  $socket.on('messenger:block_status_update', (data) => {
+    if (data.conversation_id) {
+      // Remove blocked conversation from list
+      conversations.value = conversations.value.filter(c => c.name !== data.conversation_id)
+      
+      // If the blocked conversation was selected, clear selection
+      if (selectedConversation.value === data.conversation_id) {
+        selectedConversation.value = null
+      }
+    }
+  })
 })
 
 // Clean up event listeners when component is unmounted
@@ -368,6 +396,7 @@ onUnmounted(() => {
   $socket.off('messenger:conversation_update')
   $socket.off('messenger:unread_update')
   $socket.off('messenger:message_status_update')
+  $socket.off('messenger:block_status_update')
 })
 
 // Add platform resource
@@ -465,8 +494,9 @@ const conversationsResource = createResource({
   url: 'frappe.client.get_list',
   params: {
     doctype: 'Messenger Conversation',
-    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
-    order_by: 'last_message_time desc'
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat'],
+    order_by: 'last_message_time desc',
+    filters: [['block_chat', '=', 0]] // Default filter to exclude blocked chats
   },
   onSuccess: async (data) => {
     // Get unique sender IDs
@@ -1051,7 +1081,79 @@ watch(() => conversationsResource.params.filters, (newFilters) => {
   }
 }, { deep: true })
 
-// Add debug watch for filtered conversations
+// Add conversation menu options
+const conversationMenuOptions = computed(() => [
+  {
+    label: __('View Lead'),
+    icon: 'user',
+    onClick: () => handleViewLead()
+  },
+  {
+    label: __('Block Chat'),
+    icon: 'ban',
+    onClick: () => handleBlockChat()
+  }
+])
+
+// Add menu action handlers
+async function handleViewLead() {
+  if (!selectedConversation.value) return
+  
+  try {
+    // Get the reference information from the conversation
+    const referenceResource = createResource({
+      url: 'frappe.client.get',
+      params: {
+        doctype: 'Messenger Conversation',
+        name: selectedConversation.value,
+        fields: ['reference_doctype', 'reference_name']
+      }
+    })
+    
+    const conversation = await referenceResource.fetch()
+    
+    if (conversation.reference_doctype === 'CRM Lead' && conversation.reference_name) {
+      // Use router to navigate to lead page with data section
+      router.push({
+        name: 'Lead',
+        params: { leadId: conversation.reference_name },
+        query: { tab: 'data' }
+      })
+    } else {
+      globalStore().$toast.error(__('No lead found for this conversation'))
+    }
+  } catch (error) {
+    console.error('Failed to fetch lead:', error)
+    globalStore().$toast.error(__('Failed to fetch lead information'))
+  }
+}
+
+async function handleBlockChat() {
+  if (!selectedConversation.value) return
+  
+  try {
+    // Update block_chat field
+    await createResource({
+      url: 'frappe.client.set_value',
+      params: {
+        doctype: 'Messenger Conversation',
+        name: selectedConversation.value,
+        fieldname: 'block_chat',
+        value: 1
+      }
+    }).submit()
+    
+    // Remove from conversations list
+    conversations.value = conversations.value.filter(c => c.name !== selectedConversation.value)
+    selectedConversation.value = null
+    
+    // Show success message
+    globalStore().$toast.success(__('Chat blocked successfully'))
+  } catch (error) {
+    console.error('Failed to block chat:', error)
+    globalStore().$toast.error(__('Failed to block chat'))
+  }
+}
 
 </script>
 

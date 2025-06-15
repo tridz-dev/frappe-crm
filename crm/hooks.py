@@ -156,6 +156,9 @@ doc_events = {
 	"Messenger Message": {
 		"on_update": ["crm.api.messenger.on_update"],
 	},
+    "Messenger Conversation":{
+        "on_update": ["crm.api.messenger.on_conversation_update"],
+	},
 	"CRM Deal": {
 		"on_update": [
 			"crm.fcrm.doctype.erpnext_crm_settings.erpnext_crm_settings.create_customer_in_erpnext"

@@ -69,6 +69,20 @@ def on_update(doc, method):
     except Exception as e:
         frappe.log_error("Messenger Update Error", str(e))
 
+def on_conversation_update(doc, method):
+    """Trigger realtime updates when conversation is updated."""
+    try:
+        if doc.has_value_changed("block_chat"):
+            frappe.publish_realtime(
+                "messenger:block_status_update",
+                {
+                    "conversation_id": doc.name,
+                    "blocked": doc.block_chat
+                }
+            )
+    except Exception as e:
+        frappe.log_error("Messenger Conversation Update Error", str(e))
+
 
 # def validate(doc, method):
 #     """Validate messenger message document before insert."""
