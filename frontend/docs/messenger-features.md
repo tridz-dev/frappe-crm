@@ -188,6 +188,98 @@ Just now
 2 years ago
 ```
 
+## Canned Responses
+
+The Messenger interface now includes support for canned responses, allowing users to quickly insert pre-defined messages into conversations.
+
+### Feature Overview
+
+- **Icon Placement**: Located in the message input area alongside emoji and file upload buttons
+- **Visual Design**: Uses a consistent icon style matching the existing UI
+- **Accessibility**: Follows Frappe UI button standards for keyboard navigation and screen readers
+
+### Implementation Details
+
+The feature is implemented with the following components:
+
+1. **CannedResponseIcon Component**:
+   - SVG-based icon design
+   - Consistent with Frappe UI icon system
+   - Responsive sizing
+   - Accessible color contrast
+
+2. **CannedResponseSelectorModal Component**:
+   - Modal dialog for selecting canned responses
+   - Search functionality for quick filtering
+   - Grid layout for response templates
+   - Create new response option
+   - Real-time search filtering
+
+3. **UI Integration**:
+   - Added to MessengerBox component
+   - Positioned in the message input toolbar
+   - Maintains existing layout and spacing
+   - Preserves all current functionality
+
+### How it Works
+
+1. **Accessing Canned Responses**:
+   - Click the canned response icon in the message input area
+   - Modal opens with list of available responses
+   - Search box for quick filtering
+   - Grid view of response templates
+
+2. **Using Canned Responses**:
+   - Click on a response to insert it into the message
+   - Response text is automatically inserted
+   - Modal closes after selection
+   - Message can be edited after insertion
+
+3. **Creating New Responses**:
+   - "New Canned Response" button in modal
+   - Redirects to canned responses management page
+   - Create and manage response templates
+   - Templates available immediately after creation
+
+### Benefits
+
+1. **Efficiency**: Quick access to common responses
+2. **Consistency**: Ensures standardized messaging
+3. **User Experience**: Seamless integration with existing UI
+4. **Accessibility**: Follows Frappe UI standards
+5. **Searchability**: Easy to find specific responses
+6. **Management**: Simple creation and organization of responses
+
+### Technical Implementation
+
+1. **Components**:
+   - `CannedResponseIcon.vue`: Custom icon component
+   - `CannedResponseSelectorModal.vue`: Selection interface
+   - Integration in `MessengerBox.vue`
+
+2. **Data Management**:
+   - Uses `Messenger Canned Response` DocType
+   - Real-time search filtering
+   - Efficient data loading
+   - Proper state management
+
+3. **User Interface**:
+   - Responsive grid layout
+   - Search functionality
+   - Clear visual hierarchy
+   - Consistent styling
+
+### Future Enhancements
+
+1. Canned response management interface
+2. Category-based organization
+3. Search functionality
+4. Custom response creation
+5. Response templates with variables
+6. Response analytics and usage tracking
+7. Team-specific responses
+8. Response versioning
+
 ---
 
 *Last Updated: [Current Date]*

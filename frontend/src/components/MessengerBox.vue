@@ -50,6 +50,12 @@
             @click="togglePopover"
           />
         </IconPicker>
+        <Button
+          appearance="minimal"
+          class="text-gray-600"
+          :icon="CannedResponseIcon"
+          @click="showCannedResponseModal = true"
+        />
       </div>
 
       <Textarea
@@ -71,6 +77,11 @@
       />
     </div>
   </div>
+
+  <CannedResponseSelectorModal
+    v-model="showCannedResponseModal"
+    @apply="handleCannedResponseSelect"
+  />
 </template>
 
 <script setup>
@@ -79,6 +90,8 @@ import { createResource, Button, Textarea, FileUploader, Dropdown, FeatherIcon }
 import IconPicker from '@/components/IconPicker.vue'
 import SendIcon from '@/components/Icons/SendIcon.vue'
 import EmojiIcon from '@/components/Icons/EmojiIcon.vue'
+import CannedResponseIcon from '@/components/Icons/CannedResponseIcon.vue'
+import CannedResponseSelectorModal from '@/components/CannedResponseSelectorModal.vue'
 
 const props = defineProps({
   conversation: String,
@@ -92,6 +105,7 @@ const emoji = ref('')
 const message = ref('')
 const fileType = ref('')
 const attachment = ref('')
+const showCannedResponseModal = ref(false)
 
 function show() {
   nextTick(() => textareaRef.value.el.focus())
@@ -183,6 +197,11 @@ function formatMessage(message) {
   message = message.replace(/\n/g, '<br>')
   
   return message
+}
+
+function handleCannedResponseSelect(template) {
+  message.value = template.message
+  showCannedResponseModal.value = false
 }
 
 watch(reply, (value) => {

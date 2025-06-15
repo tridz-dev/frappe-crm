@@ -36,6 +36,8 @@ declare module 'vue' {
     CallLogsListView: typeof import('./src/components/ListViews/CallLogsListView.vue')['default']
     CallUI: typeof import('./src/components/Telephony/CallUI.vue')['default']
     CameraIcon: typeof import('./src/components/Icons/CameraIcon.vue')['default']
+    CannedResponseIcon: typeof import('./src/components/Icons/CannedResponseIcon.vue')['default']
+    CannedResponseSelectorModal: typeof import('./src/components/CannedResponseSelectorModal.vue')['default']
     CertificateIcon: typeof import('./src/components/Icons/CertificateIcon.vue')['default']
     ChatIcon: typeof import('./src/components/Icons/ChatIcon.vue')['default']
     CheckCircleIcon: typeof import('./src/components/Icons/CheckCircleIcon.vue')['default']
