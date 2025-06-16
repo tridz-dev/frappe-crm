@@ -106,7 +106,23 @@
           />
           <div class="ml-3">
             <h3 class="text-base font-medium text-gray-900">{{ selectedConversationTitle }}</h3>
-            <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
+            <div class="flex items-center gap-2">
+              <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
+              <Dropdown
+                :options="statusOptions"
+                placement="bottom-start"
+                @select="handleStatusChange"
+              >
+                <template #default>
+                  <Button
+                    appearance="minimal"
+                    class="text-sm text-gray-500 hover:text-gray-900"
+                    :label="currentStatus"
+                    :icon-right="ChevronDownIcon"
+                  />
+                </template>
+              </Dropdown>
+            </div>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -220,6 +236,8 @@ const unreadMessageCounts = ref({})
 const userProfiles = ref({})
 const selectedPlatformFilter = ref('all')
 const assignees = ref([])
+const statusOptions = ref([])
+const currentStatus = ref('')
 
 // Add filter functionality
 const list = ref(null)
@@ -232,7 +250,7 @@ const currentFilters = computed(() => {
 function updateFilter(filters) {
   conversationsResource.params = {
     doctype: 'Messenger Conversation',
-    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat'],
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat','status'],
     order_by: 'last_message_time desc',
     filters: {
       ...filters
@@ -319,7 +337,7 @@ function handlePlatformSelect(platform) {
   
   conversationsResource.params = {
     doctype: 'Messenger Conversation',
-    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform','status'],
     order_by: 'last_message_time desc',
     filters: platform !== 'all' ? [['platform', '=', platform]] : []
   }
@@ -343,7 +361,7 @@ const conversationsResource = createResource({
   url: 'frappe.client.get_list',
   params: {
     doctype: 'Messenger Conversation',
-    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat'],
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat','status'],
     order_by: 'last_message_time desc',
     filters: [['block_chat', '=', 0]]
   },
@@ -577,6 +595,7 @@ const currentConversation = computed(() => getCurrentConversation())
 // Modify handleConversationSelect to properly set up conversation data
 async function handleConversationSelect(conversation) {
   selectedConversation.value = conversation.name
+  currentStatus.value = conversation.status || ''
   
   // Update URL without reloading the page
   router.push({ 
@@ -774,7 +793,7 @@ async function loadMoreConversations() {
       url: 'frappe.client.get_list',
       params: {
         doctype: 'Messenger Conversation',
-        fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
+        fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform','status'],
         order_by: 'last_message_time desc',
         limit_start: nextPage * conversationLimit.value,
         limit_page_length: conversationLimit.value,
@@ -1098,6 +1117,18 @@ onMounted(async () => {
       }
     }
   })
+
+  $socket.on('messenger:conversation_status_update', (data) => {
+    if (data.conversation_id) {
+      const conversationIndex = conversations.value.findIndex(c => c.name === data.conversation_id)
+      if (conversationIndex !== -1) {
+        conversations.value[conversationIndex].status = data.status
+        if (selectedConversation.value === data.conversation_id) {
+          currentStatus.value = data.status
+        }
+      }
+    }
+  })
 })
 
 // Clean up event listeners
@@ -1107,7 +1138,59 @@ onUnmounted(() => {
   $socket.off('messenger:unread_update')
   $socket.off('messenger:message_status_update')
   $socket.off('messenger:block_status_update')
+  $socket.off('messenger:conversation_status_update')
 })
+
+// Add status resource
+const statusResource = createResource({
+  url: 'frappe.client.get_list',
+  params: {
+    doctype: 'Messenger Conversation Status',
+    fields: ['status'],
+    order_by: 'status asc'
+  },
+  onSuccess: (data) => {
+    statusOptions.value = data.map(status => ({
+      label: status.status,
+      value: status.status,
+      onClick: () => handleStatusChange(status.status)
+    }))
+  },
+  auto: true
+})
+
+// Add status change handler
+async function handleStatusChange(status) {
+  if (!selectedConversation.value) return
+  
+  try {
+    await createResource({
+      url: 'frappe.client.set_value',
+      params: {
+        doctype: 'Messenger Conversation',
+        name: selectedConversation.value,
+        fieldname: 'status',
+        value: status
+      }
+    }).submit()
+    
+    currentStatus.value = status
+    
+    // Update conversation in the list
+    const conversationIndex = conversations.value.findIndex(c => c.name === selectedConversation.value)
+    if (conversationIndex !== -1) {
+      conversations.value[conversationIndex] = {
+        ...conversations.value[conversationIndex],
+        status: status
+      }
+    }
+    
+    globalStore().$toast.success(__('Status updated successfully'))
+  } catch (error) {
+    console.error('Failed to update status:', error)
+    globalStore().$toast.error(__('Failed to update status'))
+  }
+}
 </script>
 
 <style scoped>

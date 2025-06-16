@@ -365,6 +365,52 @@ The messenger component has been split into two separate pages while maintaining
    - Easier to link conversations to leads and other entities
    - More flexible navigation options
 
+## Conversation Status
+
+The messenger system now supports setting and tracking conversation statuses. This feature allows agents to mark conversations with different statuses to better manage and track their workflow.
+
+### Features
+
+1. **Status Selection**
+   - A status dropdown is available in the conversation header next to the profile information
+   - Statuses are managed through the Messenger Conversation Status doctype
+   - Default status is "Open"
+
+2. **Real-time Updates**
+   - Status changes are reflected in real-time across all connected clients
+   - Status updates are persisted in the database
+   - Status history is maintained in the status_log table
+
+3. **UI Integration**
+   - Status selection is available in the conversation header
+   - Current status is displayed prominently
+   - Status changes are confirmed with toast notifications
+
+### Technical Implementation
+
+1. **Frontend Changes**
+   - Added status dropdown in Messenger.vue
+   - Implemented status change handler
+   - Added real-time socket event listener for status updates
+   - Integrated with existing conversation management
+
+2. **Backend Changes**
+   - Enhanced on_conversation_update hook to handle status changes
+   - Added real-time event emission for status updates
+   - Utilized existing Messenger Conversation Status doctype
+
+3. **Data Structure**
+   - Status field in Messenger Conversation doctype
+   - Status options managed through Messenger Conversation Status doctype
+   - Status history tracked in status_log table
+
+### Usage
+
+1. Select a conversation to view its details
+2. Click the status dropdown in the conversation header
+3. Choose a status from the available options
+4. The status will be updated immediately and reflected across all clients
+
 ---
 
 *Last Updated: [Current Date]*

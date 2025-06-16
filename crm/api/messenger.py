@@ -80,6 +80,15 @@ def on_conversation_update(doc, method):
                     "blocked": doc.block_chat
                 }
             )
+        
+        if doc.has_value_changed("status"):
+            frappe.publish_realtime(
+                "messenger:conversation_status_update",
+                {
+                    "conversation_id": doc.name,
+                    "status": doc.status
+                }
+            )
     except Exception as e:
         frappe.log_error("Messenger Conversation Update Error", str(e))
 
