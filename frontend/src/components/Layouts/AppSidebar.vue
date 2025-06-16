@@ -226,7 +226,7 @@ const links = computed(() => {
     baseLinks.push({
       label: 'Messenger',
       icon: MessengerIcon,
-      to: 'Messenger',
+      to: 'MessengerList',
     })
   }
 

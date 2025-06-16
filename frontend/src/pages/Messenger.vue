@@ -178,9 +178,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed, onUnmounted, nextTick, h } from 'vue'
+import { ref, onMounted, watch, computed, onUnmounted, nextTick } from 'vue'
 import { createResource } from 'frappe-ui'
 import { Button, Input, Avatar, Badge, Dropdown } from 'frappe-ui'
+import { useRouter, useRoute } from 'vue-router'
 import ChevronDownIcon from '@/components/Icons/ChevronDownIcon.vue'
 import MessengerArea from '@/components/MessengerArea.vue'
 import MessengerBox from '@/components/MessengerBox.vue'
@@ -198,7 +199,10 @@ import AssignTo from '@/components/AssignTo.vue'
 import { call } from 'frappe-ui'
 import Filter from '@/components/Filter.vue'
 import MoreVerticalIcon from '@/components/Icons/MoreVerticalIcon.vue'
-import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+const { $socket } = globalStore()
 
 // State management
 const messages = ref([])
@@ -217,9 +221,6 @@ const userProfiles = ref({})
 const selectedPlatformFilter = ref('all')
 const assignees = ref([])
 
-const { $socket } = globalStore()
-const router = useRouter()
-
 // Add filter functionality
 const list = ref(null)
 
@@ -229,10 +230,6 @@ const currentFilters = computed(() => {
 })
 
 function updateFilter(filters) {
-  // console.log("update clicked ... ")
-  // console.log("updateFilter", filters)
-  
-  // Update conversations resource params with new filters
   conversationsResource.params = {
     doctype: 'Messenger Conversation',
     fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat'],
@@ -242,7 +239,6 @@ function updateFilter(filters) {
     }
   }
   
-  // Initialize list model if not already initialized
   if (!list.value) {
     list.value = {
       data: {
@@ -257,147 +253,12 @@ function updateFilter(filters) {
       }
     }
   } else {
-    // Update existing list model
     list.value.data.params.filters = filters
     list.value.params.filters = filters
   }
   
-  console.log("conversationsResource.params", conversationsResource.params)
   conversationsResource.reload()
 }
-
-// Function to handle ESC key press
-function handleEscKey(event) {
-  if (event.key === 'Escape' && selectedConversation.value) {
-    selectedConversation.value = null
-    reply.value = {}
-  }
-}
-
-// Add event listeners when component is mounted
-onMounted(() => {
-  window.addEventListener('keydown', handleEscKey)
-  fetchUnreadCounts() // Initial fetch of unread counts
-  
-  // Listen for messenger message updates
-  $socket.on('messenger:message_update', (data) => {
-    if (data.conversation_id === selectedConversation.value) {
-      // Add new message to messages array
-      if (data.type === 'new') {
-        // For file type messages, only add if attachment exists
-        if (['image', 'video', 'audio', 'document'].includes(data.message.content_type)) {
-          if (data.message.attach) {
-            // If message already exists, update it
-            const existingIndex = messages.value.findIndex(m => m.name === data.message.name)
-            if (existingIndex !== -1) {
-              messages.value[existingIndex] = data.message
-            } else {
-              messages.value.push(data.message)
-            }
-          }
-        } else {
-          // For text messages, add normally
-          messages.value.push(data.message)
-        }
-        
-        // Scroll to bottom after new message
-        setTimeout(() => {
-          if (messagesContainer.value) {
-            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-          }
-        }, 100)
-      }
-    }
-  })
-
-  // Listen for conversation updates
-  $socket.on('messenger:conversation_update', (data) => {
-    console.log("Conversation update", data)
-    if (data.type === 'update') {
-      // Update conversation in list
-      const index = conversations.value.findIndex(c => c.name === data.conversation.name)
-      if (index !== -1) {
-        // Fetch updated user profile if needed
-        if (data.conversation.sender_id && !userProfiles.value[data.conversation.sender_id]) {
-          fetchUserProfile(data.conversation.sender_id)
-        }
-        
-        conversations.value[index] = {
-          ...conversations.value[index],
-          ...data.conversation,
-          profile: userProfiles.value[data.conversation.sender_id]?.profile || null
-        }
-        // Re-sort conversations by last message time
-        conversations.value.sort((a, b) => new Date(b.last_message_time) - new Date(a.last_message_time))
-      }else{
-        
-          fetchUserProfile(data.conversation.sender_id).then(() => {
-            const newConversation = {
-              ...data.conversation,
-              title: userProfiles.value[data.conversation.sender_id]?.username || data.conversation.sender_id,
-              profile: userProfiles.value[data.conversation.sender_id]?.profile || null
-            }
-            
-            conversations.value = [
-              newConversation,
-              ...conversations.value
-            ].sort((a, b) => 
-              new Date(b.last_message_time) - new Date(a.last_message_time)
-            )
-            
-            // Immediately check unread counts for new conversation
-            fetchUnreadCounts()
-          })
-          }
-        }
-      
-  })
-
-  // Listen for unread count updates
-  $socket.on('messenger:unread_update', (data) => {
-    if (data.conversation_id) {
-      unreadMessageCounts.value[data.conversation_id] = data.unread_count
-    }
-  })
-  
-  // Listen for message status updates
-  $socket.on('messenger:message_status_update', (data) => {
-    console.log("Message status update", data)
-    if (data.message_id) {
-      // Find and update the message status
-      const messageIndex = messages.value.findIndex(m => m.name === data.name)
-      if (messageIndex !== -1) {
-        messages.value[messageIndex].status = data.status
-      }else{
-        console.warn("Message not found for ID:", data.name);
-      }
-    }
-  })
-
-  // Listen for block status updates
-  $socket.on('messenger:block_status_update', (data) => {
-    if (data.conversation_id) {
-      // Remove blocked conversation from list
-      conversations.value = conversations.value.filter(c => c.name !== data.conversation_id)
-      
-      // If the blocked conversation was selected, clear selection
-      if (selectedConversation.value === data.conversation_id) {
-        selectedConversation.value = null
-      }
-    }
-  })
-})
-
-// Clean up event listeners when component is unmounted
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleEscKey)
-  clearInterval(unreadCountsInterval)
-  $socket.off('messenger:message_update')
-  $socket.off('messenger:conversation_update')
-  $socket.off('messenger:unread_update')
-  $socket.off('messenger:message_status_update')
-  $socket.off('messenger:block_status_update')
-})
 
 // Add platform resource
 const platformsResource = createResource({
@@ -408,8 +269,6 @@ const platformsResource = createResource({
     order_by: 'platform asc'
   },
   onSuccess: (data) => {
-
-    // Update platform options with backend data
     platformOptions.value = [
       { 
         label: __('All'), 
@@ -454,14 +313,10 @@ function getPlatformIcon(platform) {
 
 // Update platform selection handler
 function handlePlatformSelect(platform) {
-  // Update the filter value
   selectedPlatformFilter.value = platform
-  
-  // Reset conversations
   conversationPage.value = 0
   conversations.value = []
   
-  // Update resource params with platform filter
   conversationsResource.params = {
     doctype: 'Messenger Conversation',
     fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform'],
@@ -469,24 +324,18 @@ function handlePlatformSelect(platform) {
     filters: platform !== 'all' ? [['platform', '=', platform]] : []
   }
   
-  // Force reload conversations
   conversationsResource.reload()
 }
 
 // Update filtered conversations computed
 const filteredConversations = computed(() => {
-
   if (selectedPlatformFilter.value === 'all') {
     return conversations.value
   }
   
-  const filtered = conversations.value.filter(conv => {
-    const matches = conv.platform?.toLowerCase() === selectedPlatformFilter.value.toLowerCase()
-    return matches
+  return conversations.value.filter(conv => {
+    return conv.platform?.toLowerCase() === selectedPlatformFilter.value.toLowerCase()
   })
-  
-
-  return filtered
 })
 
 // Update conversations resource
@@ -496,13 +345,11 @@ const conversationsResource = createResource({
     doctype: 'Messenger Conversation',
     fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat'],
     order_by: 'last_message_time desc',
-    filters: [['block_chat', '=', 0]] // Default filter to exclude blocked chats
+    filters: [['block_chat', '=', 0]]
   },
   onSuccess: async (data) => {
-    // Get unique sender IDs
     const senderIds = [...new Set(data.map(conv => conv.sender_id))]
     
-    // Fetch user information
     const usersResource = createResource({
       url: 'frappe.client.get_list',
       params: {
@@ -519,14 +366,12 @@ const conversationsResource = createResource({
       userProfiles.value[user.user_id] = user
     })
     
-    // Update conversations
     conversations.value = data.map(conv => ({
       ...conv,
       title: userMap[conv.sender_id]?.username || conv.sender_id,
       profile: userMap[conv.sender_id]?.profile || null
     }))
 
-    // Update list model with current filters
     if (list.value) {
       list.value.data.params.filters = conversationsResource.params.filters
       list.value.params.filters = conversationsResource.params.filters
@@ -573,7 +418,6 @@ const sendMessageResource = createResource({
 const markMessagesAsReadResource = createResource({
   url: 'frappe_messenger.frappe_messenger.doctype.messenger_message.messenger_message.mark_messages_as_read',
   onSuccess: (response) => {
-    // Update local unread count
     if (selectedConversation.value) {
       unreadMessageCounts.value[selectedConversation.value] = response || 0
     }
@@ -608,7 +452,7 @@ const selectedConversationProfile = computed(() => {
 const conversationLimit = computed(() => 20)
 const messageLimit = computed(() => 20)
 
-// Add formatTimeAgo function before the existing formatTime function
+// Add formatTimeAgo function
 function formatTimeAgo(timestamp) {
   if (!timestamp) return ''
   
@@ -616,69 +460,42 @@ function formatTimeAgo(timestamp) {
   const now = new Date()
   const diff = now - date
   
-  // Convert to seconds
   const seconds = Math.floor(diff / 1000)
   
-  // Less than a minute
   if (seconds < 60) {
     return __('Just now')
   }
   
-  // Less than an hour
   const minutes = Math.floor(seconds / 60)
   if (minutes < 60) {
     return minutes === 1 ? __('1 minute ago') : __('{0} minutes ago', [minutes])
   }
   
-  // Less than a day
   const hours = Math.floor(minutes / 60)
   if (hours < 24) {
     return hours === 1 ? __('1 hour ago') : __('{0} hours ago', [hours])
   }
   
-  // Less than a week
   const days = Math.floor(hours / 24)
   if (days < 7) {
     return days === 1 ? __('1 day ago') : __('{0} days ago', [days])
   }
   
-  // Less than a month
   const weeks = Math.floor(days / 7)
   if (weeks < 4) {
     return weeks === 1 ? __('1 week ago') : __('{0} weeks ago', [weeks])
   }
   
-  // Less than a year
   const months = Math.floor(days / 30)
   if (months < 12) {
     return months === 1 ? __('1 month ago') : __('{0} months ago', [months])
   }
   
-  // More than a year
   const years = Math.floor(months / 12)
   return years === 1 ? __('1 year ago') : __('{0} years ago', [years])
 }
 
-// Format timestamp
-const formatTime = (timestamp) => {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  const now = new Date()
-  const diff = now - date
-
-  // If less than 24 hours ago, show time
-  if (diff < 24 * 60 * 60 * 1000) {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  }
-  // If this year, show date without year
-  if (date.getFullYear() === now.getFullYear()) {
-    return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
-  }
-  // Otherwise show full date
-  return date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })
-}
-
-// Function to fetch unread counts for all conversations
+// Function to fetch unread counts
 async function fetchUnreadCounts() {
   try {
     const unreadCountsResource = createResource({
@@ -695,11 +512,9 @@ async function fetchUnreadCounts() {
     })
     
     const counts = await unreadCountsResource.fetch()
-    // Reset all counts first
     conversations.value.forEach(conv => {
       unreadMessageCounts.value[conv.name] = 0
     })
-    // Then update with new counts
     counts.forEach(count => {
       unreadMessageCounts.value[count.conversation] = count.unread_count
     })
@@ -724,13 +539,9 @@ async function handleAssignmentChange(newAssignees) {
   if (!selectedConversation.value || !currentConversation.value) return
   
   try {
-    // Get the new assignee (we only support single assignment for now)
     const newAssignee = newAssignees[0]?.name
-    
-    // Update local state
     assignees.value = newAssignees
     
-    // Update conversation in the list
     const conversationIndex = conversations.value.findIndex(c => c.name === selectedConversation.value)
     if (conversationIndex !== -1) {
       conversations.value[conversationIndex] = {
@@ -742,8 +553,6 @@ async function handleAssignmentChange(newAssignees) {
     console.error('Failed to assign conversation:', error)
   }
 }
-
-
 
 // Add function to get current conversation details
 function getCurrentConversation() {
@@ -769,6 +578,12 @@ const currentConversation = computed(() => getCurrentConversation())
 async function handleConversationSelect(conversation) {
   selectedConversation.value = conversation.name
   
+  // Update URL without reloading the page
+  router.push({ 
+    name: 'Messenger',
+    params: { conversationId: conversation.name }
+  })
+  
   // Reset message pagination
   messagePage.value = 0
   hasMoreMessages.value = true
@@ -776,48 +591,45 @@ async function handleConversationSelect(conversation) {
   
   // Fetch assignees for the conversation
   try {
-  const assigneesResource = createResource({
-    url: 'frappe.client.get_list',
-    params: {
-      doctype: 'ToDo',
-      fields: ['allocated_to'],
-      filters: [
-        ['reference_type', '=', 'Messenger Conversation'],
-        ['reference_name', '=', conversation.name],
-        ['status', '=', 'Open']
-      ]
-    }
-  })
+    const assigneesResource = createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'ToDo',
+        fields: ['allocated_to'],
+        filters: [
+          ['reference_type', '=', 'Messenger Conversation'],
+          ['reference_name', '=', conversation.name],
+          ['status', '=', 'Open']
+        ]
+      }
+    })
 
-  const assigneesList = await assigneesResource.fetch()
+    const assigneesList = await assigneesResource.fetch()
 
-  // Extract unique user IDs
-  const userIds = [...new Set(assigneesList.map(a => a.allocated_to))]
+    const userIds = [...new Set(assigneesList.map(a => a.allocated_to))]
 
-  // Fetch full names from the User doctype
-  const userDetailsResource  = createResource({
-    url: 'frappe.client.get_list',
-    params: {
-      doctype: 'User',
-      fields: ['name', 'full_name'],
-      filters: [['name', 'in', userIds]]
-    }
-  })
-  const userDetails = await userDetailsResource.fetch()
+    const userDetailsResource = createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'User',
+        fields: ['name', 'full_name'],
+        filters: [['name', 'in', userIds]]
+      }
+    })
+    const userDetails = await userDetailsResource.fetch()
 
-  const userMap = Object.fromEntries(
-    userDetails.map(user => [user.name, user.full_name])
-  )
+    const userMap = Object.fromEntries(
+      userDetails.map(user => [user.name, user.full_name])
+    )
 
-  assignees.value = assigneesList.map(a => ({
-    name: a.allocated_to,
-    image: null,
-    label: userMap[a.allocated_to] || a.allocated_to
-  }))
-} catch (error) {
-  console.error('Failed to fetch assignees:', error)
-}
-
+    assignees.value = assigneesList.map(a => ({
+      name: a.allocated_to,
+      image: null,
+      label: userMap[a.allocated_to] || a.allocated_to
+    }))
+  } catch (error) {
+    console.error('Failed to fetch assignees:', error)
+  }
   
   // First get total count of messages
   const countResource = createResource({
@@ -876,7 +688,6 @@ async function handleSendMessage(messageData) {
   const currentConversation = getCurrentConversation()
   if (!currentConversation) return
 
-  // Format timestamp to match Frappe's datetime format (YYYY-MM-DD HH:mm:ss)
   const now = new Date()
   const timestamp = now.getFullYear() + '-' + 
     String(now.getMonth() + 1).padStart(2, '0') + '-' +
@@ -895,7 +706,7 @@ async function handleSendMessage(messageData) {
     content_type: messageData.content_type || 'text',
     attach: messageData.attach || '',
     reply_to: messageData.reply_to || '',
-    status: 'Sent' // Add initial status
+    status: 'Sent'
   }
 
   try {
@@ -903,13 +714,11 @@ async function handleSendMessage(messageData) {
       doc: newMessage
     })
     
-    // Add the new message to the messages array
     messages.value.push({
       ...newMessage,
       name: response.name
     })
 
-    // Update conversation in the list
     const conversationIndex = conversations.value.findIndex(c => c.name === currentConversation.name)
     if (conversationIndex !== -1) {
       conversations.value[conversationIndex] = {
@@ -918,20 +727,17 @@ async function handleSendMessage(messageData) {
         last_message_time: timestamp
       }
 
-      // Re-sort conversations
       conversations.value.sort((a, b) => {
         return new Date(b.last_message_time) - new Date(a.last_message_time)
       })
     }
 
-    // Scroll to bottom
     setTimeout(() => {
       if (messagesContainer.value) {
         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
       }
     }, 100)
 
-    // Refresh conversations list
     conversationsResource.reload()
   } catch (error) {
     console.error('Failed to send message:', error)
@@ -981,7 +787,6 @@ async function loadMoreConversations() {
       hasMoreConversations.value = false
     }
 
-    // Get user information for new conversations
     const senderIds = [...new Set(response.map(conv => conv.sender_id))]
     const usersResource = createResource({
       url: 'frappe.client.get_list',
@@ -998,7 +803,6 @@ async function loadMoreConversations() {
       userMap[user.user_id] = user.username
     })
     
-    // Map conversations with user information
     const newConversations = response.map(conv => ({
       ...conv,
       title: userMap[conv.sender_id] || conv.sender_id
@@ -1019,7 +823,6 @@ async function loadMoreMessages() {
   
   messagesLoading.value = true
   try {
-    // Get current first message timestamp
     const firstMessageTimestamp = messages.value[0]?.timestamp
 
     if (!firstMessageTimestamp) {
@@ -1027,7 +830,6 @@ async function loadMoreMessages() {
       return
     }
 
-    // Fetch older messages before the first displayed message
     const olderMessages = await createResource({
       url: 'frappe.client.get_list',
       params: {
@@ -1054,18 +856,14 @@ async function loadMoreMessages() {
     }).fetch()
 
     if (olderMessages.length > 0) {
-      // Preserve scroll position
       const scrollElement = messagesContainer.value
       const oldScrollHeight = scrollElement.scrollHeight
       const oldScrollTop = scrollElement.scrollTop
 
-      // Add older messages at the beginning
       messages.value = [...olderMessages.reverse(), ...messages.value]
 
-      // Update hasMoreMessages flag
       hasMoreMessages.value = olderMessages.length === messageLimit.value
 
-      // Restore scroll position after DOM update
       setTimeout(() => {
         const newScrollHeight = scrollElement.scrollHeight
         scrollElement.scrollTop = oldScrollTop + (newScrollHeight - oldScrollHeight)
@@ -1083,7 +881,6 @@ async function loadMoreMessages() {
 // Add scroll handler for messages container
 function handleMessagesScroll(e) {
   const el = e.target
-  // Load more when scrolled near top (threshold of 100px)
   if (el.scrollTop <= 100) {
     loadMoreMessages()
   }
@@ -1151,7 +948,6 @@ async function handleViewLead() {
   if (!selectedConversation.value) return
   
   try {
-    // Get the reference information from the conversation
     const referenceResource = createResource({
       url: 'frappe.client.get',
       params: {
@@ -1164,7 +960,6 @@ async function handleViewLead() {
     const conversation = await referenceResource.fetch()
     
     if (conversation.reference_doctype === 'CRM Lead' && conversation.reference_name) {
-      // Use router to navigate to lead page with data section
       router.push({
         name: 'Lead',
         params: { leadId: conversation.reference_name },
@@ -1183,7 +978,6 @@ async function handleBlockChat() {
   if (!selectedConversation.value) return
   
   try {
-    // Update block_chat field
     await createResource({
       url: 'frappe.client.set_value',
       params: {
@@ -1194,11 +988,9 @@ async function handleBlockChat() {
       }
     }).submit()
     
-    // Remove from conversations list
     conversations.value = conversations.value.filter(c => c.name !== selectedConversation.value)
     selectedConversation.value = null
     
-    // Show success message
     globalStore().$toast.success(__('Chat blocked successfully'))
   } catch (error) {
     console.error('Failed to block chat:', error)
@@ -1206,10 +998,117 @@ async function handleBlockChat() {
   }
 }
 
+// Add event listeners
+onMounted(async () => {
+  await fetchUnreadCounts()
+  
+  // Wait for conversations to load before selecting from URL
+  await conversationsResource.fetch()
+  
+  // Check if conversationId is in route params
+  if (route.params.conversationId) {
+    const conversation = conversations.value.find(c => c.name === route.params.conversationId)
+    if (conversation) {
+      await handleConversationSelect(conversation)
+    }
+  }
+  
+  $socket.on('messenger:message_update', (data) => {
+    if (data.conversation_id === selectedConversation.value) {
+      if (data.type === 'new') {
+        if (['image', 'video', 'audio', 'document'].includes(data.message.content_type)) {
+          if (data.message.attach) {
+            const existingIndex = messages.value.findIndex(m => m.name === data.message.name)
+            if (existingIndex !== -1) {
+              messages.value[existingIndex] = data.message
+            } else {
+              messages.value.push(data.message)
+            }
+          }
+        } else {
+          messages.value.push(data.message)
+        }
+        
+        setTimeout(() => {
+          if (messagesContainer.value) {
+            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+          }
+        }, 100)
+      }
+    }
+  })
+
+  $socket.on('messenger:conversation_update', (data) => {
+    if (data.type === 'update') {
+      const index = conversations.value.findIndex(c => c.name === data.conversation.name)
+      if (index !== -1) {
+        if (data.conversation.sender_id && !userProfiles.value[data.conversation.sender_id]) {
+          fetchUserProfile(data.conversation.sender_id)
+        }
+        
+        conversations.value[index] = {
+          ...conversations.value[index],
+          ...data.conversation,
+          profile: userProfiles.value[data.conversation.sender_id]?.profile || null
+        }
+        conversations.value.sort((a, b) => new Date(b.last_message_time) - new Date(a.last_message_time))
+      } else {
+        fetchUserProfile(data.conversation.sender_id).then(() => {
+          const newConversation = {
+            ...data.conversation,
+            title: userProfiles.value[data.conversation.sender_id]?.username || data.conversation.sender_id,
+            profile: userProfiles.value[data.conversation.sender_id]?.profile || null
+          }
+          
+          conversations.value = [
+            newConversation,
+            ...conversations.value
+          ].sort((a, b) => 
+            new Date(b.last_message_time) - new Date(a.last_message_time)
+          )
+          
+          fetchUnreadCounts()
+        })
+      }
+    }
+  })
+
+  $socket.on('messenger:unread_update', (data) => {
+    if (data.conversation_id) {
+      unreadMessageCounts.value[data.conversation_id] = data.unread_count
+    }
+  })
+
+  $socket.on('messenger:message_status_update', (data) => {
+    if (data.message_id) {
+      const messageIndex = messages.value.findIndex(m => m.name === data.name)
+      if (messageIndex !== -1) {
+        messages.value[messageIndex].status = data.status
+      }
+    }
+  })
+
+  $socket.on('messenger:block_status_update', (data) => {
+    if (data.conversation_id) {
+      conversations.value = conversations.value.filter(c => c.name !== data.conversation_id)
+      if (selectedConversation.value === data.conversation_id) {
+        selectedConversation.value = null
+      }
+    }
+  })
+})
+
+// Clean up event listeners
+onUnmounted(() => {
+  $socket.off('messenger:message_update')
+  $socket.off('messenger:conversation_update')
+  $socket.off('messenger:unread_update')
+  $socket.off('messenger:message_status_update')
+  $socket.off('messenger:block_status_update')
+})
 </script>
 
 <style scoped>
-/* Custom scrollbar styling */
 .overflow-y-auto {
   scrollbar-width: thin;
   scrollbar-color: #E5E7EB transparent;

@@ -280,6 +280,91 @@ The feature is implemented with the following components:
 7. Team-specific responses
 8. Response versioning
 
+## Routing Changes
+
+The messenger component has been split into two separate pages while maintaining the same visual layout:
+
+1. **Messenger List View** (`/messenger`)
+   - Shows the list of all conversations
+   - Allows filtering and searching conversations
+   - Displays unread message counts
+   - Shows conversation previews with last message
+
+2. **Individual Conversation View** (`/messenger/:conversationId`)
+   - Shows the selected conversation
+   - Maintains the conversation list on the left side
+   - Allows direct navigation to specific conversations via URL
+   - Supports deep linking from other parts of the application
+
+### Key Changes
+
+1. **URL-based Navigation**
+   - Conversations can now be accessed directly via URL
+   - Example: `/messenger/CONV123` will load conversation with ID CONV123
+   - The conversation list remains visible for easy switching between conversations
+
+2. **State Management**
+   - Conversation state is now managed through URL parameters
+   - Browser back/forward navigation works as expected
+   - Conversation selection is preserved on page refresh
+
+3. **Deep Linking**
+   - Other parts of the application can now link directly to specific conversations
+   - Useful for linking from leads, tasks, or other related items
+   - Maintains context by showing the conversation list
+
+4. **Real-time Updates**
+   - All real-time features continue to work as before
+   - Message updates, status changes, and unread counts are synchronized
+   - Conversation list updates in real-time
+
+### Usage Examples
+
+1. **Direct Navigation**
+   ```javascript
+   router.push({ 
+     name: 'Messenger',
+     params: { conversationId: 'CONV123' }
+   })
+   ```
+
+2. **Linking from Lead**
+   ```javascript
+   router.push({
+     name: 'Messenger',
+     params: { conversationId: lead.conversation_id }
+   })
+   ```
+
+3. **Programmatic Navigation**
+   ```javascript
+   // Navigate to conversation list
+   router.push({ name: 'MessengerList' })
+   
+   // Navigate to specific conversation
+   router.push({ 
+     name: 'Messenger',
+     params: { conversationId: conversation.name }
+   })
+   ```
+
+### Benefits
+
+1. **Better Navigation**
+   - Users can bookmark specific conversations
+   - Browser history works correctly
+   - Direct linking from other parts of the application
+
+2. **Improved UX**
+   - Maintains context with conversation list always visible
+   - Smooth transitions between conversations
+   - No loss of state on page refresh
+
+3. **Enhanced Integration**
+   - Better integration with other CRM features
+   - Easier to link conversations to leads and other entities
+   - More flexible navigation options
+
 ---
 
 *Last Updated: [Current Date]*

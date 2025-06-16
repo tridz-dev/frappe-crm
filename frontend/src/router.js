@@ -10,8 +10,14 @@ const routes = [
   },
   {
     path: '/messenger',
+    name: 'MessengerList',
+    component: () => import('@/pages/MessengerList.vue'),
+  },
+  {
+    path: '/messenger/:conversationId',
     name: 'Messenger',
     component: () => import('@/pages/Messenger.vue'),
+    props: true,
   },
   {
     path: '/notifications',
