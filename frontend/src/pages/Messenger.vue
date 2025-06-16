@@ -1008,6 +1008,8 @@ onMounted(async () => {
   // Check if conversationId is in route params
   if (route.params.conversationId) {
     const conversation = conversations.value.find(c => c.name === route.params.conversationId)
+
+    await handleConversationSelect(conversation)
     if (conversation) {
       await handleConversationSelect(conversation)
     }
