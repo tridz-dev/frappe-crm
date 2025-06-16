@@ -17,6 +17,16 @@
         :data="lead.data"
         doctype="CRM Lead"
       />
+      <Button
+        v-if="isMessengerInstalled && lead.data.custom_messenger_conversation"
+        :label="__('View Conversation')"
+        variant="subtle"
+        @click="viewMessengerConversation"
+      >
+        <template #prefix>
+          <MessengerIcon class="h-4 w-4" />
+        </template>
+      </Button>
       <Dropdown
         :options="statusOptions('lead', updateField, lead.data._customStatuses)"
       >
@@ -355,6 +365,7 @@ import {
   whatsappEnabled,
   callEnabled,
   isMobileView,
+  isMessengerInstalled,
 } from '@/composables/settings'
 import { capture } from '@/telemetry'
 import {
@@ -373,6 +384,7 @@ import { useOnboarding } from 'frappe-ui/frappe'
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
+import MessengerIcon from '@/components/Icons/Messenger.vue'
 
 const { brand } = getSettings()
 const { isManager } = usersStore()
@@ -713,5 +725,14 @@ const showQuickEntryModal = ref(false)
 function openQuickEntryModal() {
   showQuickEntryModal.value = true
   showConvertToDealModal.value = false
+}
+
+function viewMessengerConversation() {
+  if (lead.data?.custom_messenger_conversation) {
+    router.push({
+      name: 'Messenger',
+      params: { conversationId: lead.data.custom_messenger_conversation }
+    })
+  }
 }
 </script>
