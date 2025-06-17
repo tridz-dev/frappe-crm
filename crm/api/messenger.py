@@ -15,6 +15,36 @@ def is_messenger_installed():
         return False
     return True
 
+@frappe.whitelist()
+def get_conversation_tags(conversation_name):
+    """Return tags for a Messenger Conversation as a list of dicts with tag_name and color."""
+    doc = frappe.get_doc("Messenger Conversation", conversation_name)
+    tags = []
+    for row in doc.tags:
+        color = frappe.db.get_value("Messenger Tags", row.tag, "color")
+        tags.append({"tag_name": row.tag, "color": color})
+    return tags
+    # return [
+    #     {"tag_name": row.tag_name, "color": row.color}
+    #     for row in doc.tags
+    # ]
+
+@frappe.whitelist()
+def set_conversation_tags(conversation_name, tags):
+    """Set tags for a Messenger Conversation. Tags is a list of dicts with tag_name and color."""
+    import json
+    if isinstance(tags, str):
+        tags = json.loads(tags)
+    doc = frappe.get_doc("Messenger Conversation", conversation_name)
+    doc.set("tags", [])
+    print("Tags  ==> ",tags)
+    for tag in tags:
+        doc.append("tags", {
+            "tag": tag["tag_name"]
+        })
+    doc.save(ignore_permissions=True)
+    frappe.db.commit()
+    return True
 
 def on_update(doc, method):
     """Trigger realtime updates when messenger message is updated."""

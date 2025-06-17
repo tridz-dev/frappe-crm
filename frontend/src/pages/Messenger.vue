@@ -105,7 +105,31 @@
             class="flex-shrink-0"
           />
           <div class="ml-3">
-            <h3 class="text-base font-medium text-gray-900">{{ selectedConversationTitle }}</h3>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-medium text-gray-900">
+                {{ selectedConversationTitle }}
+              </h3>
+              <!-- Tag pills and plus button aligned here -->
+              <template v-for="(tag, idx) in selectedTags.slice(0,2)" :key="tag.tag_name">
+                <span :class="'px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer ' + (tagColorMap[tag.color] || 'bg-gray-200 text-gray-800')">
+                  {{ tag.tag_name }}
+                  <span class="ml-1 cursor-pointer" @click.stop="removeTag(tag)">&times;</span>
+                </span>
+              </template>
+              <span v-if="selectedTags.length > 2" class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer" @click="showAllTags = true">
+                +{{ selectedTags.length - 2 }}
+              </span>
+              <span v-if="unselectedTags.length" class="relative">
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 cursor-pointer border border-dashed border-gray-400" @click="showAddTagDropdown = !showAddTagDropdown">
+                  +
+                </span>
+                <div v-if="showAddTagDropdown" class="absolute left-0 mt-2 min-w-max bg-white border rounded shadow z-50">
+                  <div v-for="tag in unselectedTags" :key="tag.tag_name" @click="addTag(tag)" :class="'px-3 py-1 cursor-pointer hover:bg-gray-100 ' + (tagColorMap[tag.color] || '')">
+                    {{ tag.tag_name }}
+                  </div>
+                </div>
+              </span>
+            </div>
             <div class="flex items-center gap-2">
               <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
             </div>
@@ -225,6 +249,17 @@
       <p class="mt-1 text-sm text-gray-500">
         {{ __('Please ensure Messenger is enabled in Messenger Settings.') }}
       </p>
+    </div>
+  </div>
+  <!-- Modal for all tags -->
+  <div v-if="showAllTags" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
+    <div class="bg-white rounded-lg p-4 min-w-[200px]">
+      <div class="flex flex-wrap gap-2">
+        <span v-for="tag in selectedTags" :key="tag.tag_name" :class="'px-2 py-0.5 rounded-full text-xs font-medium ' + (tagColorMap[tag.color] || 'bg-gray-200 text-gray-800')">
+          {{ tag.tag_name }}
+        </span>
+      </div>
+      <button class="mt-4 px-4 py-1 bg-gray-200 rounded" @click="showAllTags = false">Close</button>
     </div>
   </div>
 </template>
@@ -1359,6 +1394,99 @@ function getStatusColor(status) {
       return 'text-gray-400'
   }
 }
+
+// Tag color mapping
+const tagColorMap = {
+  black: 'bg-black text-white',
+  gray: 'bg-gray-200 text-gray-800',
+  blue: 'bg-blue-100 text-blue-800',
+  green: 'bg-green-100 text-green-800',
+  red: 'bg-red-100 text-red-800',
+  pink: 'bg-pink-100 text-pink-800',
+  orange: 'bg-orange-100 text-orange-800',
+  amber: 'bg-amber-100 text-amber-800',
+  yellow: 'bg-yellow-100 text-yellow-800',
+  cyan: 'bg-cyan-100 text-cyan-800',
+  teal: 'bg-teal-100 text-teal-800',
+  violet: 'bg-violet-100 text-violet-800',
+  purple: 'bg-purple-100 text-purple-800',
+}
+
+// All available tags
+const allTags = ref([])
+// Tags selected for the current conversation
+const selectedTags = ref([])
+// Show all tags modal
+const showAllTags = ref(false)
+// Show add tag dropdown
+const showAddTagDropdown = ref(false)
+
+// Fetch all tags on mount
+async function fetchAllTags() {
+  const tagsResource = createResource({
+    url: 'frappe.client.get_list',
+    params: {
+      doctype: 'Messenger Tags',
+      fields: ['tag_name', 'color'],
+      order_by: 'tag_name asc',
+    },
+  })
+  allTags.value = await tagsResource.fetch()
+}
+
+onMounted(() => {
+  fetchAllTags()
+})
+
+// When a conversation is selected, fetch tags from backend
+watch(selectedConversation, (val) => {
+  fetchConversationTags(val)
+})
+
+// Fetch tags for a conversation from backend
+async function fetchConversationTags(conversationName) {
+  if (!conversationName) return
+  try {
+    const tags = await call('crm.api.messenger.get_conversation_tags', { conversation_name: conversationName })
+    console.log("Tags  ==> ",tags)
+    selectedTags.value = tags || []
+  } catch (e) {
+    selectedTags.value = []
+  }
+}
+
+// Save tags for a conversation to backend
+async function saveConversationTags() {
+  if (!selectedConversation.value) return
+  try {
+    await call('crm.api.messenger.set_conversation_tags', {
+      conversation_name: selectedConversation.value,
+      tags: selectedTags.value
+    })
+  } catch (e) {
+    // Optionally show error
+  }
+}
+
+// Add tag to selectedTags and save to backend
+async function addTag(tag) {
+  if (!selectedTags.value.find(t => t.tag_name === tag.tag_name)) {
+    selectedTags.value.push(tag)
+    await saveConversationTags()
+  }
+  showAddTagDropdown.value = false
+}
+
+// Remove tag from selectedTags and save to backend
+async function removeTag(tag) {
+  selectedTags.value = selectedTags.value.filter(t => t.tag_name !== tag.tag_name)
+  await saveConversationTags()
+}
+
+// Unselected tags for dropdown
+const unselectedTags = computed(() => {
+  return allTags.value.filter(tag => !selectedTags.value.find(t => t.tag_name === tag.tag_name))
+})
 </script>
 
 <style scoped>

@@ -482,6 +482,20 @@ The messenger system now displays status updates within the conversation timelin
 4. Date grouping is maintained
 5. All existing message functionality is preserved
 
+## Tag Selection Dropdown Positioning
+
+- The tag selection dropdown (when clicking the "+" button) now appears directly below the plus button, rather than overlapping the profile name.
+- The dropdown is absolutely positioned with a shadow and border for clarity.
+- This improves usability and visual clarity, especially when there are multiple tags or long profile names.
+- No other features are affected by this change.
+
+## Tag Management Backend Integration
+
+- Tag selection and removal now persist to the backend using custom API endpoints (`get_conversation_tags` and `set_conversation_tags`).
+- When a conversation is selected, tags are fetched from the backend and displayed.
+- When tags are added or removed, the updated tag list is saved to the backend and immediately reflected in the UI.
+- This ensures tags are always in sync and persist across sessions and devices.
+
 ---
 
 *Last Updated: [Current Date]*
