@@ -411,6 +411,77 @@ The messenger system now supports setting and tracking conversation statuses. Th
 3. Choose a status from the available options
 4. The status will be updated immediately and reflected across all clients
 
+## Status Update Timeline
+
+The messenger system now displays status updates within the conversation timeline, integrated with messages in chronological order. This feature provides a clear view of both conversation messages and status changes.
+
+### Features
+
+1. **Integrated Timeline**
+   - Status updates appear between messages in chronological order
+   - Maintains existing message grouping by date
+   - Shows status changes with distinct styling
+   - Preserves all existing message functionality
+
+2. **Status Update Display**
+   - Shows status change details in a centered notification
+   - Displays who changed the status
+   - Shows when the status was changed
+   - Uses a distinct visual style to differentiate from messages
+
+3. **Real-time Updates**
+   - Status changes appear immediately in the timeline
+   - Updates are synchronized across all clients
+   - Maintains chronological order with messages
+   - Preserves existing real-time message updates
+
+### Technical Implementation
+
+1. **Frontend Changes**
+   - Added status log fetching and management
+   - Created combined timeline of messages and status updates
+   - Implemented chronological sorting
+   - Added distinct styling for status updates
+   - Preserved existing message grouping
+
+2. **Data Structure**
+   - Utilizes Messenger Conversation Status Log child table
+   - Combines message and status data
+   - Maintains timestamp-based ordering
+   - Preserves existing message structure
+
+3. **UI Components**
+   - Status update notifications
+   - Date grouping headers
+   - Message components
+   - Empty state handling
+
+### Visual Design
+
+1. **Status Update Notifications**
+   - Centered in the chat timeline
+   - Light blue background with border
+   - Clear status and user information
+   - Relative time display
+   - Distinct from message styling
+
+2. **Date Headers**
+   - Maintains existing date grouping
+   - Shows "Today", "Yesterday", or date
+   - Consistent with existing design
+   - Clear visual separation
+
+### Usage
+
+1. Status updates appear automatically in the chat timeline
+2. Each status update shows:
+   - The new status
+   - Who changed it
+   - When it was changed (in relative time)
+3. Updates appear in chronological order with messages
+4. Date grouping is maintained
+5. All existing message functionality is preserved
+
 ---
 
 *Last Updated: [Current Date]*

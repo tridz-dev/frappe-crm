@@ -67,4 +67,71 @@ The backend should emit the following socket events:
      message_id: message.name,
      status: 'Read'
    })
-   ``` 
+   ```
+
+# Message Status Display
+
+## Overview
+The Messenger component now includes an enhanced status display system that matches the style used in the Lead and Activities components. This provides a consistent user experience across the application.
+
+## Features
+
+### Status Icons
+- **Open Status**: Uses the IndicatorIcon with blue color
+- **Resolved Status**: Uses the CheckCircleIcon with green color
+- **Closed Status**: Uses the CheckCircleIcon with gray color
+- **Default Status**: Uses a custom StatusIcon with gray color
+
+### Visual Design
+- Status updates are displayed in a centered card with a light gray background
+- Each status update includes:
+  - Status icon with appropriate color
+  - Status change message
+  - New status value
+  - User who made the change
+  - Timestamp
+
+### Status Dropdown
+- The status dropdown now includes icons for each status option
+- The current status is displayed with its corresponding icon
+- Status options in the dropdown are color-coded:
+  - Open: Blue indicator icon
+  - Resolved: Green check circle icon
+  - Closed: Gray check circle icon
+  - Default: Gray status icon
+
+### Implementation Details
+
+#### New Components
+1. **StatusIcon.vue**
+   - A new icon component for default status display
+   - Uses a circular design with plus symbol
+   - Located in `components/Icons/StatusIcon.vue`
+
+#### Helper Functions
+1. `getStatusIcon(status)`
+   - Returns the appropriate icon component based on status
+   - Handles 'open', 'resolved', 'closed', and default cases
+   - Used in both status updates and dropdown options
+
+2. `getStatusColor(status)`
+   - Returns the appropriate color class based on status
+   - Uses Tailwind color classes for consistency
+   - Applied to icons in both status updates and dropdown
+
+## Usage
+Status updates are automatically displayed in the message timeline when a conversation's status changes. The display is consistent with the Lead and Activities components, providing a unified experience across the application.
+
+The status dropdown provides a visual way to change conversation status, with each option clearly indicated by its corresponding icon and color.
+
+## Styling
+- Background: Light gray (bg-gray-50)
+- Border: Gray (border-gray-200)
+- Text: Various shades of gray for different elements
+- Icons: Color-coded based on status type
+- Dropdown: Consistent styling with the rest of the application
+
+## Dependencies
+- Tailwind CSS for styling
+- Vue.js for component rendering
+- Custom icon components from the Icons directory 

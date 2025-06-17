@@ -82,11 +82,18 @@ def on_conversation_update(doc, method):
             )
         
         if doc.has_value_changed("status"):
+            last_status_log = doc.status_log[-1]
+            status_log={
+                "status": last_status_log.status,
+                "changed_on": last_status_log.changed_on,
+                "changed_by": last_status_log.changed_by
+            }
             frappe.publish_realtime(
                 "messenger:conversation_status_update",
                 {
                     "conversation_id": doc.name,
-                    "status": doc.status
+                    "status": doc.status,
+                    "status_log": status_log
                 }
             )
     except Exception as e:

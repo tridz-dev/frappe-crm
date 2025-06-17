@@ -108,31 +108,30 @@
             <h3 class="text-base font-medium text-gray-900">{{ selectedConversationTitle }}</h3>
             <div class="flex items-center gap-2">
               <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
-              <Dropdown
-                :options="statusOptions"
-                placement="bottom-start"
-                @select="handleStatusChange"
-              >
-                <template #default>
-                  <Button
-                    appearance="minimal"
-                    class="text-sm text-gray-500 hover:text-gray-900"
-                    :label="currentStatus"
-                    :icon-right="ChevronDownIcon"
-                  />
-                </template>
-              </Dropdown>
             </div>
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <Dropdown
+            :options="statusOptions"
+            placement="bottom-start"
+            @select="handleStatusChange"
+          >
+            <template #default>
+              <Button
+                appearance="minimal"
+                class="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 border border-gray-200 rounded-md px-3 py-1.5"
+                :label="currentStatus"
+                :icon-right="ChevronDownIcon"
+              />
+            </template>
+          </Dropdown>
           <AssignTo
             v-if="selectedConversation"
             :data="currentConversation"
             doctype="Messenger Conversation"
             v-model="assignees"
           />
-          <!-- Add Menu Button -->
           <Dropdown :options="conversationMenuOptions" placement="bottom-end">
             <template #default>
               <Button
@@ -156,11 +155,48 @@
           {{ __('Loading older messages...') }}
         </div>
         
-        <!-- Message Component -->
-        <MessengerArea 
-          :messages="messages"
-          @reply="handleReply"
-        />
+        <!-- Messages and Status Updates -->
+        <template v-if="Object.keys(groupedTimeline).length > 0">
+          <div v-for="(items, dateKey) in groupedTimeline" :key="dateKey">
+            <!-- Date Header -->
+            <div class="flex justify-center my-4">
+              <div class="bg-gray-100 rounded-full px-4 py-1 text-sm text-gray-600">
+                {{ formatDate(items[0].timestamp) }}
+              </div>
+            </div>
+            <!-- Items for this date -->
+            <div v-for="item in items" :key="item.type === 'message' ? item.name : `status-${item.changed_on}`">
+              <!-- Status Update Info Block -->
+              <div v-if="item.type === 'status'" class="flex justify-center my-4">
+                <div class="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm">
+                  <div class="flex items-center gap-2">
+                    <component 
+                      :is="getStatusIcon(item.status)"
+                      :class="getStatusColor(item.status)"
+                    />
+                    <span class="text-gray-600">{{ __('Status changed to') }}</span>
+                    <span class="font-medium text-gray-700">{{ item.status }}</span>
+                    <span class="text-gray-600">{{ __('by') }}</span>
+                    <span class="font-medium text-gray-700">{{ item.changed_by }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Message -->
+              <MessengerArea 
+                v-else-if="item.type === 'message'"
+                :messages="[item]"
+                @reply="handleReply"
+              />
+            </div>
+          </div>
+        </template>
+        
+        <!-- Empty state -->
+        <div v-else class="flex items-center justify-center h-full">
+          <div class="text-center text-gray-500">
+            {{ __('No messages yet') }}
+          </div>
+        </div>
       </div>
 
       <!-- Message Input -->
@@ -215,6 +251,9 @@ import AssignTo from '@/components/AssignTo.vue'
 import { call } from 'frappe-ui'
 import Filter from '@/components/Filter.vue'
 import MoreVerticalIcon from '@/components/Icons/MoreVerticalIcon.vue'
+import StatusIcon from '@/components/Icons/StatusIcon.vue'
+import CheckCircleIcon from '@/components/Icons/CheckCircleIcon.vue'
+import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -592,21 +631,51 @@ function getCurrentConversation() {
 // Add computed property for current conversation
 const currentConversation = computed(() => getCurrentConversation())
 
-// Modify handleConversationSelect to properly set up conversation data
+// Add these refs after existing refs
+const statusUpdates = ref([])
+
+// Replace statusLogResource definition
+const statusLogResource = createResource({
+  url: 'frappe.client.get',
+  params: {
+    doctype: 'Messenger Conversation',
+    name: '', // will be set dynamically
+    fields: ['status_log']
+  },
+  auto: false
+})
+
+// Update handleConversationSelect to fetch status_log from parent doc
 async function handleConversationSelect(conversation) {
+  if (!conversation) return
+  
   selectedConversation.value = conversation.name
   currentStatus.value = conversation.status || ''
   
-  // Update URL without reloading the page
-  router.push({ 
-    name: 'Messenger',
-    params: { conversationId: conversation.name }
-  })
+  // Reset messages and status updates
+  messages.value = []
+  statusUpdates.value = []
+  
+  // Fetch status logs from parent doc
+  try {
+    if (!statusLogResource.params) {
+      statusLogResource.params = {
+        doctype: 'Messenger Conversation',
+        name: conversation.name,
+        fields: ['status_log']
+      }
+    } else {
+      statusLogResource.params.name = conversation.name
+    }
+    await statusLogResource.fetch()
+    statusUpdates.value = statusLogResource.data.status_log || []
+  } catch (error) {
+    console.error('Failed to fetch status logs:', error)
+  }
   
   // Reset message pagination
   messagePage.value = 0
   hasMoreMessages.value = true
-  messages.value = []
   
   // Fetch assignees for the conversation
   try {
@@ -1125,6 +1194,9 @@ onMounted(async () => {
         conversations.value[conversationIndex].status = data.status
         if (selectedConversation.value === data.conversation_id) {
           currentStatus.value = data.status
+          if (data.status_log) {
+            statusUpdates.value.push(data.status_log)
+          }
         }
       }
     }
@@ -1189,6 +1261,102 @@ async function handleStatusChange(status) {
   } catch (error) {
     console.error('Failed to update status:', error)
     globalStore().$toast.error(__('Failed to update status'))
+  }
+}
+
+// Add this computed property to combine and sort messages and status updates
+const combinedTimeline = computed(() => {
+  if (!messages.value || !statusUpdates.value) return []
+  
+  const allItems = [
+    ...messages.value.map(msg => ({
+      ...msg,
+      type: 'message',
+      timestamp: msg.timestamp
+    })),
+    ...statusUpdates.value.map(update => ({
+      ...update,
+      type: 'status',
+      timestamp: update.changed_on
+    }))
+  ]
+ 
+  return allItems.sort((a, b) => {
+    return new Date(a.timestamp) - new Date(b.timestamp)
+  })
+})
+
+// Group timeline items by date, render date header once per group, then all items for that date
+const groupedTimeline = computed(() => {
+  // Combine messages and status updates, sort by timestamp
+  
+  const allItems = [
+    ...messages.value.map(msg => ({
+      ...msg,
+      type: 'message',
+      timestamp: msg.timestamp
+    })),
+    ...statusUpdates.value.map(update => ({
+      ...update,
+      type: 'status',
+      timestamp: update.changed_on
+    }))
+  ].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+
+  // Group by date
+  const groups = {}
+  allItems.forEach(item => {
+    const dateObj = new Date(item.timestamp)
+    const dateKey = dateObj.toDateString()
+    if (!groups[dateKey]) {
+      groups[dateKey] = []
+    }
+    groups[dateKey].push(item)
+  })
+
+  return groups
+})
+
+// Add this helper function
+function formatDate(dateString) {
+  const date = new Date(dateString)
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+  
+  if (date.toDateString() === today.toDateString()) {
+    return __('Today')
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return __('Yesterday')
+  } else {
+    return date.toLocaleDateString()
+  }
+}
+
+// Add these functions after the existing functions
+function getStatusIcon(status) {
+  switch (status?.toLowerCase()) {
+    case 'open':
+      return IndicatorIcon
+    case 'resolved':
+      return CheckCircleIcon
+    case 'closed':
+      return CheckCircleIcon
+    default:
+      return StatusIcon
+  }
+}
+
+function getStatusColor(status) {
+  switch (status?.toLowerCase()) {
+    case 'open':
+      return 'text-blue-500'
+    case 'resolved':
+      return 'text-green-500'
+    case 'closed':
+      return 'text-gray-500'
+    default:
+      return 'text-gray-400'
   }
 }
 </script>
