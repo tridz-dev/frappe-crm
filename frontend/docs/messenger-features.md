@@ -496,6 +496,14 @@ The messenger system now displays status updates within the conversation timelin
 - When tags are added or removed, the updated tag list is saved to the backend and immediately reflected in the UI.
 - This ensures tags are always in sync and persist across sessions and devices.
 
+## Conversation List Tag Display
+
+- Selected tags for each conversation are now shown as colored pill badges in the conversation list, without opening the conversation.
+- Up to 2 tags are shown as pills; if more, a '+N' pill is displayed.
+- Tag colors match the tag color logic in the chat header.
+- This feature is available in both Messenger.vue and MessengerList.vue.
+- Tags are fetched from the backend for all conversations and kept in sync.
+
 ---
 
 *Last Updated: [Current Date]*

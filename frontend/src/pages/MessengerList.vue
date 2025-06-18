@@ -74,7 +74,9 @@
           </div>
           <div class="ml-3 flex-1 min-w-0">
             <div class="flex items-center justify-between">
-              <p class="text-sm font-medium text-gray-900 truncate">{{ conversation.title }}</p>
+              <p class="text-sm font-medium text-gray-900 truncate">
+                {{ conversation.title }}
+              </p>
               <div class="flex flex-col items-end gap-0.5">
                 <p class="text-xs text-gray-500">{{ formatTimeAgo(conversation.last_message_time) }}</p>
                 <div
@@ -88,6 +90,15 @@
             <p class="text-sm text-gray-500 truncate">
               {{ conversation.last_message }}
             </p>
+            <!-- Tags moved below last message -->
+            <div class="flex items-center gap-1 mt-1 overflow-hidden" ref="tagContainer">
+              <template v-for="(tag, idx) in (conversationTags[conversation.name] || [])" :key="tag.tag_name">
+                <span :class="'px-1.5 py-0.5 rounded-full text-[10px] font-medium truncate max-w-[100px] border ' + (tagColorMap[tag.color] || 'border-gray-300 text-gray-800')">
+                  {{ tag.tag_name }}
+                </span>
+              </template>
+              <span v-if="shouldShowEllipsis(conversation.name)" class="text-[10px] text-gray-500">...</span>
+            </div>
           </div>
         </div>
       </div>
@@ -117,7 +128,7 @@
 
 <script setup>
 import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
-import { createResource } from 'frappe-ui'
+import { createResource, call } from 'frappe-ui'
 import { Button, Input, Avatar, Badge, Dropdown } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import ChevronDownIcon from '@/components/Icons/ChevronDownIcon.vue'
@@ -532,6 +543,67 @@ watch(messengerEnabled, (enabled) => {
     conversationsResource.fetch()
   }
 })
+
+// Add a map to store tags for each conversation
+const conversationTags = ref({})
+
+// Fetch tags for all conversations
+async function fetchAllConversationTags() {
+  const promises = conversations.value.map(async (conv) => {
+    try {
+      const tags = await call('crm.api.messenger.get_conversation_tags', { conversation_name: conv.name })
+      conversationTags.value[conv.name] = tags || []
+    } catch (e) {
+      conversationTags.value[conv.name] = []
+    }
+  })
+  await Promise.all(promises)
+}
+
+// Fetch tags whenever conversations list changes
+watch(conversations, () => {
+  fetchAllConversationTags()
+})
+
+// Tag color mapping
+const tagColorMap = {
+  black: 'border-black text-black',
+  gray: 'border-gray-300 text-gray-800',
+  blue: 'border-blue-500 text-blue-800',
+  green: 'border-green-500 text-green-800',
+  red: 'border-red-500 text-red-800',
+  pink: 'border-pink-500 text-pink-800',
+  orange: 'border-orange-500 text-orange-800',
+  amber: 'border-amber-500 text-amber-800',
+  yellow: 'border-yellow-500 text-yellow-800',
+  cyan: 'border-cyan-500 text-cyan-800',
+  teal: 'border-teal-500 text-teal-800',
+  violet: 'border-violet-500 text-violet-800',
+  purple: 'border-purple-500 text-purple-800',
+}
+
+// Add this function in the script section
+function shouldShowEllipsis(conversationName) {
+  const tags = conversationTags.value[conversationName] || []
+  if (!tags.length) return false
+  
+  // If there's only one tag and it's long, show ellipsis
+  if (tags.length === 1 && tags[0].tag_name.length > 15) return true
+  
+  // If there are multiple tags, check if they overflow
+  const container = document.querySelector('.overflow-hidden')
+  if (!container) return false
+  
+  const tagElements = container.querySelectorAll('span:not(:last-child)')
+  if (!tagElements.length) return false
+  
+  let totalWidth = 0
+  tagElements.forEach(el => {
+    totalWidth += el.offsetWidth
+  })
+  
+  return totalWidth > container.offsetWidth - 20 // 20px buffer for ellipsis
+}
 </script>
 
 <style scoped>

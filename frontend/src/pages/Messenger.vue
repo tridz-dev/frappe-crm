@@ -74,7 +74,9 @@
           </div>
           <div class="ml-3 flex-1 min-w-0">
             <div class="flex items-center justify-between">
-              <p class="text-sm font-medium text-gray-900 truncate">{{ conversation.title }}</p>
+              <p class="text-sm font-medium text-gray-900 truncate">
+                {{ conversation.title }}
+              </p>
               <div class="flex flex-col items-end gap-0.5">
                 <p class="text-xs text-gray-500">{{ formatTimeAgo(conversation.last_message_time) }}</p>
                 <div
@@ -88,6 +90,15 @@
             <p class="text-sm text-gray-500 truncate">
               {{ conversation.last_message }}
             </p>
+            <!-- Tags moved below last message -->
+            <div class="flex items-center gap-1 mt-1 overflow-hidden" ref="tagContainer">
+              <template v-for="(tag, idx) in (conversationTags[conversation.name] || [])" :key="tag.tag_name">
+                <span :class="'px-1.5 py-0.5 rounded-full text-[10px] font-medium truncate max-w-[100px] border ' + (tagColorMap[tag.color] || 'border-gray-300 text-gray-800')">
+                  {{ tag.tag_name }}
+                </span>
+              </template>
+              <span v-if="shouldShowEllipsis(conversation.name)" class="text-[10px] text-gray-500">...</span>
+            </div>
           </div>
         </div>
       </div>
@@ -97,30 +108,37 @@
     <div class="flex-1 flex flex-col bg-white" v-if="selectedConversation">
       <!-- Chat Header -->
       <div class="flex items-center justify-between p-4 border-b border-gray-200">
-        <div class="flex items-center">
+        <div class="flex items-center gap-4">
           <Avatar
             :label="selectedConversationTitle"
             :image="selectedConversationProfile"
             size="md"
             class="flex-shrink-0"
           />
-          <div class="ml-3">
+          <div class="flex items-center gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-base font-medium text-gray-900">
+                  {{ selectedConversationTitle }}
+                </h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
+              </div>
+            </div>
+            <!-- Tag pills and plus button aligned here -->
             <div class="flex items-center gap-2">
-              <h3 class="text-base font-medium text-gray-900">
-                {{ selectedConversationTitle }}
-              </h3>
-              <!-- Tag pills and plus button aligned here -->
               <template v-for="(tag, idx) in selectedTags.slice(0,2)" :key="tag.tag_name">
-                <span :class="'px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer ' + (tagColorMap[tag.color] || 'bg-gray-200 text-gray-800')">
+                <span :class="'px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer border ' + (tagColorMap[tag.color] || 'border-gray-300 text-gray-800')">
                   {{ tag.tag_name }}
                   <span class="ml-1 cursor-pointer" @click.stop="removeTag(tag)">&times;</span>
                 </span>
               </template>
-              <span v-if="selectedTags.length > 2" class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer" @click="showAllTags = true">
+              <span v-if="selectedTags.length > 2" class="px-2 py-0.5 rounded-full text-xs font-medium border border-gray-300 text-gray-800 cursor-pointer" @click="showAllTags = true">
                 +{{ selectedTags.length - 2 }}
               </span>
               <span v-if="unselectedTags.length" class="relative">
-                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 cursor-pointer border border-dashed border-gray-400" @click="showAddTagDropdown = !showAddTagDropdown">
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium border border-dashed border-gray-400 text-gray-800 cursor-pointer" @click="showAddTagDropdown = !showAddTagDropdown">
                   +
                 </span>
                 <div v-if="showAddTagDropdown" class="absolute left-0 mt-2 min-w-max bg-white border rounded shadow z-50">
@@ -129,9 +147,6 @@
                   </div>
                 </div>
               </span>
-            </div>
-            <div class="flex items-center gap-2">
-              <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
             </div>
           </div>
         </div>
@@ -252,16 +267,19 @@
     </div>
   </div>
   <!-- Modal for all tags -->
-  <div v-if="showAllTags" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
+  <div v-if="showAllTags" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30" @click.self="showAllTags = false">
     <div class="bg-white rounded-lg p-4 min-w-[200px]">
       <div class="flex flex-wrap gap-2">
-        <span v-for="tag in selectedTags" :key="tag.tag_name" :class="'px-2 py-0.5 rounded-full text-xs font-medium ' + (tagColorMap[tag.color] || 'bg-gray-200 text-gray-800')">
+        <span v-for="tag in selectedTags" :key="tag.tag_name" :class="'px-2 py-0.5 rounded-full text-xs font-medium border flex items-center gap-1 ' + (tagColorMap[tag.color] || 'border-gray-300 text-gray-800')">
           {{ tag.tag_name }}
+          <span class="cursor-pointer hover:text-red-500" @click="removeTag(tag)">&times;</span>
         </span>
       </div>
       <button class="mt-4 px-4 py-1 bg-gray-200 rounded" @click="showAllTags = false">Close</button>
     </div>
   </div>
+  <!-- Add click-outside handler for add tag dropdown -->
+  <div v-if="showAddTagDropdown" class="fixed inset-0 z-40" @click="showAddTagDropdown = false"></div>
 </template>
 
 <script setup>
@@ -318,19 +336,10 @@ const list = ref(null)
 
 // Add a computed property to track current filters
 const currentFilters = computed(() => {
-  return conversationsResource.params?.filters || {}
+  return list.value?.data?.params?.filters || {}
 })
 
 function updateFilter(filters) {
-  conversationsResource.params = {
-    doctype: 'Messenger Conversation',
-    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat','status'],
-    order_by: 'last_message_time desc',
-    filters: {
-      ...filters
-    }
-  }
-  
   if (!list.value) {
     list.value = {
       data: {
@@ -347,6 +356,15 @@ function updateFilter(filters) {
   } else {
     list.value.data.params.filters = filters
     list.value.params.filters = filters
+  }
+  
+  conversationsResource.params = {
+    doctype: 'Messenger Conversation',
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat','status'],
+    order_by: 'last_message_time desc',
+    filters: {
+      ...filters
+    }
   }
   
   conversationsResource.reload()
@@ -680,7 +698,7 @@ const statusLogResource = createResource({
   auto: false
 })
 
-// Update handleConversationSelect to fetch status_log from parent doc
+// Update handleConversationSelect to fetch tags
 async function handleConversationSelect(conversation) {
   if (!conversation) return
   
@@ -690,6 +708,14 @@ async function handleConversationSelect(conversation) {
   // Reset messages and status updates
   messages.value = []
   statusUpdates.value = []
+  
+  // Fetch tags for the selected conversation
+  try {
+    const tags = await call('crm.api.messenger.get_conversation_tags', { conversation_name: conversation.name })
+    conversationTags.value[conversation.name] = tags || []
+  } catch (e) {
+    conversationTags.value[conversation.name] = []
+  }
   
   // Fetch status logs from parent doc
   try {
@@ -1397,19 +1423,19 @@ function getStatusColor(status) {
 
 // Tag color mapping
 const tagColorMap = {
-  black: 'bg-black text-white',
-  gray: 'bg-gray-200 text-gray-800',
-  blue: 'bg-blue-100 text-blue-800',
-  green: 'bg-green-100 text-green-800',
-  red: 'bg-red-100 text-red-800',
-  pink: 'bg-pink-100 text-pink-800',
-  orange: 'bg-orange-100 text-orange-800',
-  amber: 'bg-amber-100 text-amber-800',
-  yellow: 'bg-yellow-100 text-yellow-800',
-  cyan: 'bg-cyan-100 text-cyan-800',
-  teal: 'bg-teal-100 text-teal-800',
-  violet: 'bg-violet-100 text-violet-800',
-  purple: 'bg-purple-100 text-purple-800',
+  black: 'border-black text-black',
+  gray: 'border-gray-300 text-gray-800',
+  blue: 'border-blue-500 text-blue-800',
+  green: 'border-green-500 text-green-800',
+  red: 'border-red-500 text-red-800',
+  pink: 'border-pink-500 text-pink-800',
+  orange: 'border-orange-500 text-orange-800',
+  amber: 'border-amber-500 text-amber-800',
+  yellow: 'border-yellow-500 text-yellow-800',
+  cyan: 'border-cyan-500 text-cyan-800',
+  teal: 'border-teal-500 text-teal-800',
+  violet: 'border-violet-500 text-violet-800',
+  purple: 'border-purple-500 text-purple-800',
 }
 
 // All available tags
@@ -1487,6 +1513,54 @@ async function removeTag(tag) {
 const unselectedTags = computed(() => {
   return allTags.value.filter(tag => !selectedTags.value.find(t => t.tag_name === tag.tag_name))
 })
+
+// Add a map to store tags for each conversation
+const conversationTags = ref({})
+
+// Fetch tags for all conversations
+async function fetchAllConversationTags() {
+  if (!conversations.value?.length) return
+  
+  const promises = conversations.value.map(async (conv) => {
+    try {
+      const tags = await call('crm.api.messenger.get_conversation_tags', { conversation_name: conv.name })
+      conversationTags.value[conv.name] = tags || []
+    } catch (e) {
+      conversationTags.value[conv.name] = []
+    }
+  })
+  await Promise.all(promises)
+}
+
+// Fetch tags whenever conversations list changes
+watch(() => conversations.value, () => {
+  if (conversations.value?.length) {
+    fetchAllConversationTags()
+  }
+}, { deep: true })
+
+// Add this function in the script section
+function shouldShowEllipsis(conversationName) {
+  const tags = conversationTags.value[conversationName] || []
+  if (!tags.length) return false
+  
+  // If there's only one tag and it's long, show ellipsis
+  if (tags.length === 1 && tags[0].tag_name.length > 15) return true
+  
+  // If there are multiple tags, check if they overflow
+  const container = document.querySelector('.overflow-hidden')
+  if (!container) return false
+  
+  const tagElements = container.querySelectorAll('span:not(:last-child)')
+  if (!tagElements.length) return false
+  
+  let totalWidth = 0
+  tagElements.forEach(el => {
+    totalWidth += el.offsetWidth
+  })
+  
+  return totalWidth > container.offsetWidth - 20 // 20px buffer for ellipsis
+}
 </script>
 
 <style scoped>
