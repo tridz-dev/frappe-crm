@@ -504,7 +504,35 @@ The messenger system now displays status updates within the conversation timelin
 - This feature is available in both Messenger.vue and MessengerList.vue.
 - Tags are fetched from the backend for all conversations and kept in sync.
 
+## Assigned User Avatars in Conversation List (2024-06)
+
+### Feature
+- The conversation list now displays avatars of assigned users (assignees) for each conversation, below the tags.
+- Hovering over an avatar shows the full name of the assignee.
+- The avatar size is reduced for compactness.
+
+### UI/UX Changes
+- **First row:** Profile name (left), timestamp (right).
+- **Second row:** Last message (left), unread count (right).
+- **Third row:** Tags (smaller), then assigned user avatars (right after tags).
+- Tag size is reduced for a more compact look.
+
+### Technical Details
+- Assignees are fetched for all conversations in the list, not just the selected one.
+- The avatars use the `Avatar` component with `size="xs"` and a tooltip for the full name.
+- No existing features were broken; all previous functionality remains.
+
+### Files Changed
+- `Messenger.vue`: Conversation list template and logic updated to show assignees, fix alignment, and reduce tag size.
+- `MessengerList.vue`: Same changes as above for the conversation list.
+
 ---
+
+### Changelog (2024-06)
+- Added assigned user avatars to conversation list (with tooltip, compact size)
+- Improved alignment: profile/timestamp, last message/unread, tags/assignees
+- Reduced tag size for better fit
+- No breaking changes to existing features
 
 *Last Updated: [Current Date]*
 *Author: CRM Development Team* 

@@ -73,32 +73,66 @@
             </div>
           </div>
           <div class="ml-3 flex-1 min-w-0">
+            <!-- First row: Profile name (left), timestamp (right) -->
             <div class="flex items-center justify-between">
               <p class="text-sm font-medium text-gray-900 truncate">
                 {{ conversation.title }}
               </p>
-              <div class="flex flex-col items-end gap-0.5">
-                <p class="text-xs text-gray-500">{{ formatTimeAgo(conversation.last_message_time) }}</p>
+              <p class="text-xs text-gray-500">{{ formatTimeAgo(conversation.last_message_time) }}</p>
+            </div>
+            <!-- Second row: Last message (left), unread count (right) and/or assignees if no unread count -->
+            <div class="flex items-center justify-between mt-0.5">
+              <p class="text-xs text-gray-500 truncate">
+                {{ conversation.last_message }}
+              </p>
+              <div class="flex items-center">
                 <div
                   v-if="unreadMessageCounts[conversation.name]"
-                  class="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-surface-gray-6 px-1 text-xs font-medium text-white ring-1 ring-white"
+                  class="flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-surface-gray-6 px-1 text-[10px] font-medium text-white ring-1 ring-white ml-2"
                 >
                   {{ unreadMessageCounts[conversation.name] }}
                 </div>
+                <!-- If no unread count, show assignees here -->
+                <template v-else-if="conversationAssignees[conversation.name] && conversationAssignees[conversation.name].length">
+                  <div class="flex items-center gap-0.5 ml-2">
+                    <Tooltip v-for="assignee in conversationAssignees[conversation.name]" :key="assignee.name" :text="assignee.label">
+                      <Avatar
+                        :label="assignee.label"
+                        :image="assignee.image"
+                        size="sm"
+                        class="border border-white -ml-1"
+                      />
+                    </Tooltip>
+                  </div>
+                </template>
               </div>
             </div>
-            <p class="text-sm text-gray-500 truncate">
-              {{ conversation.last_message }}
-            </p>
-            <!-- Tags moved below last message -->
-            <div class="flex items-center gap-1 mt-1 overflow-hidden" ref="tagContainer">
-              <template v-for="(tag, idx) in (conversationTags[conversation.name] || [])" :key="tag.tag_name">
-                <span :class="'px-1.5 py-0.5 rounded-full text-[10px] font-medium truncate max-w-[100px] border ' + (tagColorMap[tag.color] || 'border-gray-300 text-gray-800')">
-                  {{ tag.tag_name }}
-                </span>
-              </template>
-              <span v-if="shouldShowEllipsis(conversation.name)" class="text-[10px] text-gray-500">...</span>
-            </div>
+            <!-- Third row: Tags (smaller), then assigned user avatars (if unread count exists) -->
+            <template v-if="(conversationTags[conversation.name] && conversationTags[conversation.name].length) || (unreadMessageCounts[conversation.name] && conversationAssignees[conversation.name] && conversationAssignees[conversation.name].length)">
+              <div class="flex items-center mt-1 overflow-hidden min-h-[20px]">
+                <!-- Tags left, avatars right -->
+                <div class="flex items-center gap-1 flex-1" v-if="conversationTags[conversation.name] && conversationTags[conversation.name].length">
+                  <template v-for="(tag, idx) in (conversationTags[conversation.name] || [])" :key="tag.tag_name">
+                    <span :class="'px-1 py-0.5 rounded-full text-[9px] font-medium truncate max-w-[70px] border ' + (tagColorMap[tag.color] || 'border-gray-300 text-gray-800')">
+                      {{ tag.tag_name }}
+                    </span>
+                  </template>
+                  <span v-if="shouldShowEllipsis(conversation.name)" class="text-[9px] text-gray-500">...</span>
+                </div>
+                <div class="flex-1" v-else></div>
+                <!-- Assigned user avatars (if unread count exists) -->
+                <div class="flex items-center gap-0.5 ml-2" v-if="unreadMessageCounts[conversation.name] && conversationAssignees[conversation.name] && conversationAssignees[conversation.name].length">
+                  <Tooltip v-for="assignee in conversationAssignees[conversation.name]" :key="assignee.name" :text="assignee.label">
+                    <Avatar
+                      :label="assignee.label"
+                      :image="assignee.image"
+                      size="sm"
+                      class="border border-white -ml-1"
+                    />
+                  </Tooltip>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -285,7 +319,7 @@
 <script setup>
 import { ref, onMounted, watch, computed, onUnmounted, nextTick } from 'vue'
 import { createResource } from 'frappe-ui'
-import { Button, Input, Avatar, Badge, Dropdown } from 'frappe-ui'
+import { Button, Input, Avatar, Badge, Dropdown, Tooltip } from 'frappe-ui'
 import { useRouter, useRoute } from 'vue-router'
 import ChevronDownIcon from '@/components/Icons/ChevronDownIcon.vue'
 import MessengerArea from '@/components/MessengerArea.vue'
@@ -1561,6 +1595,63 @@ function shouldShowEllipsis(conversationName) {
   
   return totalWidth > container.offsetWidth - 20 // 20px buffer for ellipsis
 }
+
+// Add a map to store assignees for each conversation
+const conversationAssignees = ref({})
+
+// Fetch assignees for all conversations
+async function fetchAllConversationAssignees() {
+  if (!conversations.value?.length) return
+  const promises = conversations.value.map(async (conv) => {
+    try {
+      const assigneesResource = createResource({
+        url: 'frappe.client.get_list',
+        params: {
+          doctype: 'ToDo',
+          fields: ['allocated_to'],
+          filters: [
+            ['reference_type', '=', 'Messenger Conversation'],
+            ['reference_name', '=', conv.name],
+            ['status', '=', 'Open']
+          ]
+        }
+      })
+      const assigneesList = await assigneesResource.fetch()
+      if (!assigneesList.length) {
+        conversationAssignees.value[conv.name] = []
+        return
+      }
+      const userIds = [...new Set(assigneesList.map(a => a.allocated_to))]
+      if (!userIds.length) {
+        conversationAssignees.value[conv.name] = []
+        return
+      }
+      const userDetailsResource = createResource({
+        url: 'frappe.client.get_list',
+        params: {
+          doctype: 'User',
+          fields: ['name', 'full_name', 'user_image'],
+          filters: [['name', 'in', userIds]]
+        }
+      })
+      const userDetails = await userDetailsResource.fetch()
+      const userMap = Object.fromEntries(userDetails.map(user => [user.name, user]))
+      conversationAssignees.value[conv.name] = assigneesList.map(a => ({
+        name: a.allocated_to,
+        image: userMap[a.allocated_to]?.user_image || null,
+        label: userMap[a.allocated_to]?.full_name || a.allocated_to
+      }))
+    } catch (e) {
+      conversationAssignees.value[conv.name] = []
+    }
+  })
+  await Promise.all(promises)
+}
+
+// Fetch assignees whenever conversations list changes
+watch(() => conversations.value, () => {
+  fetchAllConversationAssignees()
+})
 </script>
 
 <style scoped>
