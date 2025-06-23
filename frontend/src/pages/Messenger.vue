@@ -172,13 +172,21 @@
                 +{{ selectedTags.length - 2 }}
               </span>
               <span v-if="unselectedTags.length" class="relative">
-                <span class="px-2 py-0.5 rounded-full text-xs font-medium border border-dashed border-gray-400 text-gray-800 cursor-pointer" @click="showAddTagDropdown = !showAddTagDropdown">
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium border border-dashed border-gray-400 text-gray-800 cursor-pointer" @click="() => { showAddTagDropdown = !showAddTagDropdown; tagSearchQuery = '' }">
                   +
                 </span>
                 <div v-if="showAddTagDropdown" class="absolute left-0 mt-2 min-w-max bg-white border rounded shadow z-50">
-                  <div v-for="tag in unselectedTags" :key="tag.tag_name" @click="addTag(tag)" :class="'px-3 py-1 cursor-pointer hover:bg-gray-100 ' + (tagColorMap[tag.color] || '')">
+                  <input
+                    v-model="tagSearchQuery"
+                    type="text"
+                    placeholder="Search tags..."
+                    class="w-full px-2 py-1 border-b border-gray-200 outline-none text-sm"
+                    @click.stop
+                  />
+                  <div v-for="tag in dropdownTags" :key="tag.tag_name" @click="addTag(tag)" :class="'px-3 py-1 cursor-pointer hover:bg-gray-100 ' + (tagColorMap[tag.color] || '')">
                     {{ tag.tag_name }}
                   </div>
+                  <div v-if="dropdownTags.length === 0" class="px-3 py-2 text-gray-400 text-sm">No tags found</div>
                 </div>
               </span>
             </div>
@@ -1481,6 +1489,9 @@ const showAllTags = ref(false)
 // Show add tag dropdown
 const showAddTagDropdown = ref(false)
 
+// Add a new ref for the search query
+const tagSearchQuery = ref('')
+
 // Fetch all tags on mount
 async function fetchAllTags() {
   const tagsResource = createResource({
@@ -1535,6 +1546,7 @@ async function addTag(tag) {
     await saveConversationTags()
   }
   showAddTagDropdown.value = false
+  tagSearchQuery.value = '' // Reset search
 }
 
 // Remove tag from selectedTags and save to backend
@@ -1651,6 +1663,64 @@ async function fetchAllConversationAssignees() {
 // Fetch assignees whenever conversations list changes
 watch(() => conversations.value, () => {
   fetchAllConversationAssignees()
+})
+
+// Add this computed property to filter unselected tags based on search query
+const filteredUnselectedTags = computed(() => {
+  if (!tagSearchQuery.value) return unselectedTags.value
+  return unselectedTags.value.filter(tag =>
+    tag.tag_name.toLowerCase().includes(tagSearchQuery.value.toLowerCase())
+  )
+})
+
+const searchedTags = ref([])
+const searching = ref(false)
+let searchTimeout = null
+
+// Debounce function
+function debounce(fn, delay) {
+  return (...args) => {
+    if (searchTimeout) clearTimeout(searchTimeout)
+    searchTimeout = setTimeout(() => fn(...args), delay)
+  }
+}
+
+watch(tagSearchQuery, debounce(async (query) => {
+  if (!query) {
+    searching.value = false
+    searchedTags.value = []
+    return
+  }
+  searching.value = true
+  // Fetch tags from backend matching the query, excluding already selected
+  try {
+    const tagsResource = createResource({
+      url: 'frappe.client.get_list',
+      params: {
+        doctype: 'Messenger Tags',
+        fields: ['tag_name', 'color'],
+        filters: [
+          ['tag_name', 'like', `%${query}%`]
+        ],
+        order_by: 'tag_name asc',
+        limit_page_length: 10
+      }
+    })
+    let tags = await tagsResource.fetch()
+    // Exclude already selected
+    tags = tags.filter(tag => !selectedTags.value.find(t => t.tag_name === tag.tag_name))
+    searchedTags.value = tags
+  } catch (e) {
+    searchedTags.value = []
+  }
+}, 300))
+
+const dropdownTags = computed(() => {
+  if (searching.value && tagSearchQuery.value) {
+    return searchedTags.value
+  }
+  // Default: first 10 unselected tags
+  return unselectedTags.value.slice(0, 10)
 })
 </script>
 
