@@ -418,7 +418,8 @@ const platformsResource = createResource({
   params: {
     doctype: 'Messenger Platform',
     fields: ['platform'],
-    order_by: 'platform asc'
+    order_by: 'platform asc',
+    filters: [['disabled', '=', 0]]
   },
   onSuccess: (data) => {
     platformOptions.value = [
