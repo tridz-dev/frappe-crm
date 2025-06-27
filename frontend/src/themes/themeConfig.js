@@ -30,6 +30,14 @@ export const themeDefinitions = [
     preview: {
       colors: ['bg-slate-900', 'bg-blue-500', 'bg-indigo-600']
     }
+  },
+  { 
+    label: 'Nebula', 
+    value: 'nebula',
+    description: 'Cosmic dashboard with stellar accents',
+    preview: {
+      colors: ['bg-slate-800', 'bg-cyan-400', 'bg-amber-400']
+    }
   }
 ]
 

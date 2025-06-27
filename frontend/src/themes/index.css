@@ -31,4 +31,5 @@
 
 /* Custom themes */
 @import './compact.css';
-@import './ant.css'; 
+@import './ant.css';
+@import './nebula.css'; 
