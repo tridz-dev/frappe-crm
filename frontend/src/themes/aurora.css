@@ -1,0 +1,326 @@
+/* Aurora Theme - Clean, professional dashboard with light blue/teal accents */
+html[data-theme="aurora"] {
+  /* TYPOGRAPHY - Clean, professional styling */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  
+  /* SPACING - Professional, balanced spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.25rem;
+  --space-2xl: 1.5rem;
+  --space-3xl: 2rem;
+  --space-4xl: 2.5rem;
+  
+  --component-padding-xs: 0.5rem;
+  --component-padding-sm: 0.75rem;
+  --component-padding-md: 1rem;
+  --component-padding-lg: 1.25rem;
+  --component-padding-xl: 1.5rem;
+  
+  /* SIZING - Modern, clean dimensions */
+  --border-radius-xs: 0.125rem;
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-2xl: 1rem;
+  
+  --input-height-sm: 2rem;
+  --input-height-md: 2.5rem;
+  --input-height-lg: 3rem;
+  
+  --button-height-sm: 2rem;
+  --button-height-md: 2.5rem;
+  --button-height-lg: 3rem;
+
+  /* OUTLINE VARIABLES - Clean light theme with teal accents */
+  --outline-white: #FFFFFF !important;
+  --outline-gray-1: #F8FAFC !important;
+  --outline-gray-2: #E2E8F0 !important;
+  --outline-gray-3: #CBD5E1 !important;
+  --outline-gray-4: #94A3B8 !important;
+  --outline-gray-5: #64748B !important;
+  --outline-gray-modals: #E2E8F0 !important;
+  
+  /* Aurora-specific teal/blue accents */
+  --outline-blue-1: #0EA5E9 !important;
+  --outline-blue-2: #0284C7 !important;
+  --outline-green-1: #10B981 !important;
+  --outline-green-2: #059669 !important;
+  --outline-red-1: #F87171 !important;
+  --outline-red-2: #EF4444 !important;
+  --outline-red-3: #DC2626 !important;
+  --outline-amber-1: #F59E0B !important;
+  --outline-amber-2: #D97706 !important;
+  --outline-orange-1: #FB923C !important;
+
+  /* SURFACE VARIABLES - Clean light palette with subtle blues */
+  --surface-white: #FFFFFF !important;
+  --surface-gray-1: #F8FAFC !important;
+  --surface-gray-2: #F1F5F9 !important;
+  --surface-gray-3: #E2E8F0 !important;
+  --surface-gray-4: #CBD5E1 !important;
+  --surface-gray-5: #94A3B8 !important;
+  --surface-gray-6: #64748B !important;
+  --surface-gray-7: #475569 !important;
+  
+  /* Aurora themed surfaces */
+  --surface-cards: #FFFFFF !important;
+  --surface-modal: #FFFFFF !important;
+  --surface-menu-bar: #F8FAFC !important;
+  --surface-selected: #EFF6FF !important;
+  
+  /* Status surface colors with aurora theme */
+  --surface-blue-1: #EFF6FF !important;
+  --surface-blue-2: #DBEAFE !important;
+  --surface-blue-3: #BFDBFE !important;
+  --surface-green-1: #ECFDF5 !important;
+  --surface-green-2: #D1FAE5 !important;
+  --surface-green-3: #A7F3D0 !important;
+  --surface-red-1: #FEF2F2 !important;
+  --surface-red-2: #FECACA !important;
+  --surface-red-3: #FCA5A5 !important;
+  --surface-red-4: #F87171 !important;
+  --surface-red-5: #EF4444 !important;
+  --surface-red-6: #DC2626 !important;
+  --surface-red-7: #B91C1C !important;
+  --surface-amber-1: #FFFBEB !important;
+  --surface-amber-2: #FEF3C7 !important;
+  --surface-amber-3: #FDE68A !important;
+  --surface-orange-1: #FFF7ED !important;
+  --surface-violet-1: #F5F3FF !important;
+  --surface-cyan-1: #ECFEFF !important;
+  --surface-pink-1: #FDF2F8 !important;
+
+  /* INK/TEXT VARIABLES - Professional text hierarchy */
+  --ink-white: #FFFFFF !important;
+  --ink-gray-1: #F8FAFC !important;
+  --ink-gray-2: #F1F5F9 !important;
+  --ink-gray-3: #E2E8F0 !important;
+  --ink-gray-4: #CBD5E1 !important;
+  --ink-gray-5: #94A3B8 !important;
+  --ink-gray-6: #64748B !important;
+  --ink-gray-7: #475569 !important;
+  --ink-gray-8: #334155 !important;
+  --ink-gray-9: #1E293B !important;
+  
+  /* Aurora themed text colors */
+  --ink-blue-1: #1E40AF !important;
+  --ink-blue-2: #1D4ED8 !important;
+  --ink-blue-3: #2563EB !important;
+  --ink-blue-4: #3B82F6 !important;
+  --ink-blue-link: #0EA5E9 !important;
+  --ink-green-1: #047857 !important;
+  --ink-green-2: #059669 !important;
+  --ink-green-3: #10B981 !important;
+  --ink-red-1: #B91C1C !important;
+  --ink-red-2: #DC2626 !important;
+  --ink-red-3: #EF4444 !important;
+  --ink-red-4: #F87171 !important;
+  --ink-amber-1: #92400E !important;
+  --ink-amber-2: #D97706 !important;
+  --ink-amber-3: #F59E0B !important;
+  --ink-cyan-1: #0891B2 !important;
+  --ink-pink-1: #DB2777 !important;
+  --ink-violet-1: #7C3AED !important;
+}
+
+/* Aurora Theme CSS Overrides */
+
+/* Base layer overrides - Typography */
+[data-theme="aurora"] .text-xs { font-size: var(--text-xs) !important; }
+[data-theme="aurora"] .text-sm { font-size: var(--text-sm) !important; }
+[data-theme="aurora"] .text-base { font-size: var(--text-base) !important; }
+[data-theme="aurora"] .text-lg { font-size: var(--text-lg) !important; }
+[data-theme="aurora"] .text-xl { font-size: var(--text-xl) !important; }
+[data-theme="aurora"] .text-2xl { font-size: var(--text-2xl) !important; }
+[data-theme="aurora"] .text-3xl { font-size: var(--text-3xl) !important; }
+
+/* Font family overrides */
+[data-theme="aurora"] .font-sans { font-family: var(--font-family-sans) !important; }
+
+/* Font weight overrides */
+[data-theme="aurora"] .font-normal { font-weight: var(--font-normal) !important; }
+[data-theme="aurora"] .font-medium { font-weight: var(--font-medium) !important; }
+[data-theme="aurora"] .font-semibold { font-weight: var(--font-semibold) !important; }
+[data-theme="aurora"] .font-bold { font-weight: var(--font-bold) !important; }
+
+/* Line height overrides */
+[data-theme="aurora"] .leading-tight { line-height: var(--leading-tight) !important; }
+[data-theme="aurora"] .leading-normal { line-height: var(--leading-normal) !important; }
+[data-theme="aurora"] .leading-relaxed { line-height: var(--leading-relaxed) !important; }
+
+/* Spacing overrides */
+[data-theme="aurora"] .p-1 { padding: var(--space-xs) !important; }
+[data-theme="aurora"] .p-2 { padding: var(--space-sm) !important; }
+[data-theme="aurora"] .p-3 { padding: var(--space-md) !important; }
+[data-theme="aurora"] .p-4 { padding: var(--space-lg) !important; }
+
+[data-theme="aurora"] .px-2 { 
+  padding-left: var(--component-padding-xs) !important; 
+  padding-right: var(--component-padding-xs) !important; 
+}
+
+[data-theme="aurora"] .px-3 { 
+  padding-left: var(--component-padding-md) !important; 
+  padding-right: var(--component-padding-md) !important; 
+}
+
+[data-theme="aurora"] .gap-1 { gap: var(--space-xs) !important; }
+[data-theme="aurora"] .gap-2 { gap: var(--space-sm) !important; }
+[data-theme="aurora"] .gap-3 { gap: var(--space-md) !important; }
+[data-theme="aurora"] .gap-4 { gap: var(--space-lg) !important; }
+
+/* Border radius overrides */
+[data-theme="aurora"] .rounded { border-radius: var(--border-radius-md) !important; }
+[data-theme="aurora"] .rounded-sm { border-radius: var(--border-radius-sm) !important; }
+[data-theme="aurora"] .rounded-md { border-radius: var(--border-radius-lg) !important; }
+[data-theme="aurora"] .rounded-lg { border-radius: var(--border-radius-xl) !important; }
+
+/* Component height overrides */
+[data-theme="aurora"] .h-7 { height: var(--input-height-sm) !important; }
+[data-theme="aurora"] .h-8 { height: var(--input-height-md) !important; }
+[data-theme="aurora"] .h-10 { height: var(--input-height-lg) !important; }
+
+/* Additional spacing overrides */
+[data-theme="aurora"] .pl-2 { padding-left: var(--component-padding-xs) !important; }
+[data-theme="aurora"] .pr-2 { padding-right: var(--component-padding-xs) !important; }
+[data-theme="aurora"] .pl-2\.5 { padding-left: var(--component-padding-sm) !important; }
+[data-theme="aurora"] .pr-2\.5 { padding-right: var(--component-padding-sm) !important; }
+[data-theme="aurora"] .px-2\.5 { 
+  padding-left: var(--component-padding-sm) !important; 
+  padding-right: var(--component-padding-sm) !important; 
+}
+
+[data-theme="aurora"] .mb-2 { margin-bottom: var(--space-sm) !important; }
+[data-theme="aurora"] .mt-2 { margin-top: var(--space-sm) !important; }
+[data-theme="aurora"] .gap-1\.5 { gap: calc(var(--space-xs) * 1.5) !important; }
+[data-theme="aurora"] .gap-2\.5 { gap: calc(var(--space-sm) * 1.25) !important; }
+
+/* Space-y overrides */
+[data-theme="aurora"] .space-y-1 > * + * { margin-top: var(--space-xs) !important; }
+[data-theme="aurora"] .space-y-1\.5 > * + * { margin-top: calc(var(--space-xs) * 1.5) !important; }
+[data-theme="aurora"] .space-y-2 > * + * { margin-top: var(--space-sm) !important; }
+[data-theme="aurora"] .space-y-3 > * + * { margin-top: var(--space-md) !important; }
+[data-theme="aurora"] .space-y-4 > * + * { margin-top: var(--space-lg) !important; }
+
+/* Component layer overrides */
+[data-theme="aurora"] .form-input,
+[data-theme="aurora"] .form-textarea,
+[data-theme="aurora"] .form-select {
+  height: var(--input-height-sm) !important;
+  font-size: var(--text-base) !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: calc(var(--space-xs) * 1.5) var(--component-padding-xs) !important;
+}
+
+/* Button component overrides */
+[data-theme="aurora"] .h-7.rounded { 
+  height: var(--button-height-sm) !important; 
+  border-radius: var(--border-radius-md) !important;
+  font-size: var(--text-base) !important;
+  padding-left: var(--component-padding-xs) !important;
+  padding-right: var(--component-padding-xs) !important;
+}
+
+[data-theme="aurora"] .h-8.rounded { 
+  height: var(--button-height-md) !important; 
+  border-radius: var(--border-radius-md) !important;
+  font-size: var(--text-base) !important;
+}
+
+[data-theme="aurora"] .h-10.rounded-md { 
+  height: var(--button-height-lg) !important; 
+  border-radius: var(--border-radius-lg) !important;
+  font-size: var(--text-lg) !important;
+  padding-left: var(--component-padding-md) !important;
+  padding-right: var(--component-padding-md) !important;
+}
+
+/* Specific overrides for Aurora theme to preserve icon and logo visibility */
+[data-theme="aurora"] .size-4 {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+/* Logo sizing - keep original size for proper visibility */
+[data-theme="aurora"] .size-8 {
+  width: 2rem !important;
+  height: 2rem !important;
+}
+
+/* Ensure sidebar links maintain proper height in Aurora theme */
+[data-theme="aurora"] .h-7 {
+  height: 1.75rem !important;
+}
+
+/* UserDropdown - increase height to accommodate logo properly */
+[data-theme="aurora"] .h-12 {
+  height: 3.5rem !important;
+}
+
+/* Preserve icon container sizing in Aurora theme */
+[data-theme="aurora"] .grid.place-items-center {
+  min-width: 1rem;
+  min-height: 1rem;
+}
+
+/* Ensure flex-shrink-0 icons maintain visibility */
+[data-theme="aurora"] .flex-shrink-0 {
+  flex-shrink: 0 !important;
+}
+
+/* Preserve component icon sizing in Aurora theme */
+[data-theme="aurora"] svg {
+  flex-shrink: 0;
+}
+
+/* Ensure BrandLogo maintains proper sizing and spacing */
+[data-theme="aurora"] .max-w-16 {
+  max-width: 4rem !important;
+}
+
+/* Better spacing for UserDropdown in Aurora theme */
+[data-theme="aurora"] .h-12.flex.items-center {
+  padding: 0.75rem !important;
+  min-height: 3.5rem !important;
+}
+
+/* Specific UserDropdown button styling for Aurora theme */
+[data-theme="aurora"] .h-12.flex.items-center.rounded-md {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+[data-theme="aurora"] .h-12 .h-8.max-w-16.flex-shrink-0 {
+  width: 2rem !important;
+  height: 2rem !important;
+  margin-right: 0.75rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Preserve sidebar padding and spacing */
+[data-theme="aurora"] .mx-2 {
+  margin-left: 0.5rem !important;
+  margin-right: 0.5rem !important;
+}
+
+[data-theme="aurora"] .my-0\.5 {
+  margin-top: 0.125rem !important;
+  margin-bottom: 0.125rem !important;
+}

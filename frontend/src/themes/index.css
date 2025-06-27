@@ -1,0 +1,7 @@
+/* CRM Theme System - Import all theme files */
+
+/* Custom themes */
+@import './compact.css';
+@import './ant.css';
+@import './nebula.css';
+@import './aurora.css'; 
