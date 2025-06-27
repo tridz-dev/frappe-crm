@@ -249,4 +249,9 @@
 	.input-theme:focus {
 		@apply border-outline-blue-2 ring-1 ring-outline-blue-2;
 	}
+	
+	/* Beta pill styling for theme indicators */
+	.beta-pill {
+		@apply px-1.5 py-0.5 text-2xs font-medium bg-blue-100 text-blue-700 rounded-full;
+	}
 }

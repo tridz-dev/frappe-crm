@@ -25,7 +25,15 @@
               :class="`w-3 h-3 rounded-full ${color}`"
             ></div>
           </div>
-          <span class="text-xs font-medium">{{ themeOption.label }}</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-medium">{{ themeOption.label }}</span>
+            <span 
+              v-if="themeOption.beta" 
+              class="beta-pill"
+            >
+              BETA
+            </span>
+          </div>
           <p class="text-2xs text-ink-gray-6 text-center">{{ themeOption.description }}</p>
           <div 
             v-if="currentTheme === themeOption.value"

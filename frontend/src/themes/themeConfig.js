@@ -19,6 +19,7 @@ export const themeDefinitions = [
     label: 'Compact', 
     value: 'compact',
     description: 'Dense, space-efficient',
+    beta: true,
     preview: {
       colors: ['bg-gray-100', 'bg-gray-300', 'bg-blue-200']
     }
@@ -27,6 +28,7 @@ export const themeDefinitions = [
     label: 'Ant', 
     value: 'ant',
     description: 'Modern dark theme with vibrant accents',
+    beta: true,
     preview: {
       colors: ['bg-slate-900', 'bg-blue-500', 'bg-indigo-600']
     }
@@ -35,6 +37,7 @@ export const themeDefinitions = [
     label: 'Nebula', 
     value: 'nebula',
     description: 'Cosmic dashboard with stellar accents',
+    beta: true,
     preview: {
       colors: ['bg-slate-800', 'bg-cyan-400', 'bg-amber-400']
     }
@@ -43,6 +46,7 @@ export const themeDefinitions = [
     label: 'Aurora', 
     value: 'aurora',
     description: 'Clean, professional dashboard with light blue accents',
+    beta: true,
     preview: {
       colors: ['bg-slate-50', 'bg-sky-400', 'bg-emerald-400']
     }
