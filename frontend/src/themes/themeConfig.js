@@ -48,7 +48,7 @@ export const themeDefinitions = [
     description: 'Clean, professional dashboard with light blue accents',
     beta: true,
     preview: {
-      colors: ['bg-slate-50', 'bg-sky-400', 'bg-emerald-400']
+      colors: ['bg-blue-50', 'bg-blue-400', 'bg-green-400']
     }
   }
 ]
