@@ -198,7 +198,13 @@
   .ring-outline-amber-2 { --tw-ring-color: rgb(var(--outline-amber-2)); }
 }
 
-/* Base layer styles - no theme-specific overrides needed here anymore */
+/* Base layer styles - Override Bootstrap table borders */
+@layer base {
+	/* Remove ListView row borders from frappe-ui */
+	.border-outline-gray-1 {
+		border-color: transparent !important;
+	}
+}
 
 @layer components {
 	/* Global component styles - theme-specific overrides are now in individual theme files */
@@ -214,13 +220,9 @@
 		prose-img:rounded-lg
 		prose-sm
 		prose-table:table-fixed
-		prose-td:border
-		prose-td:border-outline-gray-2
 		prose-td:p-2
 		prose-td:relative
 		prose-th:bg-surface-gray-2
-		prose-th:border
-		prose-th:border-outline-gray-2
 		prose-th:p-2
 		prose-th:relative
 	}
