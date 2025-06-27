@@ -1,13 +1,13 @@
 <template>
   <div v-if="messengerEnabled" class="flex h-full">
     <!-- Left Column: Conversations List -->
-    <div class="w-80 border-r border-gray-200 flex flex-col">
-      <div class="p-4 space-y-2 border-b border-gray-200">
+    <div class="w-80 border-r border-outline-gray-1 flex flex-col">
+      <div class="p-4 space-y-2 border-b border-outline-gray-1">
         <div class="flex items-center justify-between gap-x-2">
-          <h2 class="text-lg font-medium text-gray-900">{{ __('Messages') }}</h2>
+          <h2 class="text-lg font-medium text-ink-gray-9">{{ __('Messages') }}</h2>
           <Button
             appearance="minimal"
-            class="text-gray-600 hover:text-gray-900"
+            class="text-ink-gray-4 hover:text-ink-gray-9"
             :icon="RefreshIcon"
             @click="conversationsResource.reload()"
           />
@@ -21,7 +21,7 @@
             <template #default>
               <Button
                 appearance="minimal"
-                class="min-w-[200px] justify-between text-gray-600 hover:text-gray-900"
+                class="min-w-[200px] justify-between text-ink-gray-4 hover:text-ink-gray-9"
                 :label="selectedPlatformFilter === 'all' ? __('All') : selectedPlatformFilter"
                 :icon-right="ChevronDownIcon"
               />
@@ -46,15 +46,15 @@
         }"
       >
         <!-- Loading indicator for conversations -->
-        <div v-if="conversationsLoading" class="p-4 text-center text-gray-500">
+        <div v-if="conversationsLoading" class="p-4 text-center text-ink-gray-3">
           {{ __('Loading more conversations...') }}
         </div>
         
         <div
           v-for="conversation in filteredConversations"
           :key="conversation.name"
-          class="group flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 transition-colors"
-          :class="{ 'bg-gray-50': selectedConversation === conversation.name }"
+          class="group flex items-center p-4 hover:bg-surface-gray-1 cursor-pointer border-b border-outline-gray-1 transition-colors"
+          :class="{ 'bg-surface-gray-1': selectedConversation === conversation.name }"
           @click="handleConversationSelect(conversation)"
         >
           <div class="relative">
@@ -75,14 +75,14 @@
           <div class="ml-3 flex-1 min-w-0">
             <!-- First row: Profile name (left), timestamp (right) -->
             <div class="flex items-center justify-between">
-              <p class="text-sm font-medium text-gray-900 truncate">
+              <p class="text-sm font-medium text-ink-gray-9 truncate">
                 {{ conversation.title }}
               </p>
-              <p class="text-xs text-gray-500">{{ formatTimeAgo(conversation.last_message_time) }}</p>
+              <p class="text-xs text-ink-gray-3">{{ formatTimeAgo(conversation.last_message_time) }}</p>
             </div>
             <!-- Second row: Last message (left), unread count (right) and/or assignees if no unread count -->
             <div class="flex items-center justify-between mt-0.5">
-              <p class="text-xs text-gray-500 truncate">
+              <p class="text-xs text-ink-gray-3 truncate">
                 {{ conversation.last_message }}
               </p>
               <div class="flex items-center">
@@ -113,11 +113,11 @@
                 <!-- Tags left, avatars right -->
                 <div class="flex items-center gap-1 flex-1" v-if="conversationTags[conversation.name] && conversationTags[conversation.name].length">
                   <template v-for="(tag, idx) in (conversationTags[conversation.name] || [])" :key="tag.tag_name">
-                    <span :class="'px-1 py-0.5 rounded-full text-[9px] font-medium truncate max-w-[70px] border ' + (tagColorMap[tag.color] || 'border-gray-300 text-gray-800')">
+                    <span :class="'px-1 py-0.5 rounded-full text-[9px] font-medium truncate max-w-[70px] border ' + (tagColorMap[tag.color] || 'border-outline-gray-2 text-ink-gray-6')">
                       {{ tag.tag_name }}
                     </span>
                   </template>
-                  <span v-if="shouldShowEllipsis(conversation.name)" class="text-[9px] text-gray-500">...</span>
+                  <span v-if="shouldShowEllipsis(conversation.name)" class="text-[9px] text-ink-gray-3">...</span>
                 </div>
                 <div class="flex-1" v-else></div>
                 <!-- Assigned user avatars (if unread count exists) -->
@@ -139,9 +139,9 @@
     </div>
 
     <!-- Right Column: Chat View -->
-    <div class="flex-1 flex flex-col bg-white" v-if="selectedConversation">
+    <div class="flex-1 flex flex-col bg-surface-white" v-if="selectedConversation">
       <!-- Chat Header -->
-      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+      <div class="flex items-center justify-between p-4 border-b border-outline-gray-1">
         <div class="flex items-center gap-4">
           <Avatar
             :label="selectedConversationTitle"
@@ -152,41 +152,41 @@
           <div class="flex items-center gap-4">
             <div>
               <div class="flex items-center gap-2">
-                <h3 class="text-base font-medium text-gray-900">
+                <h3 class="text-base font-medium text-ink-gray-9">
                   {{ selectedConversationTitle }}
                 </h3>
               </div>
               <div class="flex items-center gap-2">
-                <p class="text-sm text-gray-500">{{ selectedConversationPlatform }}</p>
+                <p class="text-sm text-ink-gray-3">{{ selectedConversationPlatform }}</p>
               </div>
             </div>
             <!-- Tag pills and plus button aligned here -->
             <div class="flex items-center gap-2">
               <template v-for="(tag, idx) in selectedTags.slice(0,2)" :key="tag.tag_name">
-                <span :class="'px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer border ' + (tagColorMap[tag.color] || 'border-gray-300 text-gray-800')">
+                <span :class="'px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer border ' + (tagColorMap[tag.color] || 'border-outline-gray-2 text-ink-gray-6')">
                   {{ tag.tag_name }}
                   <span class="ml-1 cursor-pointer" @click.stop="removeTag(tag)">&times;</span>
                 </span>
               </template>
-              <span v-if="selectedTags.length > 2" class="px-2 py-0.5 rounded-full text-xs font-medium border border-gray-300 text-gray-800 cursor-pointer" @click="showAllTags = true">
+              <span v-if="selectedTags.length > 2" class="px-2 py-0.5 rounded-full text-xs font-medium border border-outline-gray-2 text-ink-gray-6 cursor-pointer" @click="showAllTags = true">
                 +{{ selectedTags.length - 2 }}
               </span>
               <span v-if="unselectedTags.length" class="relative">
-                <span class="px-2 py-0.5 rounded-full text-xs font-medium border border-dashed border-gray-400 text-gray-800 cursor-pointer" @click="() => { showAddTagDropdown = !showAddTagDropdown; tagSearchQuery = '' }">
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium border border-dashed border-outline-gray-3 text-ink-gray-6 cursor-pointer" @click="() => { showAddTagDropdown = !showAddTagDropdown; tagSearchQuery = '' }">
                   +
                 </span>
-                <div v-if="showAddTagDropdown" class="absolute left-0 mt-2 min-w-max bg-white border rounded shadow z-50">
+                <div v-if="showAddTagDropdown" class="absolute left-0 mt-2 min-w-max bg-surface-white border rounded shadow z-50">
                   <input
                     v-model="tagSearchQuery"
                     type="text"
                     placeholder="Search tags..."
-                    class="w-full px-2 py-1 border-b border-gray-200 outline-none text-sm"
+                    class="w-full px-2 py-1 border-b border-outline-gray-1 outline-none text-sm"
                     @click.stop
                   />
-                  <div v-for="tag in dropdownTags" :key="tag.tag_name" @click="addTag(tag)" :class="'px-3 py-1 cursor-pointer hover:bg-gray-100 ' + (tagColorMap[tag.color] || '')">
+                  <div v-for="tag in dropdownTags" :key="tag.tag_name" @click="addTag(tag)" :class="'px-3 py-1 cursor-pointer hover:bg-surface-gray-1 ' + (tagColorMap[tag.color] || '')">
                     {{ tag.tag_name }}
                   </div>
-                  <div v-if="dropdownTags.length === 0" class="px-3 py-2 text-gray-400 text-sm">No tags found</div>
+                  <div v-if="dropdownTags.length === 0" class="px-3 py-2 text-ink-gray-2 text-sm">No tags found</div>
                 </div>
               </span>
             </div>
@@ -201,7 +201,7 @@
             <template #default>
               <Button
                 appearance="minimal"
-                class="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 border border-gray-200 rounded-md px-3 py-1.5"
+                class="flex items-center gap-2 text-sm text-ink-gray-3 hover:text-ink-gray-9 border border-outline-gray-1 rounded-md px-3 py-1.5"
                 :label="currentStatus"
                 :icon-right="ChevronDownIcon"
               />
@@ -217,7 +217,7 @@
             <template #default>
               <Button
                 appearance="minimal"
-                class="text-gray-600 hover:text-gray-900"
+                class="text-ink-gray-4 hover:text-ink-gray-9"
                 :icon="MoreVerticalIcon"
               />
             </template>
@@ -232,7 +232,7 @@
         @scroll="handleMessagesScroll"
       >
         <!-- Loading indicator for messages -->
-        <div v-if="messagesLoading" class="p-4 text-center text-gray-500">
+        <div v-if="messagesLoading" class="p-4 text-center text-ink-gray-3">
           {{ __('Loading older messages...') }}
         </div>
         
@@ -241,7 +241,7 @@
           <div v-for="(items, dateKey) in groupedTimeline" :key="dateKey">
             <!-- Date Header -->
             <div class="flex justify-center my-4">
-              <div class="bg-gray-100 rounded-full px-4 py-1 text-sm text-gray-600">
+              <div class="bg-surface-gray-1 rounded-full px-4 py-1 text-sm text-ink-gray-4">
                 {{ formatDate(items[0].timestamp) }}
               </div>
             </div>
@@ -249,16 +249,16 @@
             <div v-for="item in items" :key="item.type === 'message' ? item.name : `status-${item.changed_on}`">
               <!-- Status Update Info Block -->
               <div v-if="item.type === 'status'" class="flex justify-center my-4">
-                <div class="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm">
+                <div class="bg-surface-gray-1 border border-outline-gray-1 rounded-lg px-4 py-2 text-sm">
                   <div class="flex items-center gap-2">
                     <component 
                       :is="getStatusIcon(item.status)"
                       :class="getStatusColor(item.status)"
                     />
-                    <span class="text-gray-600">{{ __('Status changed to') }}</span>
-                    <span class="font-medium text-gray-700">{{ item.status }}</span>
-                    <span class="text-gray-600">{{ __('by') }}</span>
-                    <span class="font-medium text-gray-700">{{ item.changed_by }}</span>
+                    <span class="text-ink-gray-4">{{ __('Status changed to') }}</span>
+                    <span class="font-medium text-ink-gray-7">{{ item.status }}</span>
+                    <span class="text-ink-gray-4">{{ __('by') }}</span>
+                    <span class="font-medium text-ink-gray-7">{{ item.changed_by }}</span>
                   </div>
                 </div>
               </div>
@@ -274,7 +274,7 @@
         
         <!-- Empty state -->
         <div v-else class="flex items-center justify-center h-full">
-          <div class="text-center text-gray-500">
+          <div class="text-center text-ink-gray-3">
             {{ __('No messages yet') }}
           </div>
         </div>
@@ -289,35 +289,35 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="flex-1 grid place-items-center bg-gray-50">
+    <div v-else class="flex-1 grid place-items-center bg-surface-gray-1">
       <div class="text-center">
-        <div class="mx-auto h-12 w-12 text-gray-400">
+        <div class="mx-auto h-12 w-12 text-ink-gray-2">
           <MessengerIcon />
         </div>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('No conversation selected') }}</h3>
-        <p class="mt-1 text-sm text-gray-500">{{ __('Choose a conversation to start messaging') }}</p>
+        <h3 class="mt-2 text-sm font-medium text-ink-gray-9">{{ __('No conversation selected') }}</h3>
+        <p class="mt-1 text-sm text-ink-gray-3">{{ __('Choose a conversation to start messaging') }}</p>
       </div>
     </div>
   </div>
   <div v-else class="flex h-full items-center justify-center">
     <div class="text-center">
-      <MessengerIcon class="mx-auto h-12 w-12 text-gray-400" />
-      <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('Messenger not available') }}</h3>
-      <p class="mt-1 text-sm text-gray-500">
+      <MessengerIcon class="mx-auto h-12 w-12 text-ink-gray-2" />
+      <h3 class="mt-2 text-sm font-medium text-ink-gray-9">{{ __('Messenger not available') }}</h3>
+      <p class="mt-1 text-sm text-ink-gray-3">
         {{ __('Please ensure Messenger is enabled in Messenger Settings.') }}
       </p>
     </div>
   </div>
   <!-- Modal for all tags -->
   <div v-if="showAllTags" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30" @click.self="showAllTags = false">
-    <div class="bg-white rounded-lg p-4 min-w-[200px]">
+    <div class="bg-surface-white rounded-lg p-4 min-w-[200px]">
       <div class="flex flex-wrap gap-2">
-        <span v-for="tag in selectedTags" :key="tag.tag_name" :class="'px-2 py-0.5 rounded-full text-xs font-medium border flex items-center gap-1 ' + (tagColorMap[tag.color] || 'border-gray-300 text-gray-800')">
+        <span v-for="tag in selectedTags" :key="tag.tag_name" :class="'px-2 py-0.5 rounded-full text-xs font-medium border flex items-center gap-1 ' + (tagColorMap[tag.color] || 'border-outline-gray-2 text-ink-gray-6')">
           {{ tag.tag_name }}
           <span class="cursor-pointer hover:text-red-500" @click="removeTag(tag)">&times;</span>
         </span>
       </div>
-      <button class="mt-4 px-4 py-1 bg-gray-200 rounded" @click="showAllTags = false">Close</button>
+      <button class="mt-4 px-4 py-1 bg-surface-gray-1 rounded" @click="showAllTags = false">Close</button>
     </div>
   </div>
   <!-- Add click-outside handler for add tag dropdown -->
@@ -1466,19 +1466,19 @@ function getStatusColor(status) {
 
 // Tag color mapping
 const tagColorMap = {
-  black: 'border-black text-black',
-  gray: 'border-gray-300 text-gray-800',
-  blue: 'border-blue-500 text-blue-800',
-  green: 'border-green-500 text-green-800',
-  red: 'border-red-500 text-red-800',
-  pink: 'border-pink-500 text-pink-800',
-  orange: 'border-orange-500 text-orange-800',
-  amber: 'border-amber-500 text-amber-800',
-  yellow: 'border-yellow-500 text-yellow-800',
-  cyan: 'border-cyan-500 text-cyan-800',
-  teal: 'border-teal-500 text-teal-800',
-  violet: 'border-violet-500 text-violet-800',
-  purple: 'border-purple-500 text-purple-800',
+  black: 'border-ink-gray-9 text-ink-gray-9',
+  gray: 'border-outline-gray-2 text-ink-gray-6',
+  blue: 'border-outline-blue-2 text-ink-blue-2',
+  green: 'border-outline-green-2 text-ink-green-2',
+  red: 'border-outline-red-2 text-ink-red-2',
+  pink: 'border-ink-pink-1 text-ink-pink-1',
+  orange: 'border-outline-orange-1 text-outline-orange-1',
+  amber: 'border-outline-amber-2 text-ink-amber-2',
+  yellow: 'border-outline-amber-1 text-ink-amber-2',
+  cyan: 'border-ink-cyan-1 text-ink-cyan-1',
+  teal: 'border-ink-cyan-1 text-ink-cyan-1',
+  violet: 'border-ink-violet-1 text-ink-violet-1',
+  purple: 'border-ink-violet-1 text-ink-violet-1',
 }
 
 // All available tags
@@ -1728,7 +1728,7 @@ const dropdownTags = computed(() => {
 <style scoped>
 .overflow-y-auto {
   scrollbar-width: thin;
-  scrollbar-color: #E5E7EB transparent;
+  scrollbar-color: rgb(var(--outline-gray-1)) transparent;
 }
 
 .overflow-y-auto::-webkit-scrollbar {
@@ -1740,7 +1740,7 @@ const dropdownTags = computed(() => {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #E5E7EB;
+  background-color: rgb(var(--outline-gray-1));
   border-radius: 3px;
 }
 </style> 

@@ -1,13 +1,13 @@
 <template>
   <div v-if="messengerEnabled" class="flex h-full">
     <!-- Left Column: Conversations List -->
-    <div class="w-80 border-r border-gray-200 flex flex-col">
-      <div class="p-4 space-y-2 border-b border-gray-200">
+    <div class="w-80 border-r border-outline-gray-1 flex flex-col">
+      <div class="p-4 space-y-2 border-b border-outline-gray-1">
         <div class="flex items-center justify-between gap-x-2">
-          <h2 class="text-lg font-medium text-gray-900">{{ __('Messages') }}</h2>
+          <h2 class="text-lg font-medium text-ink-gray-9">{{ __('Messages') }}</h2>
           <Button
             appearance="minimal"
-            class="text-gray-600 hover:text-gray-900"
+            class="text-ink-gray-4 hover:text-ink-gray-9"
             :icon="RefreshIcon"
             @click="conversationsResource.reload()"
           />
@@ -21,7 +21,7 @@
             <template #default>
               <Button
                 appearance="minimal"
-                class="min-w-[200px] justify-between text-gray-600 hover:text-gray-900"
+                class="min-w-[200px] justify-between text-ink-gray-4 hover:text-ink-gray-9"
                 :label="selectedPlatformFilter === 'all' ? __('All') : selectedPlatformFilter"
                 :icon-right="ChevronDownIcon"
               />
@@ -46,15 +46,15 @@
         }"
       >
         <!-- Loading indicator for conversations -->
-        <div v-if="conversationsLoading" class="p-4 text-center text-gray-500">
+        <div v-if="conversationsLoading" class="p-4 text-center text-ink-gray-3">
           {{ __('Loading more conversations...') }}
         </div>
         
         <div
           v-for="conversation in filteredConversations"
           :key="conversation.name"
-          class="group flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 transition-colors"
-          :class="{ 'bg-gray-50': selectedConversation === conversation.name }"
+          class="group flex items-center p-4 hover:bg-surface-gray-1 cursor-pointer border-b border-outline-gray-1 transition-colors"
+          :class="{ 'bg-surface-gray-1': selectedConversation === conversation.name }"
           @click="handleConversationSelect(conversation)"
         >
           <div class="relative">
@@ -75,14 +75,14 @@
           <div class="ml-3 flex-1 min-w-0">
             <!-- First row: Profile name (left), timestamp (right) -->
             <div class="flex items-center justify-between">
-              <p class="text-sm font-medium text-gray-900 truncate">
+              <p class="text-sm font-medium text-ink-gray-9 truncate">
                 {{ conversation.title }}
               </p>
-              <p class="text-xs text-gray-500">{{ formatTimeAgo(conversation.last_message_time) }}</p>
+              <p class="text-xs text-ink-gray-3">{{ formatTimeAgo(conversation.last_message_time) }}</p>
             </div>
             <!-- Second row: Last message (left), unread count (right) and/or assignees if no unread count -->
             <div class="flex items-center justify-between mt-0.5">
-              <p class="text-xs text-gray-500 truncate">
+              <p class="text-xs text-ink-gray-3 truncate">
                 {{ conversation.last_message }}
               </p>
               <div class="flex items-center">
@@ -113,11 +113,11 @@
                 <!-- Tags left, avatars right -->
                 <div class="flex items-center gap-1 flex-1" v-if="conversationTags[conversation.name] && conversationTags[conversation.name].length">
                   <template v-for="(tag, idx) in (conversationTags[conversation.name] || [])" :key="tag.tag_name">
-                    <span :class="'px-1 py-0.5 rounded-full text-[9px] font-medium truncate max-w-[70px] border ' + (tagColorMap[tag.color] || 'border-gray-300 text-gray-800')">
+                    <span :class="'px-1 py-0.5 rounded-full text-[9px] font-medium truncate max-w-[70px] border ' + (tagColorMap[tag.color] || 'border-outline-gray-2 text-ink-gray-6')">
                       {{ tag.tag_name }}
                     </span>
                   </template>
-                  <span v-if="shouldShowEllipsis(conversation.name)" class="text-[9px] text-gray-500">...</span>
+                  <span v-if="shouldShowEllipsis(conversation.name)" class="text-[9px] text-ink-gray-3">...</span>
                 </div>
                 <div class="flex-1" v-else></div>
                 <!-- Assigned user avatars (if unread count exists) -->
@@ -139,21 +139,21 @@
     </div>
 
     <!-- Empty State -->
-    <div class="flex-1 grid place-items-center bg-gray-50">
+    <div class="flex-1 grid place-items-center bg-surface-gray-1">
       <div class="text-center">
-        <div class="mx-auto h-12 w-12 text-gray-400">
+        <div class="mx-auto h-12 w-12 text-ink-gray-2">
           <MessengerIcon />
         </div>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('No conversation selected') }}</h3>
-        <p class="mt-1 text-sm text-gray-500">{{ __('Choose a conversation to start messaging') }}</p>
+        <h3 class="mt-2 text-sm font-medium text-ink-gray-9">{{ __('No conversation selected') }}</h3>
+        <p class="mt-1 text-sm text-ink-gray-3">{{ __('Choose a conversation to start messaging') }}</p>
       </div>
     </div>
   </div>
   <div v-else class="flex h-full items-center justify-center">
     <div class="text-center">
-      <MessengerIcon class="mx-auto h-12 w-12 text-gray-400" />
-      <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('Messenger not available') }}</h3>
-      <p class="mt-1 text-sm text-gray-500">
+      <MessengerIcon class="mx-auto h-12 w-12 text-ink-gray-2" />
+      <h3 class="mt-2 text-sm font-medium text-ink-gray-9">{{ __('Messenger not available') }}</h3>
+      <p class="mt-1 text-sm text-ink-gray-3">
         {{ __('Please ensure Messenger is enabled in Messenger Settings.') }}
       </p>
     </div>
@@ -602,19 +602,19 @@ watch(conversations, () => {
 
 // Tag color mapping
 const tagColorMap = {
-  black: 'border-black text-black',
-  gray: 'border-gray-300 text-gray-800',
-  blue: 'border-blue-500 text-blue-800',
-  green: 'border-green-500 text-green-800',
-  red: 'border-red-500 text-red-800',
-  pink: 'border-pink-500 text-pink-800',
-  orange: 'border-orange-500 text-orange-800',
-  amber: 'border-amber-500 text-amber-800',
-  yellow: 'border-yellow-500 text-yellow-800',
-  cyan: 'border-cyan-500 text-cyan-800',
-  teal: 'border-teal-500 text-teal-800',
-  violet: 'border-violet-500 text-violet-800',
-  purple: 'border-purple-500 text-purple-800',
+  black: 'border-ink-gray-9 text-ink-gray-9',
+  gray: 'border-outline-gray-2 text-ink-gray-6',
+  blue: 'border-outline-blue-2 text-ink-blue-2',
+  green: 'border-outline-green-2 text-ink-green-2',
+  red: 'border-outline-red-2 text-ink-red-2',
+  pink: 'border-ink-pink-1 text-ink-pink-1',
+  orange: 'border-outline-orange-1 text-outline-orange-1',
+  amber: 'border-outline-amber-2 text-ink-amber-2',
+  yellow: 'border-outline-amber-1 text-ink-amber-2',
+  cyan: 'border-ink-cyan-1 text-ink-cyan-1',
+  teal: 'border-ink-cyan-1 text-ink-cyan-1',
+  violet: 'border-ink-violet-1 text-ink-violet-1',
+  purple: 'border-ink-violet-1 text-ink-violet-1',
 }
 
 // Add this function in the script section
@@ -701,7 +701,7 @@ watch(() => conversations.value, () => {
 <style scoped>
 .overflow-y-auto {
   scrollbar-width: thin;
-  scrollbar-color: #E5E7EB transparent;
+  scrollbar-color: rgb(var(--outline-gray-1)) transparent;
 }
 
 .overflow-y-auto::-webkit-scrollbar {
@@ -713,7 +713,7 @@ watch(() => conversations.value, () => {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #E5E7EB;
+  background-color: rgb(var(--outline-gray-1));
   border-radius: 3px;
 }
 </style> 
