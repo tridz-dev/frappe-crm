@@ -118,6 +118,14 @@ Themes are scoped using CSS attribute selectors:
    - **Icon-friendly** layout preserving sidebar and component visibility
    - Defined in: `src/themes/ant.css`
 
+5. **Aurora**
+   - **Clean, professional light theme** with teal/blue accents
+   - **Balanced typography** and comfortable spacing
+   - **Modern design** inspired by professional dashboards
+   - **Light color palette** with subtle blue highlights
+   - **Optimized readability** for business interfaces
+   - Defined in: `src/themes/aurora.css`
+
 ## CSS Variable Categories
 
 ### Typography Variables
