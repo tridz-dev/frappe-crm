@@ -16,14 +16,6 @@ export const themeDefinitions = [
     }
   },
   { 
-    label: 'Ocean', 
-    value: 'ocean',
-    description: 'Professional, condensed layout',
-    preview: {
-      colors: ['bg-slate-100', 'bg-blue-200', 'bg-teal-100']
-    }
-  },
-  { 
     label: 'Compact', 
     value: 'compact',
     description: 'Dense, space-efficient',

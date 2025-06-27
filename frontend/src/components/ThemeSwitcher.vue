@@ -172,12 +172,7 @@ const handleThemeChange = (newTheme) => {
   } else {
     // Handle custom themes
     document.documentElement.setAttribute('data-theme', newTheme)
-    localStorage.setItem('crm-custom-theme', newTheme)
-  }
-  
-  // Special handling for default themes
-  if (newTheme === 'light' || newTheme === 'dark') {
-    localStorage.removeItem('crm-custom-theme')
+    localStorage.setItem('theme', newTheme)
   }
   
   // Debug current theme values

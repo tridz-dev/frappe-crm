@@ -4,9 +4,30 @@
 
 The CRM project uses a sophisticated theming system that allows you to **create complete design system themes using CSS variables**. This approach leverages the semantic color system from frappe-ui combined with custom typography, spacing, and sizing variables, making theme switching seamless across all design aspects.
 
+## Theme Architecture
+
+### Modular Theme Structure
+
+Themes are now organized in a modular structure for better maintainability:
+
+```
+src/themes/
+├── index.css          # Main import file
+├── base.css           # Default/Light theme variables
+├── compact.css        # Compact theme
+└── ant.css            # Ant theme
+```
+
+### Benefits of Modular Structure
+
+- **Maintainability**: Each theme is in its own file
+- **Scalability**: Easy to add new themes without touching existing ones
+- **Performance**: Only load what you need
+- **Organization**: Clear separation of concerns
+
 ## Theme Configuration
 
-Themes are now managed through a centralized configuration system located in `src/themes/themeConfig.js`. This allows for easy addition, removal, and modification of themes without touching the component code.
+Themes are managed through a centralized configuration system located in `src/themes/themeConfig.js`. This allows for easy addition, removal, and modification of themes without touching the component code.
 
 ### Theme Configuration Structure
 
@@ -64,10 +85,8 @@ Variables use consistent naming patterns:
 Themes are scoped using CSS attribute selectors:
 ```css
 :root { /* Light theme (default) */ }
-[data-theme="ocean"] { /* Ocean theme with condensed layout */ }
-[data-theme="sunset"] { /* Sunset theme with generous spacing */ }
 [data-theme="compact"] { /* Compact theme for dense interfaces */ }
-[data-theme="cozy"] { /* Cozy theme for comfortable reading */ }
+[data-theme="ant"] { /* Ant theme - modern dark theme */ }
 ```
 
 ## Theme Variations
@@ -78,28 +97,26 @@ Themes are scoped using CSS attribute selectors:
    - Standard sizing and spacing
    - Inter font family
    - Light color palette
+   - Defined in: `src/themes/base.css`
 
 2. **Dark** 
    - Same sizing as light
    - Dark color palette
+   - Uses frappe-ui's built-in dark theme
 
-3. **Ocean**
-   - **Condensed typography** (smaller font sizes)
-   - **Tighter spacing** (professional, data-heavy interfaces)
-   - **Sharper borders** (more geometric feel)
-   - Blue/teal color focus
-
-4. **Compact**
+3. **Compact**
    - **Minimal typography** (dense interfaces)
    - **Tight spacing** (information-heavy screens)
    - **Small components** (efficient use of space)
+   - Defined in: `src/themes/compact.css`
 
-5. **Ant**
+4. **Ant**
    - **Modern dark theme** with vibrant blue accents
    - **Balanced spacing** for professional, clean interface
    - **Rounded design** with optimized component sizing
    - **High contrast** colors for excellent readability
    - **Icon-friendly** layout preserving sidebar and component visibility
+   - Defined in: `src/themes/ant.css`
 
 ## CSS Variable Categories
 
@@ -194,7 +211,30 @@ export const themeDefinitions = [
 ]
 ```
 
-### Step 2: Define CSS Variables
+### Step 2: Create Theme CSS File
+
+Create a new CSS file in the `src/themes/` directory:
+
+```css
+/* src/themes/my-custom-theme.css */
+html[data-theme="my-custom-theme"] {
+  /* Your theme variables here */
+}
+```
+
+### Step 3: Import Theme File
+
+Add your theme import to `src/themes/index.css`:
+
+```css
+/* src/themes/index.css */
+@import './base.css';
+@import './compact.css';
+@import './ant.css';
+@import './my-custom-theme.css'; /* Add your theme */
+```
+
+### Step 4: Define CSS Variables
 
 Create a comprehensive theme by defining typography, spacing, sizing, and color variables:
 
@@ -258,7 +298,7 @@ Create a comprehensive theme by defining typography, spacing, sizing, and color 
 }
 ```
 
-### Step 3: Apply the Theme
+### Step 5: Apply the Theme
 
 Set the theme using JavaScript:
 ```javascript
@@ -348,8 +388,8 @@ setTheme('dark')
 setTheme('light')
 
 // Switch to custom themes
-document.documentElement.setAttribute('data-theme', 'ocean')
-localStorage.setItem('crm-custom-theme', 'ocean')
+document.documentElement.setAttribute('data-theme', 'compact')
+localStorage.setItem('crm-custom-theme', 'compact')
 ```
 
 ## Best Practices
@@ -360,7 +400,7 @@ localStorage.setItem('crm-custom-theme', 'ocean')
 - Keep relative relationships consistent across themes
 
 ### 2. **Consider Use Cases**
-- **Ocean**: Data-heavy interfaces, dashboards
+- **Compact**: Dense information displays, data tables
 - **Compact**: Dense information displays
 
 ### 3. **Test Across Breakpoints**
