@@ -199,101 +199,182 @@
 }
 
 @layer base {
-  /* Override standard Tailwind classes to use theme variables */
+  /* Override standard Tailwind classes to use theme variables ONLY for custom themes */
+  /* This preserves the original light/dark theme behavior */
   
-  /* Typography overrides */
-  .text-xs { font-size: var(--text-xs) !important; }
-  .text-sm { font-size: var(--text-sm) !important; }
-  .text-base { font-size: var(--text-base) !important; }
-  .text-lg { font-size: var(--text-lg) !important; }
-  .text-xl { font-size: var(--text-xl) !important; }
-  .text-2xl { font-size: var(--text-2xl) !important; }
-  .text-3xl { font-size: var(--text-3xl) !important; }
+  [data-theme="ocean"] .text-xs,
+  [data-theme="compact"] .text-xs { font-size: var(--text-xs) !important; }
   
-  /* Font family overrides */
-  .font-sans { font-family: var(--font-family-sans) !important; }
+  [data-theme="ocean"] .text-sm,
+  [data-theme="compact"] .text-sm { font-size: var(--text-sm) !important; }
   
-  /* Font weight overrides */
-  .font-normal { font-weight: var(--font-normal) !important; }
-  .font-medium { font-weight: var(--font-medium) !important; }
-  .font-semibold { font-weight: var(--font-semibold) !important; }
-  .font-bold { font-weight: var(--font-bold) !important; }
+  [data-theme="ocean"] .text-base,
+  [data-theme="compact"] .text-base { font-size: var(--text-base) !important; }
   
-  /* Line height overrides */
-  .leading-tight { line-height: var(--leading-tight) !important; }
-  .leading-normal { line-height: var(--leading-normal) !important; }
-  .leading-relaxed { line-height: var(--leading-relaxed) !important; }
+  [data-theme="ocean"] .text-lg,
+  [data-theme="compact"] .text-lg { font-size: var(--text-lg) !important; }
   
-  /* Spacing overrides - most commonly used */
-  .p-1 { padding: var(--space-xs) !important; }
-  .p-2 { padding: var(--space-sm) !important; }
-  .p-3 { padding: var(--space-md) !important; }
-  .p-4 { padding: var(--space-lg) !important; }
-  .p-5 { padding: var(--space-xl) !important; }
-  .p-6 { padding: var(--space-2xl) !important; }
+  [data-theme="ocean"] .text-xl,
+  [data-theme="compact"] .text-xl { font-size: var(--text-xl) !important; }
   
-  .px-2 { padding-left: var(--component-padding-xs) !important; padding-right: var(--component-padding-xs) !important; }
-  .px-3 { padding-left: var(--component-padding-md) !important; padding-right: var(--component-padding-md) !important; }
-  .py-1\.5 { padding-top: calc(var(--space-xs) * 1.5) !important; padding-bottom: calc(var(--space-xs) * 1.5) !important; }
+  [data-theme="ocean"] .text-2xl,
+  [data-theme="compact"] .text-2xl { font-size: var(--text-2xl) !important; }
   
-  .m-1 { margin: var(--space-xs) !important; }
-  .m-2 { margin: var(--space-sm) !important; }
-  .m-3 { margin: var(--space-md) !important; }
-  .m-4 { margin: var(--space-lg) !important; }
+  [data-theme="ocean"] .text-3xl,
+  [data-theme="compact"] .text-3xl { font-size: var(--text-3xl) !important; }
   
-  .gap-1 { gap: var(--space-xs) !important; }
-  .gap-2 { gap: var(--space-sm) !important; }
-  .gap-3 { gap: var(--space-md) !important; }
-  .gap-4 { gap: var(--space-lg) !important; }
+  /* Font family overrides for custom themes only */
+  [data-theme="ocean"] .font-sans,
+  [data-theme="compact"] .font-sans { font-family: var(--font-family-sans) !important; }
   
-  /* Border radius overrides */
-  .rounded { border-radius: var(--border-radius-md) !important; }
-  .rounded-sm { border-radius: var(--border-radius-sm) !important; }
-  .rounded-md { border-radius: var(--border-radius-lg) !important; }
-  .rounded-lg { border-radius: var(--border-radius-xl) !important; }
-  .rounded-xl { border-radius: var(--border-radius-2xl) !important; }
+  /* Font weight overrides for custom themes only */
+  [data-theme="ocean"] .font-normal,
+  [data-theme="compact"] .font-normal { font-weight: var(--font-normal) !important; }
   
-  /* Component height overrides for common frappe-ui sizes */
-  .h-7 { height: var(--input-height-sm) !important; }
-  .h-8 { height: var(--input-height-md) !important; }
-  .h-10 { height: var(--input-height-lg) !important; }
-  .h-11\.5 { height: var(--button-height-lg) !important; }
+  [data-theme="ocean"] .font-medium,
+  [data-theme="compact"] .font-medium { font-weight: var(--font-medium) !important; }
   
-  /* Additional spacing overrides for precise control */
-  .pl-2 { padding-left: var(--component-padding-xs) !important; }
-  .pr-2 { padding-right: var(--component-padding-xs) !important; }
-  .pl-2\.5 { padding-left: var(--component-padding-sm) !important; }
-  .pr-2\.5 { padding-right: var(--component-padding-sm) !important; }
-  .px-2\.5 { padding-left: var(--component-padding-sm) !important; padding-right: var(--component-padding-sm) !important; }
+  [data-theme="ocean"] .font-semibold,
+  [data-theme="compact"] .font-semibold { font-weight: var(--font-semibold) !important; }
   
-  .mb-1 { margin-bottom: var(--space-xs) !important; }
-  .mb-2 { margin-bottom: var(--space-sm) !important; }
-  .mt-2 { margin-top: var(--space-sm) !important; }
-  .mt-2\.5 { margin-top: calc(var(--space-sm) * 1.25) !important; }
+  [data-theme="ocean"] .font-bold,
+  [data-theme="compact"] .font-bold { font-weight: var(--font-bold) !important; }
   
-  /* Common gap sizes used in the interface */
-  .gap-1\.5 { gap: calc(var(--space-xs) * 1.5) !important; }
-  .gap-2\.5 { gap: calc(var(--space-sm) * 1.25) !important; }
+  /* Line height overrides for custom themes only */
+  [data-theme="ocean"] .leading-tight,
+  [data-theme="compact"] .leading-tight { line-height: var(--leading-tight) !important; }
   
-  /* Width and positioning fine-tuning */
-  .space-y-1 > * + * { margin-top: var(--space-xs) !important; }
-  .space-y-1\.5 > * + * { margin-top: calc(var(--space-xs) * 1.5) !important; }
-  .space-y-2 > * + * { margin-top: var(--space-sm) !important; }
-  .space-y-3 > * + * { margin-top: var(--space-md) !important; }
-  .space-y-4 > * + * { margin-top: var(--space-lg) !important; }
+  [data-theme="ocean"] .leading-normal,
+  [data-theme="compact"] .leading-normal { line-height: var(--leading-normal) !important; }
+  
+  [data-theme="ocean"] .leading-relaxed,
+  [data-theme="compact"] .leading-relaxed { line-height: var(--leading-relaxed) !important; }
+  
+  /* Spacing overrides for custom themes only */
+  [data-theme="ocean"] .p-1,
+  [data-theme="compact"] .p-1 { padding: var(--space-xs) !important; }
+  
+  [data-theme="ocean"] .p-2,
+  [data-theme="compact"] .p-2 { padding: var(--space-sm) !important; }
+  
+  [data-theme="ocean"] .p-3,
+  [data-theme="compact"] .p-3 { padding: var(--space-md) !important; }
+  
+  [data-theme="ocean"] .p-4,
+  [data-theme="compact"] .p-4 { padding: var(--space-lg) !important; }
+  
+  [data-theme="ocean"] .px-2,
+  [data-theme="compact"] .px-2 { 
+    padding-left: var(--component-padding-xs) !important; 
+    padding-right: var(--component-padding-xs) !important; 
+  }
+  
+  [data-theme="ocean"] .px-3,
+  [data-theme="compact"] .px-3 { 
+    padding-left: var(--component-padding-md) !important; 
+    padding-right: var(--component-padding-md) !important; 
+  }
+  
+  [data-theme="ocean"] .gap-1,
+  [data-theme="compact"] .gap-1 { gap: var(--space-xs) !important; }
+  
+  [data-theme="ocean"] .gap-2,
+  [data-theme="compact"] .gap-2 { gap: var(--space-sm) !important; }
+  
+  [data-theme="ocean"] .gap-3,
+  [data-theme="compact"] .gap-3 { gap: var(--space-md) !important; }
+  
+  [data-theme="ocean"] .gap-4,
+  [data-theme="compact"] .gap-4 { gap: var(--space-lg) !important; }
+  
+  /* Border radius overrides for custom themes only */
+  [data-theme="ocean"] .rounded,
+  [data-theme="compact"] .rounded { border-radius: var(--border-radius-md) !important; }
+  
+  [data-theme="ocean"] .rounded-sm,
+  [data-theme="compact"] .rounded-sm { border-radius: var(--border-radius-sm) !important; }
+  
+  [data-theme="ocean"] .rounded-md,
+  [data-theme="compact"] .rounded-md { border-radius: var(--border-radius-lg) !important; }
+  
+  [data-theme="ocean"] .rounded-lg,
+  [data-theme="compact"] .rounded-lg { border-radius: var(--border-radius-xl) !important; }
+  
+  /* Component height overrides for custom themes only */
+  [data-theme="ocean"] .h-7,
+  [data-theme="compact"] .h-7 { height: var(--input-height-sm) !important; }
+  
+  [data-theme="ocean"] .h-8,
+  [data-theme="compact"] .h-8 { height: var(--input-height-md) !important; }
+  
+  [data-theme="ocean"] .h-10,
+  [data-theme="compact"] .h-10 { height: var(--input-height-lg) !important; }
+  
+  /* Additional spacing overrides for custom themes only */
+  [data-theme="ocean"] .pl-2,
+  [data-theme="compact"] .pl-2 { padding-left: var(--component-padding-xs) !important; }
+  
+  [data-theme="ocean"] .pr-2,
+  [data-theme="compact"] .pr-2 { padding-right: var(--component-padding-xs) !important; }
+  
+  [data-theme="ocean"] .pl-2\.5,
+  [data-theme="compact"] .pl-2\.5 { padding-left: var(--component-padding-sm) !important; }
+  
+  [data-theme="ocean"] .pr-2\.5,
+  [data-theme="compact"] .pr-2\.5 { padding-right: var(--component-padding-sm) !important; }
+  
+  [data-theme="ocean"] .px-2\.5,
+  [data-theme="compact"] .px-2\.5 { 
+    padding-left: var(--component-padding-sm) !important; 
+    padding-right: var(--component-padding-sm) !important; 
+  }
+  
+  [data-theme="ocean"] .mb-2,
+  [data-theme="compact"] .mb-2 { margin-bottom: var(--space-sm) !important; }
+  
+  [data-theme="ocean"] .mt-2,
+  [data-theme="compact"] .mt-2 { margin-top: var(--space-sm) !important; }
+  
+  [data-theme="ocean"] .gap-1\.5,
+  [data-theme="compact"] .gap-1\.5 { gap: calc(var(--space-xs) * 1.5) !important; }
+  
+  [data-theme="ocean"] .gap-2\.5,
+  [data-theme="compact"] .gap-2\.5 { gap: calc(var(--space-sm) * 1.25) !important; }
+  
+  /* Space-y overrides for custom themes only */
+  [data-theme="ocean"] .space-y-1 > * + *,
+  [data-theme="compact"] .space-y-1 > * + * { margin-top: var(--space-xs) !important; }
+  
+  [data-theme="ocean"] .space-y-1\.5 > * + *,
+  [data-theme="compact"] .space-y-1\.5 > * + * { margin-top: calc(var(--space-xs) * 1.5) !important; }
+  
+  [data-theme="ocean"] .space-y-2 > * + *,
+  [data-theme="compact"] .space-y-2 > * + * { margin-top: var(--space-sm) !important; }
+  
+  [data-theme="ocean"] .space-y-3 > * + *,
+  [data-theme="compact"] .space-y-3 > * + * { margin-top: var(--space-md) !important; }
+  
+  [data-theme="ocean"] .space-y-4 > * + *,
+  [data-theme="compact"] .space-y-4 > * + * { margin-top: var(--space-lg) !important; }
 }
 
 @layer components {
-	/* Frappe-UI component overrides for theming */
-	.form-input, .form-textarea, .form-select {
+	/* Frappe-UI component overrides for custom themes only */
+	[data-theme="ocean"] .form-input,
+	[data-theme="ocean"] .form-textarea,
+	[data-theme="ocean"] .form-select,
+	[data-theme="compact"] .form-input,
+	[data-theme="compact"] .form-textarea,
+	[data-theme="compact"] .form-select {
 		height: var(--input-height-sm) !important;
 		font-size: var(--text-base) !important;
 		border-radius: var(--border-radius-md) !important;
 		padding: calc(var(--space-xs) * 1.5) var(--component-padding-xs) !important;
 	}
 	
-	/* Button component overrides for different sizes */
-	.h-7.rounded { 
+	/* Button component overrides for custom themes only */
+	[data-theme="ocean"] .h-7.rounded,
+	[data-theme="compact"] .h-7.rounded { 
 		height: var(--button-height-sm) !important; 
 		border-radius: var(--border-radius-md) !important;
 		font-size: var(--text-base) !important;
@@ -301,7 +382,8 @@
 		padding-right: var(--component-padding-xs) !important;
 	}
 	
-	.h-8.rounded { 
+	[data-theme="ocean"] .h-8.rounded,
+	[data-theme="compact"] .h-8.rounded { 
 		height: var(--button-height-md) !important; 
 		border-radius: var(--border-radius-md) !important;
 		font-size: var(--text-base) !important;
@@ -309,7 +391,8 @@
 		padding-right: var(--component-padding-sm) !important;
 	}
 	
-	.h-10.rounded-md { 
+	[data-theme="ocean"] .h-10.rounded-md,
+	[data-theme="compact"] .h-10.rounded-md { 
 		height: var(--button-height-lg) !important; 
 		border-radius: var(--border-radius-lg) !important;
 		font-size: var(--text-lg) !important;

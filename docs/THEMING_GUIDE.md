@@ -4,6 +4,37 @@
 
 The CRM project uses a sophisticated theming system that allows you to **create complete design system themes using CSS variables**. This approach leverages the semantic color system from frappe-ui combined with custom typography, spacing, and sizing variables, making theme switching seamless across all design aspects.
 
+## Theme Configuration
+
+Themes are now managed through a centralized configuration system located in `src/themes/themeConfig.js`. This allows for easy addition, removal, and modification of themes without touching the component code.
+
+### Theme Configuration Structure
+
+```javascript
+// src/themes/themeConfig.js
+export const themeDefinitions = [
+  { 
+    label: 'Display Name',        // Human-readable name
+    value: 'theme-key',           // CSS data-theme attribute value
+    description: 'Brief description', // Shown in theme selector
+    preview: {
+      colors: ['bg-class-1', 'bg-class-2', 'bg-class-3'] // Preview colors
+    }
+  }
+]
+
+// Helper functions
+export const getThemeByValue = (value) => { /* ... */ }
+export const getAvailableThemes = () => { /* ... */ }
+```
+
+### Benefits of Centralized Configuration
+
+- **Scalability**: Easy to add/remove themes
+- **Maintainability**: Single source of truth for theme definitions
+- **Consistency**: Ensures all themes follow the same structure
+- **Reusability**: Theme definitions can be imported anywhere
+
 ## How It Works
 
 ### 1. **Comprehensive Design System**
@@ -58,26 +89,10 @@ Themes are scoped using CSS attribute selectors:
    - **Sharper borders** (more geometric feel)
    - Blue/teal color focus
 
-4. **Sunset**
-   - **Generous typography** (larger font sizes)
-   - **Comfortable spacing** (relaxed, readable)
-   - **Softer borders** (more rounded feel)
-   - Warm orange/red color focus
-
-5. **High Contrast**
-   - **Large typography** (accessibility)
-   - **Extra generous spacing** (touch-friendly)
-   - **High contrast colors** (WCAG compliant)
-
-6. **Compact**
+4. **Compact**
    - **Minimal typography** (dense interfaces)
    - **Tight spacing** (information-heavy screens)
    - **Small components** (efficient use of space)
-
-7. **Cozy**
-   - **Large typography** (comfortable reading)
-   - **Generous spacing** (relaxed feel)
-   - **Large components** (easy interaction)
 
 ## CSS Variable Categories
 
@@ -151,9 +166,28 @@ Themes are scoped using CSS attribute selectors:
 --button-height-lg: 3rem;      /* 48px */
 ```
 
-## Creating Custom Themes
+## Adding New Themes
 
-### Step 1: Define All Variables
+### Step 1: Add Theme to Configuration
+
+First, add your theme to the `themeConfig.js` file:
+
+```javascript
+// src/themes/themeConfig.js
+export const themeDefinitions = [
+  // ... existing themes
+  { 
+    label: 'My Custom Theme', 
+    value: 'my-custom-theme',
+    description: 'Description of the theme',
+    preview: {
+      colors: ['bg-custom-1', 'bg-custom-2', 'bg-custom-3']
+    }
+  }
+]
+```
+
+### Step 2: Define CSS Variables
 
 Create a comprehensive theme by defining typography, spacing, sizing, and color variables:
 
@@ -217,7 +251,7 @@ Create a comprehensive theme by defining typography, spacing, sizing, and color 
 }
 ```
 
-### Step 2: Apply the Theme
+### Step 3: Apply the Theme
 
 Set the theme using JavaScript:
 ```javascript
@@ -320,10 +354,7 @@ localStorage.setItem('crm-custom-theme', 'ocean')
 
 ### 2. **Consider Use Cases**
 - **Ocean**: Data-heavy interfaces, dashboards
-- **Sunset**: Content-focused, reading-heavy interfaces  
 - **Compact**: Dense information displays
-- **Cozy**: User-friendly, accessible interfaces
-- **High Contrast**: Accessibility compliance
 
 ### 3. **Test Across Breakpoints**
 Typography and spacing should work across all screen sizes:

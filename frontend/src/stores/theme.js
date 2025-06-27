@@ -9,6 +9,7 @@ export function toggleTheme() {
 }
 
 export function setTheme(value) {
+  console.log('Setting theme to:', value)
   theme.value = value || theme.value
   if (['light', 'dark'].includes(theme.value)) {
     document.documentElement.setAttribute('data-theme', theme.value)

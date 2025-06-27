@@ -148,6 +148,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { theme, setTheme } from '@/stores/theme'
+import { getAvailableThemes } from '@/themes/themeConfig'
 
 // Props to control display
 const props = defineProps({
@@ -159,81 +160,23 @@ const props = defineProps({
 
 const currentTheme = ref('light')
 
-const themes = [
-  { 
-    label: 'Light', 
-    value: 'light',
-    description: 'Clean and bright interface',
-    preview: {
-      colors: ['bg-gray-50', 'bg-gray-200', 'bg-blue-100']
-    }
-  },
-  { 
-    label: 'Dark', 
-    value: 'dark',
-    description: 'Easy on the eyes',
-    preview: {
-      colors: ['bg-gray-800', 'bg-gray-600', 'bg-blue-900']
-    }
-  },
-  { 
-    label: 'Ocean', 
-    value: 'ocean',
-    description: 'Professional, condensed layout',
-    preview: {
-      colors: ['bg-slate-100', 'bg-blue-200', 'bg-teal-100']
-    }
-  },
-  { 
-    label: 'Sunset', 
-    value: 'sunset',
-    description: 'Warm, comfortable reading',
-    preview: {
-      colors: ['bg-orange-100', 'bg-red-200', 'bg-amber-100']
-    }
-  },
-  { 
-    label: 'High Contrast', 
-    value: 'high-contrast',
-    description: 'Accessibility optimized',
-    preview: {
-      colors: ['bg-white', 'bg-black', 'bg-yellow-400']
-    }
-  },
-  { 
-    label: 'Compact', 
-    value: 'compact',
-    description: 'Dense, space-efficient',
-    preview: {
-      colors: ['bg-gray-100', 'bg-gray-300', 'bg-blue-200']
-    }
-  },
-  { 
-    label: 'Cozy', 
-    value: 'cozy',
-    description: 'Large, comfortable reading',
-    preview: {
-      colors: ['bg-gray-50', 'bg-gray-100', 'bg-blue-50']
-    }
-  }
-]
+const themes = getAvailableThemes()
 
 const handleThemeChange = (newTheme) => {
   currentTheme.value = newTheme
   
   // Update the existing theme store for light/dark
   if (['light', 'dark'].includes(newTheme)) {
-    setTheme(newTheme)
     document.documentElement.removeAttribute('data-theme')
+    setTheme(newTheme)
   } else {
     // Handle custom themes
     document.documentElement.setAttribute('data-theme', newTheme)
     localStorage.setItem('crm-custom-theme', newTheme)
   }
   
-  // Special handling for light theme
-  if (newTheme === 'light') {
-    document.documentElement.removeAttribute('data-theme')
+  // Special handling for default themes
+  if (newTheme === 'light' || newTheme === 'dark') {
     localStorage.removeItem('crm-custom-theme')
   }
   

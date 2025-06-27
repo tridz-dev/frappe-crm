@@ -1,0 +1,42 @@
+export const themeDefinitions = [
+  { 
+    label: 'Light', 
+    value: 'light',
+    description: 'Clean and bright interface',
+    preview: {
+      colors: ['bg-gray-50', 'bg-gray-200', 'bg-blue-100']
+    }
+  },
+  { 
+    label: 'Dark', 
+    value: 'dark',
+    description: 'Easy on the eyes',
+    preview: {
+      colors: ['bg-gray-800', 'bg-gray-600', 'bg-blue-900']
+    }
+  },
+  { 
+    label: 'Ocean', 
+    value: 'ocean',
+    description: 'Professional, condensed layout',
+    preview: {
+      colors: ['bg-slate-100', 'bg-blue-200', 'bg-teal-100']
+    }
+  },
+  { 
+    label: 'Compact', 
+    value: 'compact',
+    description: 'Dense, space-efficient',
+    preview: {
+      colors: ['bg-gray-100', 'bg-gray-300', 'bg-blue-200']
+    }
+  }
+]
+
+export const getThemeByValue = (value) => {
+  return themeDefinitions.find(theme => theme.value === value)
+}
+
+export const getAvailableThemes = () => {
+  return themeDefinitions
+} 
