@@ -26,7 +26,7 @@
           {{ __('Theme Settings') }}
         </span>
         <div class="flex flex-1">
-          <ThemeSwitcher :show-preview="true" />
+          <ThemeSwitcher :show-preview="false" />
         </div>
       </div>
 
