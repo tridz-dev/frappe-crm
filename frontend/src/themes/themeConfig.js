@@ -38,6 +38,14 @@ export const themeDefinitions = [
     preview: {
       colors: ['bg-slate-800', 'bg-cyan-400', 'bg-amber-400']
     }
+  },
+  { 
+    label: 'Aurora', 
+    value: 'aurora',
+    description: 'Clean, professional dashboard with light blue accents',
+    preview: {
+      colors: ['bg-slate-50', 'bg-sky-400', 'bg-emerald-400']
+    }
   }
 ]
 
