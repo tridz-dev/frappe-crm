@@ -1,4 +1,5 @@
 @import 'frappe-ui/src/fonts/Inter/inter.css';
+@import './themes.css';
 
 @tailwind base;
 @tailwind components;

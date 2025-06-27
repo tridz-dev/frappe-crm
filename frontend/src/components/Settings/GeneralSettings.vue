@@ -20,6 +20,16 @@
         />
       </div>
 
+      <!-- Theme Settings -->
+      <div class="flex flex-col justify-between gap-4">
+        <span class="text-base font-semibold text-ink-gray-9">
+          {{ __('Theme Settings') }}
+        </span>
+        <div class="flex flex-1">
+          <ThemeSwitcher :show-preview="true" />
+        </div>
+      </div>
+
       <!-- logo -->
 
       <div class="flex flex-col justify-between gap-4">
@@ -120,6 +130,7 @@
 <script setup>
 import ImageUploader from '@/components/Controls/ImageUploader.vue'
 import Grid from '@/components/Controls/Grid.vue'
+import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import { FormControl, Badge, ErrorMessage } from 'frappe-ui'
 import { getSettings } from '@/stores/settings'
 import { showSettings } from '@/composables/settings'

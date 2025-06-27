@@ -1,0 +1,268 @@
+/* Custom Themes for CRM */
+/* These themes work by redefining the same CSS variables that frappe-ui uses */
+/* Using higher specificity to override default frappe-ui variables */
+
+/* Ocean Theme - Blue/Teal focused theme */
+html[data-theme="ocean"] {
+  /* OUTLINE VARIABLES */
+  --outline-white: #FFFFFF !important;
+  --outline-gray-1: #E2E8F0 !important;
+  --outline-gray-2: #CBD5E1 !important;
+  --outline-gray-3: #94A3B8 !important;
+  --outline-gray-4: #64748B !important;
+  --outline-gray-5: #334155 !important;
+  --outline-gray-modals: #CBD5E1 !important;
+  
+  /* Ocean-specific accent colors */
+  --outline-blue-1: #93C5FD !important;
+  --outline-blue-2: #3B82F6 !important;
+  --outline-green-1: #86EFAC !important;
+  --outline-green-2: #22C55E !important;
+  --outline-red-1: #FCA5A5 !important;
+  --outline-red-2: #EF4444 !important;
+  --outline-red-3: #DC2626 !important;
+  --outline-amber-1: #FDE68A !important;
+  --outline-amber-2: #F59E0B !important;
+  --outline-orange-1: #FB923C !important;
+
+  /* SURFACE VARIABLES */
+  --surface-white: #F8FAFC !important;
+  --surface-gray-1: #F1F5F9 !important;
+  --surface-gray-2: #E2E8F0 !important;
+  --surface-gray-3: #CBD5E1 !important;
+  --surface-gray-4: #94A3B8 !important;
+  --surface-gray-5: #334155 !important;
+  --surface-gray-6: #1E293B !important;
+  --surface-gray-7: #0F172A !important;
+  
+  /* Ocean themed surfaces */
+  --surface-cards: #FFFFFF !important;
+  --surface-modal: #FFFFFF !important;
+  --surface-menu-bar: #F1F5F9 !important;
+  --surface-selected: #DBEAFE !important;
+  
+  /* Status surface colors */
+  --surface-blue-1: #DBEAFE !important;
+  --surface-blue-2: #3B82F6 !important;
+  --surface-blue-3: #1D4ED8 !important;
+  --surface-green-1: #DCFCE7 !important;
+  --surface-green-2: #BBF7D0 !important;
+  --surface-green-3: #22C55E !important;
+  --surface-red-1: #FEE2E2 !important;
+  --surface-red-2: #FCA5A5 !important;
+  --surface-red-3: #EF4444 !important;
+  --surface-red-4: #FCA5A5 !important;
+  --surface-red-5: #DC2626 !important;
+  --surface-red-6: #B91C1C !important;
+  --surface-red-7: #991B1B !important;
+  --surface-amber-1: #FEF3C7 !important;
+  --surface-amber-2: #F59E0B !important;
+  --surface-amber-3: #D97706 !important;
+  --surface-orange-1: #FED7AA !important;
+  --surface-violet-1: #EDE9FE !important;
+  --surface-cyan-1: #CFFAFE !important;
+  --surface-pink-1: #FCE7F3 !important;
+
+  /* INK/TEXT VARIABLES */
+  --ink-white: #FFFFFF !important;
+  --ink-gray-1: #CBD5E1 !important;
+  --ink-gray-2: #94A3B8 !important;
+  --ink-gray-3: #64748B !important;
+  --ink-gray-4: #475569 !important;
+  --ink-gray-5: #334155 !important;
+  --ink-gray-6: #1E293B !important;
+  --ink-gray-7: #0F172A !important;
+  --ink-gray-8: #020617 !important;
+  --ink-gray-9: #000000 !important;
+  
+  /* Ocean themed text colors */
+  --ink-blue-1: #DBEAFE !important;
+  --ink-blue-2: #3B82F6 !important;
+  --ink-blue-3: #1D4ED8 !important;
+  --ink-blue-4: #1E3A8A !important;
+  --ink-blue-link: #3B82F6 !important;
+  --ink-green-1: #DCFCE7 !important;
+  --ink-green-2: #22C55E !important;
+  --ink-green-3: #15803D !important;
+  --ink-red-1: #FEE2E2 !important;
+  --ink-red-2: #EF4444 !important;
+  --ink-red-3: #DC2626 !important;
+  --ink-red-4: #B91C1C !important;
+  --ink-amber-1: #FEF3C7 !important;
+  --ink-amber-2: #F59E0B !important;
+  --ink-amber-3: #D97706 !important;
+  --ink-cyan-1: #06B6D4 !important;
+  --ink-pink-1: #EC4899 !important;
+  --ink-violet-1: #8B5CF6 !important;
+}
+
+/* Sunset Theme - Warm orange/red focused theme */
+html[data-theme="sunset"] {
+  /* OUTLINE VARIABLES */
+  --outline-white: #FFFFFF !important;
+  --outline-gray-1: #FAF5F0 !important;
+  --outline-gray-2: #F5EBE1 !important;
+  --outline-gray-3: #D7BEA5 !important;
+  --outline-gray-4: #B49678 !important;
+  --outline-gray-5: #785032 !important;
+  --outline-gray-modals: #F5EBE1 !important;
+  
+  /* Sunset-specific accent colors */
+  --outline-orange-1: #FFB74D !important;
+  --outline-red-1: #FF8A65 !important;
+  --outline-red-2: #FF6347 !important;
+  --outline-red-3: #DC2626 !important;
+  --outline-amber-1: #FFD600 !important;
+  --outline-amber-2: #FFC107 !important;
+  --outline-blue-1: #87CEEB !important;
+  --outline-green-1: #90EE90 !important;
+  --outline-green-2: #3CB371 !important;
+
+  /* SURFACE VARIABLES */
+  --surface-white: #FFFDF8 !important;
+  --surface-gray-1: #FCF8F5 !important;
+  --surface-gray-2: #FAF5F0 !important;
+  --surface-gray-3: #F5EBE1 !important;
+  --surface-gray-4: #D7BEA5 !important;
+  --surface-gray-5: #785032 !important;
+  --surface-gray-6: #5A3C23 !important;
+  --surface-gray-7: #3C2819 !important;
+  
+  /* Sunset themed surfaces */
+  --surface-cards: #FFFFFF !important;
+  --surface-modal: #FFFFFF !important;
+  --surface-menu-bar: #FCF8F5 !important;
+  --surface-selected: #FFEDD5 !important;
+  
+  /* Status surface colors with warm tones */
+  --surface-orange-1: #FFEDD5 !important;
+  --surface-red-1: #FFE4E1 !important;
+  --surface-red-2: #FFCDC8 !important;
+  --surface-red-3: #FF6347 !important;
+  --surface-red-4: #FCA5A5 !important;
+  --surface-red-5: #DC2626 !important;
+  --surface-red-6: #B91C1C !important;
+  --surface-red-7: #991B1B !important;
+  --surface-amber-1: #FFF8DC !important;
+  --surface-amber-2: #FFC107 !important;
+  --surface-amber-3: #FF8F00 !important;
+  --surface-green-1: #F0FDF4 !important;
+  --surface-green-2: #BBF7D0 !important;
+  --surface-green-3: #3CB371 !important;
+  --surface-blue-1: #F0F9FF !important;
+  --surface-blue-2: #87CEEB !important;
+  --surface-blue-3: #4682B4 !important;
+  --surface-violet-1: #F5F3FF !important;
+  --surface-cyan-1: #ECFEFF !important;
+  --surface-pink-1: #FFF2F2 !important;
+
+  /* INK/TEXT VARIABLES */
+  --ink-white: #FFFFFF !important;
+  --ink-gray-1: #F5EBE1 !important;
+  --ink-gray-2: #D7BEA5 !important;
+  --ink-gray-3: #B49678 !important;
+  --ink-gray-4: #8C6E50 !important;
+  --ink-gray-5: #785032 !important;
+  --ink-gray-6: #5A3C23 !important;
+  --ink-gray-7: #3C2819 !important;
+  --ink-gray-8: #28190F !important;
+  --ink-gray-9: #190F0A !important;
+  
+  /* Sunset themed text colors */
+  --ink-red-1: #FFE4E1 !important;
+  --ink-red-2: #FF6347 !important;
+  --ink-red-3: #DC2626 !important;
+  --ink-red-4: #B91C1C !important;
+  --ink-amber-1: #FFF8DC !important;
+  --ink-amber-2: #FFC107 !important;
+  --ink-amber-3: #D97706 !important;
+  --ink-green-1: #F0FDF4 !important;
+  --ink-green-2: #3CB371 !important;
+  --ink-green-3: #228B22 !important;
+  --ink-blue-1: #F0F9FF !important;
+  --ink-blue-2: #87CEEB !important;
+  --ink-blue-3: #4682B4 !important;
+  --ink-blue-4: #191970 !important;
+  --ink-blue-link: #4682B4 !important;
+  --ink-cyan-1: #40E0D0 !important;
+  --ink-pink-1: #FFB6C1 !important;
+  --ink-violet-1: #9370DB !important;
+}
+
+/* High Contrast Theme - For accessibility */
+html[data-theme="high-contrast"] {
+  --outline-white: #FFFFFF !important;
+  --outline-gray-1: #C8C8C8 !important;
+  --outline-gray-2: #969696 !important;
+  --outline-gray-3: #646464 !important;
+  --outline-gray-4: #323232 !important;
+  --outline-gray-5: #000000 !important;
+  --outline-gray-modals: #646464 !important;
+  
+  --surface-white: #FFFFFF !important;
+  --surface-gray-1: #FAFAFA !important;
+  --surface-gray-2: #F0F0F0 !important;
+  --surface-gray-3: #C8C8C8 !important;
+  --surface-gray-4: #969696 !important;
+  --surface-gray-5: #323232 !important;
+  --surface-gray-6: #191919 !important;
+  --surface-gray-7: #000000 !important;
+  
+  --surface-cards: #FFFFFF !important;
+  --surface-modal: #FFFFFF !important;
+  --surface-menu-bar: #FAFAFA !important;
+  --surface-selected: #FFFF00 !important;
+  
+  /* High contrast status colors */
+  --surface-red-1: #FFC8C8 !important;
+  --surface-red-2: #FF6464 !important;
+  --surface-red-3: #FF0000 !important;
+  --surface-red-4: #FFC8C8 !important;
+  --surface-red-5: #FF0000 !important;
+  --surface-red-6: #C80000 !important;
+  --surface-red-7: #960000 !important;
+  --surface-green-1: #C8FFC8 !important;
+  --surface-green-2: #64FF64 !important;
+  --surface-green-3: #00FF00 !important;
+  --surface-blue-1: #C8C8FF !important;
+  --surface-blue-2: #0000FF !important;
+  --surface-blue-3: #0000C8 !important;
+  --surface-amber-1: #FFFFC8 !important;
+  --surface-amber-2: #FFFF00 !important;
+  --surface-amber-3: #FFC800 !important;
+  --surface-orange-1: #FFDCC8 !important;
+  --surface-violet-1: #E6C8FF !important;
+  --surface-cyan-1: #C8FFFF !important;
+  --surface-pink-1: #FFC8E6 !important;
+  
+  --ink-white: #FFFFFF !important;
+  --ink-gray-1: #C8C8C8 !important;
+  --ink-gray-2: #969696 !important;
+  --ink-gray-3: #646464 !important;
+  --ink-gray-4: #4B4B4B !important;
+  --ink-gray-5: #323232 !important;
+  --ink-gray-6: #191919 !important;
+  --ink-gray-7: #0F0F0F !important;
+  --ink-gray-8: #050505 !important;
+  --ink-gray-9: #000000 !important;
+  
+  /* High contrast text colors */
+  --ink-red-1: #FFFFFF !important;
+  --ink-red-2: #FF0000 !important;
+  --ink-red-3: #C80000 !important;
+  --ink-red-4: #960000 !important;
+  --ink-green-1: #FFFFFF !important;
+  --ink-green-2: #00C800 !important;
+  --ink-green-3: #009600 !important;
+  --ink-blue-1: #FFFFFF !important;
+  --ink-blue-2: #0000FF !important;
+  --ink-blue-3: #0000C8 !important;
+  --ink-blue-4: #000096 !important;
+  --ink-blue-link: #0000FF !important;
+  --ink-amber-1: #FFFFFF !important;
+  --ink-amber-2: #FFC800 !important;
+  --ink-amber-3: #C89600 !important;
+  --ink-cyan-1: #00C8C8 !important;
+  --ink-pink-1: #FF0080 !important;
+  --ink-violet-1: #8000FF !important;
+} 

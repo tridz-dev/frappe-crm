@@ -209,6 +209,7 @@ declare module 'vue' {
     TaskStatusIcon: typeof import('./src/components/Icons/TaskStatusIcon.vue')['default']
     TelephonySettings: typeof import('./src/components/Settings/TelephonySettings.vue')['default']
     TerritoryIcon: typeof import('./src/components/Icons/TerritoryIcon.vue')['default']
+    ThemeSwitcher: typeof import('./src/components/ThemeSwitcher.vue')['default']
     TwilioCallUI: typeof import('./src/components/Telephony/TwilioCallUI.vue')['default']
     UnpinIcon: typeof import('./src/components/Icons/UnpinIcon.vue')['default']
     UserAvatar: typeof import('./src/components/UserAvatar.vue')['default']
