@@ -165,15 +165,8 @@ const themes = getAvailableThemes()
 const handleThemeChange = (newTheme) => {
   currentTheme.value = newTheme
   
-  // Update the existing theme store for light/dark
-  if (['light', 'dark'].includes(newTheme)) {
-    document.documentElement.removeAttribute('data-theme')
-    setTheme(newTheme)
-  } else {
-    // Handle custom themes
-    document.documentElement.setAttribute('data-theme', newTheme)
-    localStorage.setItem('theme', newTheme)
-  }
+  // Use the theme store to handle all theme changes
+  setTheme(newTheme)
   
   // Debug current theme values
   setTimeout(() => debugThemeValues(), 100)
@@ -202,13 +195,8 @@ const debugThemeValues = () => {
 }
 
 onMounted(() => {
-  // Initialize current theme
-  const savedCustomTheme = localStorage.getItem('crm-custom-theme')
-  if (savedCustomTheme) {
-    currentTheme.value = savedCustomTheme
-  } else {
-    currentTheme.value = theme.value || 'light'
-  }
+  // Just sync the current theme display with the actual theme
+  currentTheme.value = theme.value
 })
 </script>
 
