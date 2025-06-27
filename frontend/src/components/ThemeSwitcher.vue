@@ -5,13 +5,13 @@
       <h4 class="text-ink-gray-8 text-sm font-medium">Choose Theme</h4>
       
       <!-- Theme Options -->
-      <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         <button
           v-for="themeOption in themes"
           :key="themeOption.value"
           @click="handleThemeChange(themeOption.value)"
           :class="[
-            'flex flex-col items-center gap-2 p-3 rounded-lg border transition-all',
+            'flex flex-col items-center gap-2 p-3 rounded-lg border transition-all text-left',
             currentTheme === themeOption.value
               ? 'border-outline-blue-2 bg-surface-blue-1 text-ink-blue-3'
               : 'border-outline-gray-2 bg-surface-white hover:bg-surface-gray-1'
@@ -20,12 +20,13 @@
           <div class="flex gap-1">
             <!-- Theme preview colors -->
             <div 
-              v-for="color in themeOption.preview" 
+              v-for="color in themeOption.preview.colors" 
               :key="color"
               :class="`w-3 h-3 rounded-full ${color}`"
             ></div>
           </div>
           <span class="text-xs font-medium">{{ themeOption.label }}</span>
+          <p class="text-2xs text-ink-gray-6 text-center">{{ themeOption.description }}</p>
           <div 
             v-if="currentTheme === themeOption.value"
             class="w-4 h-4 rounded-full bg-ink-blue-2 flex items-center justify-center"
@@ -40,57 +41,102 @@
     <div v-if="showPreview" class="mt-6 space-y-4">
       <h4 class="text-ink-gray-8 text-sm font-medium">Preview</h4>
       
-      <div class="p-4 bg-surface-cards border border-outline-gray-2 rounded-lg space-y-4">
+      <div class="p-4 bg-surface-cards border border-outline-gray-2 rounded-lg space-y-6">
+        <!-- Typography Preview -->
+        <div>
+          <p class="text-xs text-ink-gray-6 mb-2">Typography</p>
+          <div class="space-y-2">
+            <div class="text-theme-3xl font-theme-bold leading-theme-tight text-ink-gray-9">
+              Heading ({{ getCurrentThemeSize('text-3xl') }})
+            </div>
+            <div class="text-theme-lg font-theme-medium leading-theme-normal text-ink-gray-8">
+              Subheading ({{ getCurrentThemeSize('text-lg') }})
+            </div>
+            <div class="text-theme-base font-theme-normal leading-theme-normal text-ink-gray-7">
+              Body text ({{ getCurrentThemeSize('text-base') }})
+            </div>
+            <div class="text-theme-sm font-theme-normal leading-theme-relaxed text-ink-gray-6">
+              Small text ({{ getCurrentThemeSize('text-sm') }})
+            </div>
+          </div>
+        </div>
+        
+        <!-- Spacing Preview -->
+        <div>
+          <p class="text-xs text-ink-gray-6 mb-2">Spacing</p>
+          <div class="flex gap-theme-md items-center">
+            <div class="space-theme-xs bg-surface-gray-3 rounded-theme-sm"></div>
+            <div class="space-theme-sm bg-surface-gray-3 rounded-theme-sm"></div>
+            <div class="space-theme-md bg-surface-gray-3 rounded-theme-sm"></div>
+            <div class="space-theme-lg bg-surface-gray-3 rounded-theme-sm"></div>
+            <div class="space-theme-xl bg-surface-gray-3 rounded-theme-sm"></div>
+          </div>
+          <p class="text-2xs text-ink-gray-5 mt-1">
+            XS: {{ getCurrentThemeSize('space-xs') }}, 
+            SM: {{ getCurrentThemeSize('space-sm') }}, 
+            MD: {{ getCurrentThemeSize('space-md') }}, 
+            LG: {{ getCurrentThemeSize('space-lg') }}, 
+            XL: {{ getCurrentThemeSize('space-xl') }}
+          </p>
+        </div>
+        
         <!-- Surface Colors -->
         <div>
           <p class="text-xs text-ink-gray-6 mb-2">Surface Colors</p>
           <div class="flex gap-2">
-            <div class="w-8 h-8 bg-surface-gray-1 border border-outline-gray-2 rounded"></div>
-            <div class="w-8 h-8 bg-surface-gray-2 border border-outline-gray-2 rounded"></div>
-            <div class="w-8 h-8 bg-surface-gray-3 border border-outline-gray-2 rounded"></div>
-            <div class="w-8 h-8 bg-surface-blue-1 border border-outline-gray-2 rounded"></div>
-            <div class="w-8 h-8 bg-surface-green-1 border border-outline-gray-2 rounded"></div>
-            <div class="w-8 h-8 bg-surface-red-1 border border-outline-gray-2 rounded"></div>
+            <div class="w-8 h-8 bg-surface-gray-1 border border-outline-gray-2 rounded-theme-sm"></div>
+            <div class="w-8 h-8 bg-surface-gray-2 border border-outline-gray-2 rounded-theme-sm"></div>
+            <div class="w-8 h-8 bg-surface-gray-3 border border-outline-gray-2 rounded-theme-sm"></div>
+            <div class="w-8 h-8 bg-surface-blue-1 border border-outline-gray-2 rounded-theme-sm"></div>
+            <div class="w-8 h-8 bg-surface-green-1 border border-outline-gray-2 rounded-theme-sm"></div>
+            <div class="w-8 h-8 bg-surface-red-1 border border-outline-gray-2 rounded-theme-sm"></div>
           </div>
         </div>
         
-        <!-- Text Colors -->
+        <!-- Border Radius Preview -->
         <div>
-          <p class="text-xs text-ink-gray-6 mb-2">Text Colors</p>
-          <div class="space-y-1">
-            <p class="text-ink-gray-9 text-sm">Primary text (gray-9)</p>
-            <p class="text-ink-gray-6 text-sm">Secondary text (gray-6)</p>
-            <p class="text-ink-blue-2 text-sm">Blue accent text</p>
-            <p class="text-ink-green-2 text-sm">Green accent text</p>
-            <p class="text-ink-red-2 text-sm">Red accent text</p>
+          <p class="text-xs text-ink-gray-6 mb-2">Border Radius</p>
+          <div class="flex gap-2 items-end">
+            <div class="w-6 h-6 bg-surface-blue-2 rounded-theme-xs"></div>
+            <div class="w-6 h-6 bg-surface-blue-2 rounded-theme-sm"></div>
+            <div class="w-6 h-6 bg-surface-blue-2 rounded-theme-md"></div>
+            <div class="w-6 h-6 bg-surface-blue-2 rounded-theme-lg"></div>
+            <div class="w-6 h-6 bg-surface-blue-2 rounded-theme-xl"></div>
+            <div class="w-6 h-6 bg-surface-blue-2 rounded-theme-2xl"></div>
           </div>
         </div>
         
         <!-- Interactive Elements -->
         <div>
-          <p class="text-xs text-ink-gray-6 mb-2">Buttons</p>
-          <div class="flex gap-2">
-            <button class="px-3 py-1.5 bg-surface-blue-2 text-ink-white text-sm rounded-md">
-              Primary
-            </button>
-            <button class="px-3 py-1.5 bg-surface-gray-2 text-ink-gray-8 text-sm rounded-md border border-outline-gray-2">
-              Secondary
-            </button>
-          </div>
-        </div>
-        
-        <!-- Form Elements -->
-        <div>
-          <p class="text-xs text-ink-gray-6 mb-2">Form Elements</p>
-          <div class="space-y-2 max-w-xs">
-            <input 
-              type="text" 
-              placeholder="Sample input field"
-              class="form-input w-full"
-            />
-            <div class="flex items-center gap-2">
-              <input type="checkbox" class="form-checkbox" />
-              <label class="text-ink-gray-8 text-sm">Sample checkbox</label>
+          <p class="text-xs text-ink-gray-6 mb-2">Components</p>
+          <div class="space-y-3">
+            <!-- Buttons -->
+            <div class="flex gap-theme-md">
+              <button class="button-theme-primary">
+                Primary Button
+              </button>
+              <button class="button-theme-secondary">
+                Secondary Button
+              </button>
+            </div>
+            
+            <!-- Form Elements -->
+            <div class="space-y-2 max-w-xs">
+              <input 
+                type="text" 
+                placeholder="Theme-aware input field"
+                class="input-theme w-full"
+              />
+              <div class="flex items-center gap-theme-sm">
+                <input type="checkbox" class="form-checkbox rounded-theme-xs" />
+                <label class="text-theme-sm text-ink-gray-8">Sample checkbox</label>
+              </div>
+            </div>
+            
+            <!-- Card Example -->
+            <div class="card-theme max-w-sm">
+              <h5 class="text-theme-lg font-theme-semibold text-ink-gray-8 mb-1">Card Title</h5>
+              <p class="text-theme-sm text-ink-gray-6">Theme-aware card component with proper spacing and typography.</p>
             </div>
           </div>
         </div>
@@ -117,27 +163,58 @@ const themes = [
   { 
     label: 'Light', 
     value: 'light',
-    preview: ['bg-gray-50', 'bg-gray-200', 'bg-blue-100']
+    description: 'Clean and bright interface',
+    preview: {
+      colors: ['bg-gray-50', 'bg-gray-200', 'bg-blue-100']
+    }
   },
   { 
     label: 'Dark', 
     value: 'dark',
-    preview: ['bg-gray-800', 'bg-gray-600', 'bg-blue-900']
+    description: 'Easy on the eyes',
+    preview: {
+      colors: ['bg-gray-800', 'bg-gray-600', 'bg-blue-900']
+    }
   },
   { 
     label: 'Ocean', 
     value: 'ocean',
-    preview: ['bg-slate-100', 'bg-blue-200', 'bg-teal-100']
+    description: 'Professional, condensed layout',
+    preview: {
+      colors: ['bg-slate-100', 'bg-blue-200', 'bg-teal-100']
+    }
   },
   { 
     label: 'Sunset', 
     value: 'sunset',
-    preview: ['bg-orange-100', 'bg-red-200', 'bg-amber-100']
+    description: 'Warm, comfortable reading',
+    preview: {
+      colors: ['bg-orange-100', 'bg-red-200', 'bg-amber-100']
+    }
   },
   { 
     label: 'High Contrast', 
     value: 'high-contrast',
-    preview: ['bg-white', 'bg-black', 'bg-yellow-400']
+    description: 'Accessibility optimized',
+    preview: {
+      colors: ['bg-white', 'bg-black', 'bg-yellow-400']
+    }
+  },
+  { 
+    label: 'Compact', 
+    value: 'compact',
+    description: 'Dense, space-efficient',
+    preview: {
+      colors: ['bg-gray-100', 'bg-gray-300', 'bg-blue-200']
+    }
+  },
+  { 
+    label: 'Cozy', 
+    value: 'cozy',
+    description: 'Large, comfortable reading',
+    preview: {
+      colors: ['bg-gray-50', 'bg-gray-100', 'bg-blue-50']
+    }
   }
 ]
 
@@ -147,6 +224,7 @@ const handleThemeChange = (newTheme) => {
   // Update the existing theme store for light/dark
   if (['light', 'dark'].includes(newTheme)) {
     setTheme(newTheme)
+    document.documentElement.removeAttribute('data-theme')
   } else {
     // Handle custom themes
     document.documentElement.setAttribute('data-theme', newTheme)
@@ -157,6 +235,31 @@ const handleThemeChange = (newTheme) => {
   if (newTheme === 'light') {
     document.documentElement.removeAttribute('data-theme')
     localStorage.removeItem('crm-custom-theme')
+  }
+  
+  // Debug current theme values
+  setTimeout(() => debugThemeValues(), 100)
+}
+
+const getCurrentThemeSize = (property) => {
+  if (typeof window !== 'undefined') {
+    const value = getComputedStyle(document.documentElement).getPropertyValue(`--${property}`)
+    return value.trim() || 'default'
+  }
+  return 'default'
+}
+
+// Debug function to log current theme values
+const debugThemeValues = () => {
+  if (typeof window !== 'undefined') {
+    const root = document.documentElement
+    console.log('Current theme values:', {
+      'text-base': getComputedStyle(root).getPropertyValue('--text-base'),
+      'space-md': getComputedStyle(root).getPropertyValue('--space-md'),
+      'border-radius-md': getComputedStyle(root).getPropertyValue('--border-radius-md'),
+      'input-height-md': getComputedStyle(root).getPropertyValue('--input-height-md'),
+      currentTheme: root.getAttribute('data-theme') || 'light'
+    })
   }
 }
 

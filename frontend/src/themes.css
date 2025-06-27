@@ -1,9 +1,208 @@
 /* Custom Themes for CRM */
-/* These themes work by redefining the same CSS variables that frappe-ui uses */
+/* These themes work by redefining CSS variables that frappe-ui and Tailwind use */
 /* Using higher specificity to override default frappe-ui variables */
+
+/* ============================================================================
+   TYPOGRAPHY, SPACING & SIZING VARIABLES
+   ============================================================================ */
+
+/* Default/Light Theme Typography & Sizing */
+:root {
+  /* TYPOGRAPHY */
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+  
+  /* Font Sizes (in rem) */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem; 
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  /* SPACING */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.25rem;
+  --space-2xl: 1.5rem;
+  --space-3xl: 2rem;
+  --space-4xl: 2.5rem;
+  
+  /* Component Spacing */
+  --component-padding-xs: 0.5rem;
+  --component-padding-sm: 0.75rem;
+  --component-padding-md: 1rem;
+  --component-padding-lg: 1.25rem;
+  --component-padding-xl: 1.5rem;
+  
+  /* SIZING */
+  --border-radius-xs: 0.125rem;
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-2xl: 1rem;
+  
+  /* Component Heights */
+  --input-height-sm: 2rem;
+  --input-height-md: 2.5rem;
+  --input-height-lg: 3rem;
+  
+  --button-height-sm: 2rem;
+  --button-height-md: 2.5rem;
+  --button-height-lg: 3rem;
+  
+  /* DEFAULT COLORS - Base color palette */
+  /* OUTLINE VARIABLES */
+  --outline-white: 255 255 255;
+  --outline-gray-1: 226 232 240;
+  --outline-gray-2: 203 213 225;
+  --outline-gray-3: 148 163 184;
+  --outline-gray-4: 100 116 139;
+  --outline-gray-5: 51 65 85;
+  --outline-gray-modals: 203 213 225;
+  
+  --outline-blue-1: 147 197 253;
+  --outline-blue-2: 59 130 246;
+  --outline-green-1: 134 239 172;
+  --outline-green-2: 34 197 94;
+  --outline-red-1: 252 165 165;
+  --outline-red-2: 239 68 68;
+  --outline-red-3: 220 38 38;
+  --outline-amber-1: 253 230 138;
+  --outline-amber-2: 245 158 11;
+  --outline-orange-1: 251 146 60;
+
+  /* SURFACE VARIABLES */
+  --surface-white: 255 255 255;
+  --surface-gray-1: 241 245 249;
+  --surface-gray-2: 226 232 240;
+  --surface-gray-3: 203 213 225;
+  --surface-gray-4: 148 163 184;
+  --surface-gray-5: 51 65 85;
+  --surface-gray-6: 30 41 59;
+  --surface-gray-7: 15 23 42;
+  
+  --surface-cards: 255 255 255;
+  --surface-modal: 255 255 255;
+  --surface-menu-bar: 241 245 249;
+  --surface-selected: 219 234 254;
+  
+  --surface-blue-1: 219 234 254;
+  --surface-blue-2: 59 130 246;
+  --surface-blue-3: 29 78 216;
+  --surface-green-1: 220 252 231;
+  --surface-green-2: 187 247 208;
+  --surface-green-3: 34 197 94;
+  --surface-red-1: 254 226 226;
+  --surface-red-2: 252 165 165;
+  --surface-red-3: 239 68 68;
+  --surface-red-4: 252 165 165;
+  --surface-red-5: 220 38 38;
+  --surface-red-6: 185 28 28;
+  --surface-red-7: 153 27 27;
+  --surface-amber-1: 254 243 199;
+  --surface-amber-2: 245 158 11;
+  --surface-amber-3: 217 119 6;
+  --surface-orange-1: 254 215 170;
+  --surface-violet-1: 237 233 254;
+  --surface-cyan-1: 207 250 254;
+  --surface-pink-1: 252 231 243;
+
+  /* INK/TEXT VARIABLES */
+  --ink-white: 255 255 255;
+  --ink-gray-1: 203 213 225;
+  --ink-gray-2: 148 163 184;
+  --ink-gray-3: 100 116 139;
+  --ink-gray-4: 71 85 105;
+  --ink-gray-5: 51 65 85;
+  --ink-gray-6: 30 41 59;
+  --ink-gray-7: 15 23 42;
+  --ink-gray-8: 2 6 23;
+  --ink-gray-9: 0 0 0;
+  
+  --ink-blue-1: 219 234 254;
+  --ink-blue-2: 59 130 246;
+  --ink-blue-3: 29 78 216;
+  --ink-blue-4: 30 58 138;
+  --ink-blue-link: 59 130 246;
+  --ink-green-1: 220 252 231;
+  --ink-green-2: 34 197 94;
+  --ink-green-3: 21 128 61;
+  --ink-red-1: 254 226 226;
+  --ink-red-2: 239 68 68;
+  --ink-red-3: 220 38 38;
+  --ink-red-4: 185 28 28;
+  --ink-amber-1: 254 243 199;
+  --ink-amber-2: 245 158 11;
+  --ink-amber-3: 217 119 6;
+  --ink-cyan-1: 6 182 212;
+  --ink-pink-1: 236 72 153;
+  --ink-violet-1: 139 92 246;
+}
 
 /* Ocean Theme - Blue/Teal focused theme */
 html[data-theme="ocean"] {
+  /* TYPOGRAPHY - Slightly more condensed for data-heavy interfaces */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.1875rem;
+  --text-2xl: 1.4375rem;
+  --text-3xl: 1.8125rem;
+  
+  --leading-tight: 1.2;
+  --leading-normal: 1.4;
+  --leading-relaxed: 1.5;
+  
+  /* SPACING - Tighter for professional interfaces */
+  --space-xs: 0.1875rem;
+  --space-sm: 0.375rem;
+  --space-md: 0.625rem;
+  --space-lg: 0.875rem;
+  --space-xl: 1.125rem;
+  --space-2xl: 1.375rem;
+  --space-3xl: 1.875rem;
+  --space-4xl: 2.375rem;
+  
+  --component-padding-xs: 0.375rem;
+  --component-padding-sm: 0.625rem;
+  --component-padding-md: 0.875rem;
+  --component-padding-lg: 1.125rem;
+  --component-padding-xl: 1.375rem;
+  
+  /* SIZING - Sharper, more geometric */
+  --border-radius-xs: 0.0625rem;
+  --border-radius-sm: 0.1875rem;
+  --border-radius-md: 0.3125rem;
+  --border-radius-lg: 0.4375rem;
+  --border-radius-xl: 0.625rem;
+  --border-radius-2xl: 0.875rem;
+  
+  --input-height-sm: 1.875rem;
+  --input-height-md: 2.25rem;
+  --input-height-lg: 2.75rem;
+  
+  --button-height-sm: 1.875rem;
+  --button-height-md: 2.25rem;
+  --button-height-lg: 2.75rem;
+
   /* OUTLINE VARIABLES */
   --outline-white: #FFFFFF !important;
   --outline-gray-1: #E2E8F0 !important;
@@ -98,6 +297,52 @@ html[data-theme="ocean"] {
 
 /* Sunset Theme - Warm orange/red focused theme */
 html[data-theme="sunset"] {
+  /* TYPOGRAPHY - Warmer, more humanistic */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.1875rem;
+  --text-xl: 1.3125rem;
+  --text-2xl: 1.5625rem;
+  --text-3xl: 1.9375rem;
+  
+  --leading-tight: 1.3;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.7;
+  
+  /* SPACING - More generous for comfort */
+  --space-xs: 0.3125rem;
+  --space-sm: 0.625rem;
+  --space-md: 0.9375rem;
+  --space-lg: 1.25rem;
+  --space-xl: 1.5625rem;
+  --space-2xl: 1.875rem;
+  --space-3xl: 2.5rem;
+  --space-4xl: 3.125rem;
+  
+  --component-padding-xs: 0.625rem;
+  --component-padding-sm: 0.9375rem;
+  --component-padding-md: 1.25rem;
+  --component-padding-lg: 1.5625rem;
+  --component-padding-xl: 1.875rem;
+  
+  /* SIZING - Softer, more rounded */
+  --border-radius-xs: 0.25rem;
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-xl: 1rem;
+  --border-radius-2xl: 1.5rem;
+  
+  --input-height-sm: 2.25rem;
+  --input-height-md: 2.75rem;
+  --input-height-lg: 3.25rem;
+  
+  --button-height-sm: 2.25rem;
+  --button-height-md: 2.75rem;
+  --button-height-lg: 3.25rem;
+
   /* OUTLINE VARIABLES */
   --outline-white: #FFFFFF !important;
   --outline-gray-1: #FAF5F0 !important;
@@ -191,6 +436,52 @@ html[data-theme="sunset"] {
 
 /* High Contrast Theme - For accessibility */
 html[data-theme="high-contrast"] {
+  /* TYPOGRAPHY - Optimized for readability */
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.625rem;
+  --text-3xl: 2rem;
+  
+  --leading-tight: 1.4;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.8;
+  
+  /* SPACING - Extra generous for accessibility */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 2.5rem;
+  --space-3xl: 3rem;
+  --space-4xl: 4rem;
+  
+  --component-padding-xs: 0.75rem;
+  --component-padding-sm: 1rem;
+  --component-padding-md: 1.5rem;
+  --component-padding-lg: 2rem;
+  --component-padding-xl: 2.5rem;
+  
+  /* SIZING - Larger for visibility */
+  --border-radius-xs: 0.125rem;
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-2xl: 1rem;
+  
+  --input-height-sm: 2.5rem;
+  --input-height-md: 3rem;
+  --input-height-lg: 3.5rem;
+  
+  --button-height-sm: 2.5rem;
+  --button-height-md: 3rem;
+  --button-height-lg: 3.5rem;
+
   --outline-white: #FFFFFF !important;
   --outline-gray-1: #C8C8C8 !important;
   --outline-gray-2: #969696 !important;
@@ -265,4 +556,102 @@ html[data-theme="high-contrast"] {
   --ink-cyan-1: #00C8C8 !important;
   --ink-pink-1: #FF0080 !important;
   --ink-violet-1: #8000FF !important;
+}
+
+/* Compact Theme - Smaller sizes for dense interfaces */
+html[data-theme="compact"] {
+  /* TYPOGRAPHY - Condensed */
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --text-xs: 0.625rem;
+  --text-sm: 0.75rem;
+  --text-base: 0.8125rem;
+  --text-lg: 0.9375rem;
+  --text-xl: 1.0625rem;
+  --text-2xl: 1.25rem;
+  --text-3xl: 1.5rem;
+  
+  --leading-tight: 1.15;
+  --leading-normal: 1.3;
+  --leading-relaxed: 1.4;
+  
+  /* SPACING - Minimal */
+  --space-xs: 0.125rem;
+  --space-sm: 0.25rem;
+  --space-md: 0.375rem;
+  --space-lg: 0.5rem;
+  --space-xl: 0.75rem;
+  --space-2xl: 1rem;
+  --space-3xl: 1.25rem;
+  --space-4xl: 1.5rem;
+  
+  --component-padding-xs: 0.25rem;
+  --component-padding-sm: 0.375rem;
+  --component-padding-md: 0.5rem;
+  --component-padding-lg: 0.75rem;
+  --component-padding-xl: 1rem;
+  
+  /* SIZING - Smaller components */
+  --border-radius-xs: 0.0625rem;
+  --border-radius-sm: 0.125rem;
+  --border-radius-md: 0.1875rem;
+  --border-radius-lg: 0.25rem;
+  --border-radius-xl: 0.375rem;
+  --border-radius-2xl: 0.5rem;
+  
+  --input-height-sm: 1.5rem;
+  --input-height-md: 1.875rem;
+  --input-height-lg: 2.25rem;
+  
+  --button-height-sm: 1.5rem;
+  --button-height-md: 1.875rem;
+  --button-height-lg: 2.25rem;
+}
+
+/* Cozy Theme - Larger sizes for comfort */
+html[data-theme="cozy"] {
+  /* TYPOGRAPHY - Generous */
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  
+  --leading-tight: 1.35;
+  --leading-normal: 1.65;
+  --leading-relaxed: 1.75;
+  
+  /* SPACING - Generous */
+  --space-xs: 0.375rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.125rem;
+  --space-lg: 1.5rem;
+  --space-xl: 1.875rem;
+  --space-2xl: 2.25rem;
+  --space-3xl: 3rem;
+  --space-4xl: 3.75rem;
+  
+  --component-padding-xs: 0.75rem;
+  --component-padding-sm: 1.125rem;
+  --component-padding-md: 1.5rem;
+  --component-padding-lg: 1.875rem;
+  --component-padding-xl: 2.25rem;
+  
+  /* SIZING - Larger components */
+  --border-radius-xs: 0.25rem;
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-xl: 1rem;
+  --border-radius-2xl: 1.5rem;
+  
+  --input-height-sm: 2.75rem;
+  --input-height-md: 3.25rem;
+  --input-height-lg: 3.75rem;
+  
+  --button-height-sm: 2.75rem;
+  --button-height-md: 3.25rem;
+  --button-height-lg: 3.75rem;
 } 
