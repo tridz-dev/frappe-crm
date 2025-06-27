@@ -1,0 +1,152 @@
+/* Base Theme Variables - Default/Light Theme */
+/* These variables work by redefining CSS variables that frappe-ui and Tailwind use */
+
+/* This is currently not used */
+
+:root {
+  /* TYPOGRAPHY */
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+  
+  /* Font Sizes (in rem) */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem; 
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  /* SPACING */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.25rem;
+  --space-2xl: 1.5rem;
+  --space-3xl: 2rem;
+  --space-4xl: 2.5rem;
+  
+  /* Component Spacing */
+  --component-padding-xs: 0.5rem;
+  --component-padding-sm: 0.75rem;
+  --component-padding-md: 1rem;
+  --component-padding-lg: 1.25rem;
+  --component-padding-xl: 1.5rem;
+  
+  /* SIZING */
+  --border-radius-xs: 0.125rem;
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-2xl: 1rem;
+  
+  /* Component Heights */
+  --input-height-sm: 2rem;
+  --input-height-md: 2.5rem;
+  --input-height-lg: 3rem;
+  
+  --button-height-sm: 2rem;
+  --button-height-md: 2.5rem;
+  --button-height-lg: 3rem;
+  
+  /* DEFAULT COLORS - Base color palette */
+  /* OUTLINE VARIABLES */
+  --outline-white: 255 255 255;
+  --outline-gray-1: 226 232 240;
+  --outline-gray-2: 203 213 225;
+  --outline-gray-3: 148 163 184;
+  --outline-gray-4: 100 116 139;
+  --outline-gray-5: 51 65 85;
+  --outline-gray-modals: 203 213 225;
+  
+  --outline-blue-1: 147 197 253;
+  --outline-blue-2: 59 130 246;
+  --outline-green-1: 134 239 172;
+  --outline-green-2: 34 197 94;
+  --outline-red-1: 252 165 165;
+  --outline-red-2: 239 68 68;
+  --outline-red-3: 220 38 38;
+  --outline-amber-1: 253 230 138;
+  --outline-amber-2: 245 158 11;
+  --outline-orange-1: 251 146 60;
+
+  /* SURFACE VARIABLES */
+  --surface-white: 255 255 255;
+  --surface-gray-1: 241 245 249;
+  --surface-gray-2: 226 232 240;
+  --surface-gray-3: 203 213 225;
+  --surface-gray-4: 148 163 184;
+  --surface-gray-5: 51 65 85;
+  --surface-gray-6: 30 41 59;
+  --surface-gray-7: 15 23 42;
+  
+  --surface-cards: 255 255 255;
+  --surface-modal: 255 255 255;
+  --surface-menu-bar: 241 245 249;
+  --surface-selected: 219 234 254;
+  
+  --surface-blue-1: 219 234 254;
+  --surface-blue-2: 59 130 246;
+  --surface-blue-3: 29 78 216;
+  --surface-green-1: 220 252 231;
+  --surface-green-2: 187 247 208;
+  --surface-green-3: 34 197 94;
+  --surface-red-1: 254 226 226;
+  --surface-red-2: 252 165 165;
+  --surface-red-3: 239 68 68;
+  --surface-red-4: 252 165 165;
+  --surface-red-5: 220 38 38;
+  --surface-red-6: 185 28 28;
+  --surface-red-7: 153 27 27;
+  --surface-amber-1: 254 243 199;
+  --surface-amber-2: 245 158 11;
+  --surface-amber-3: 217 119 6;
+  --surface-orange-1: 254 215 170;
+  --surface-violet-1: 237 233 254;
+  --surface-cyan-1: 207 250 254;
+  --surface-pink-1: 252 231 243;
+
+  /* INK/TEXT VARIABLES */
+  --ink-white: 255 255 255;
+  --ink-gray-1: 203 213 225;
+  --ink-gray-2: 148 163 184;
+  --ink-gray-3: 100 116 139;
+  --ink-gray-4: 71 85 105;
+  --ink-gray-5: 51 65 85;
+  --ink-gray-6: 30 41 59;
+  --ink-gray-7: 15 23 42;
+  --ink-gray-8: 2 6 23;
+  --ink-gray-9: 0 0 0;
+  
+  --ink-blue-1: 219 234 254;
+  --ink-blue-2: 59 130 246;
+  --ink-blue-3: 29 78 216;
+  --ink-blue-4: 30 58 138;
+  --ink-blue-link: 59 130 246;
+  --ink-green-1: 220 252 231;
+  --ink-green-2: 34 197 94;
+  --ink-green-3: 21 128 61;
+  --ink-red-1: 254 226 226;
+  --ink-red-2: 239 68 68;
+  --ink-red-3: 220 38 38;
+  --ink-red-4: 185 28 28;
+  --ink-amber-1: 254 243 199;
+  --ink-amber-2: 245 158 11;
+  --ink-amber-3: 217 119 6;
+  --ink-cyan-1: 6 182 212;
+  --ink-pink-1: 236 72 153;
+  --ink-violet-1: 139 92 246;
+} 

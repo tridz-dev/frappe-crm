@@ -1,0 +1,326 @@
+/* Nebula Theme - Cosmic dashboard with vibrant stellar accents */
+html[data-theme="nebula"] {
+  /* TYPOGRAPHY - Clean, modern styling */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  
+  /* SPACING - Generous, comfortable spacing */
+  --space-xs: 0.375rem;
+  --space-sm: 0.625rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 2.5rem;
+  --space-3xl: 3rem;
+  --space-4xl: 4rem;
+  
+  --component-padding-xs: 0.75rem;
+  --component-padding-sm: 1rem;
+  --component-padding-md: 1.5rem;
+  --component-padding-lg: 2rem;
+  --component-padding-xl: 2.5rem;
+  
+  /* SIZING - Modern, comfortable dimensions */
+  --border-radius-xs: 0.25rem;
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-xl: 1rem;
+  --border-radius-2xl: 1.25rem;
+  
+  --input-height-sm: 2.25rem;
+  --input-height-md: 2.75rem;
+  --input-height-lg: 3.25rem;
+  
+  --button-height-sm: 2.25rem;
+  --button-height-md: 2.75rem;
+  --button-height-lg: 3.25rem;
+
+  /* OUTLINE VARIABLES - Cosmic theme with stellar accents */
+  --outline-white: #FFFFFF !important;
+  --outline-gray-1: #2C3E50 !important;
+  --outline-gray-2: #34495E !important;
+  --outline-gray-3: #5D6D7E !important;
+  --outline-gray-4: #85929E !important;
+  --outline-gray-5: #BDC3C7 !important;
+  --outline-gray-modals: #34495E !important;
+  
+  /* Nebula-specific stellar colors */
+  --outline-blue-1: #00D4AA !important;
+  --outline-blue-2: #4ECDC4 !important;
+  --outline-green-1: #00D4AA !important;
+  --outline-green-2: #2ECC71 !important;
+  --outline-red-1: #E91E63 !important;
+  --outline-red-2: #E74C3C !important;
+  --outline-red-3: #C0392B !important;
+  --outline-amber-1: #F39C12 !important;
+  --outline-amber-2: #E67E22 !important;
+  --outline-orange-1: #FF6B35 !important;
+
+  /* SURFACE VARIABLES - Deep space palette */
+  --surface-white: #1A1D29 !important;
+  --surface-gray-1: #212530 !important;
+  --surface-gray-2: #2C3E50 !important;
+  --surface-gray-3: #34495E !important;
+  --surface-gray-4: #5D6D7E !important;
+  --surface-gray-5: #85929E !important;
+  --surface-gray-6: #BDC3C7 !important;
+  --surface-gray-7: #ECF0F1 !important;
+  
+  /* Nebula themed surfaces */
+  --surface-cards: #212530 !important;
+  --surface-modal: #212530 !important;
+  --surface-menu-bar: #1A1D29 !important;
+  --surface-selected: #154360 !important;
+  
+  /* Status surface colors with cosmic theme */
+  --surface-blue-1: #154360 !important;
+  --surface-blue-2: #4ECDC4 !important;
+  --surface-blue-3: #00D4AA !important;
+  --surface-green-1: #0E4B33 !important;
+  --surface-green-2: #2ECC71 !important;
+  --surface-green-3: #58D68D !important;
+  --surface-red-1: #641E16 !important;
+  --surface-red-2: #E74C3C !important;
+  --surface-red-3: #EC7063 !important;
+  --surface-red-4: #E91E63 !important;
+  --surface-red-5: #C0392B !important;
+  --surface-red-6: #A93226 !important;
+  --surface-red-7: #922B21 !important;
+  --surface-amber-1: #7D4F0A !important;
+  --surface-amber-2: #F39C12 !important;
+  --surface-amber-3: #F7DC6F !important;
+  --surface-orange-1: #A0522D !important;
+  --surface-violet-1: #6C3483 !important;
+  --surface-cyan-1: #0E6655 !important;
+  --surface-pink-1: #76448A !important;
+
+  /* INK/TEXT VARIABLES - High contrast for cosmic theme */
+  --ink-white: #1A1D29 !important;
+  --ink-gray-1: #212530 !important;
+  --ink-gray-2: #2C3E50 !important;
+  --ink-gray-3: #5D6D7E !important;
+  --ink-gray-4: #85929E !important;
+  --ink-gray-5: #BDC3C7 !important;
+  --ink-gray-6: #D5DBDB !important;
+  --ink-gray-7: #EAEDED !important;
+  --ink-gray-8: #F8F9FA !important;
+  --ink-gray-9: #FFFFFF !important;
+  
+  /* Nebula themed text colors */
+  --ink-blue-1: #154360 !important;
+  --ink-blue-2: #4ECDC4 !important;
+  --ink-blue-3: #00D4AA !important;
+  --ink-blue-4: #76D7C4 !important;
+  --ink-blue-link: #4ECDC4 !important;
+  --ink-green-1: #0E4B33 !important;
+  --ink-green-2: #2ECC71 !important;
+  --ink-green-3: #58D68D !important;
+  --ink-red-1: #641E16 !important;
+  --ink-red-2: #E74C3C !important;
+  --ink-red-3: #EC7063 !important;
+  --ink-red-4: #F1948A !important;
+  --ink-amber-1: #7D4F0A !important;
+  --ink-amber-2: #F39C12 !important;
+  --ink-amber-3: #F7DC6F !important;
+  --ink-cyan-1: #17A2B8 !important;
+  --ink-pink-1: #E91E63 !important;
+  --ink-violet-1: #9B59B6 !important;
+}
+
+/* Nebula Theme CSS Overrides */
+
+/* Base layer overrides - Typography */
+[data-theme="nebula"] .text-xs { font-size: var(--text-xs) !important; }
+[data-theme="nebula"] .text-sm { font-size: var(--text-sm) !important; }
+[data-theme="nebula"] .text-base { font-size: var(--text-base) !important; }
+[data-theme="nebula"] .text-lg { font-size: var(--text-lg) !important; }
+[data-theme="nebula"] .text-xl { font-size: var(--text-xl) !important; }
+[data-theme="nebula"] .text-2xl { font-size: var(--text-2xl) !important; }
+[data-theme="nebula"] .text-3xl { font-size: var(--text-3xl) !important; }
+
+/* Font family overrides */
+[data-theme="nebula"] .font-sans { font-family: var(--font-family-sans) !important; }
+
+/* Font weight overrides */
+[data-theme="nebula"] .font-normal { font-weight: var(--font-normal) !important; }
+[data-theme="nebula"] .font-medium { font-weight: var(--font-medium) !important; }
+[data-theme="nebula"] .font-semibold { font-weight: var(--font-semibold) !important; }
+[data-theme="nebula"] .font-bold { font-weight: var(--font-bold) !important; }
+
+/* Line height overrides */
+[data-theme="nebula"] .leading-tight { line-height: var(--leading-tight) !important; }
+[data-theme="nebula"] .leading-normal { line-height: var(--leading-normal) !important; }
+[data-theme="nebula"] .leading-relaxed { line-height: var(--leading-relaxed) !important; }
+
+/* Spacing overrides */
+[data-theme="nebula"] .p-1 { padding: var(--space-xs) !important; }
+[data-theme="nebula"] .p-2 { padding: var(--space-sm) !important; }
+[data-theme="nebula"] .p-3 { padding: var(--space-md) !important; }
+[data-theme="nebula"] .p-4 { padding: var(--space-lg) !important; }
+
+[data-theme="nebula"] .px-2 { 
+  padding-left: var(--component-padding-xs) !important; 
+  padding-right: var(--component-padding-xs) !important; 
+}
+
+[data-theme="nebula"] .px-3 { 
+  padding-left: var(--component-padding-md) !important; 
+  padding-right: var(--component-padding-md) !important; 
+}
+
+[data-theme="nebula"] .gap-1 { gap: var(--space-xs) !important; }
+[data-theme="nebula"] .gap-2 { gap: var(--space-sm) !important; }
+[data-theme="nebula"] .gap-3 { gap: var(--space-md) !important; }
+[data-theme="nebula"] .gap-4 { gap: var(--space-lg) !important; }
+
+/* Border radius overrides */
+[data-theme="nebula"] .rounded { border-radius: var(--border-radius-md) !important; }
+[data-theme="nebula"] .rounded-sm { border-radius: var(--border-radius-sm) !important; }
+[data-theme="nebula"] .rounded-md { border-radius: var(--border-radius-lg) !important; }
+[data-theme="nebula"] .rounded-lg { border-radius: var(--border-radius-xl) !important; }
+
+/* Component height overrides */
+[data-theme="nebula"] .h-7 { height: var(--input-height-sm) !important; }
+[data-theme="nebula"] .h-8 { height: var(--input-height-md) !important; }
+[data-theme="nebula"] .h-10 { height: var(--input-height-lg) !important; }
+
+/* Additional spacing overrides */
+[data-theme="nebula"] .pl-2 { padding-left: var(--component-padding-xs) !important; }
+[data-theme="nebula"] .pr-2 { padding-right: var(--component-padding-xs) !important; }
+[data-theme="nebula"] .pl-2\.5 { padding-left: var(--component-padding-sm) !important; }
+[data-theme="nebula"] .pr-2\.5 { padding-right: var(--component-padding-sm) !important; }
+[data-theme="nebula"] .px-2\.5 { 
+  padding-left: var(--component-padding-sm) !important; 
+  padding-right: var(--component-padding-sm) !important; 
+}
+
+[data-theme="nebula"] .mb-2 { margin-bottom: var(--space-sm) !important; }
+[data-theme="nebula"] .mt-2 { margin-top: var(--space-sm) !important; }
+[data-theme="nebula"] .gap-1\.5 { gap: calc(var(--space-xs) * 1.5) !important; }
+[data-theme="nebula"] .gap-2\.5 { gap: calc(var(--space-sm) * 1.25) !important; }
+
+/* Space-y overrides */
+[data-theme="nebula"] .space-y-1 > * + * { margin-top: var(--space-xs) !important; }
+[data-theme="nebula"] .space-y-1\.5 > * + * { margin-top: calc(var(--space-xs) * 1.5) !important; }
+[data-theme="nebula"] .space-y-2 > * + * { margin-top: var(--space-sm) !important; }
+[data-theme="nebula"] .space-y-3 > * + * { margin-top: var(--space-md) !important; }
+[data-theme="nebula"] .space-y-4 > * + * { margin-top: var(--space-lg) !important; }
+
+/* Component layer overrides */
+[data-theme="nebula"] .form-input,
+[data-theme="nebula"] .form-textarea,
+[data-theme="nebula"] .form-select {
+  height: var(--input-height-sm) !important;
+  font-size: var(--text-base) !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: calc(var(--space-xs) * 1.5) var(--component-padding-xs) !important;
+}
+
+/* Button component overrides */
+[data-theme="nebula"] .h-7.rounded { 
+  height: var(--button-height-sm) !important; 
+  border-radius: var(--border-radius-md) !important;
+  font-size: var(--text-base) !important;
+  padding-left: var(--component-padding-xs) !important;
+  padding-right: var(--component-padding-xs) !important;
+}
+
+[data-theme="nebula"] .h-8.rounded { 
+  height: var(--button-height-md) !important; 
+  border-radius: var(--border-radius-md) !important;
+  font-size: var(--text-base) !important;
+}
+
+[data-theme="nebula"] .h-10.rounded-md { 
+  height: var(--button-height-lg) !important; 
+  border-radius: var(--border-radius-lg) !important;
+  font-size: var(--text-lg) !important;
+  padding-left: var(--component-padding-md) !important;
+  padding-right: var(--component-padding-md) !important;
+}
+
+/* Specific overrides for Nebula theme to preserve icon and logo visibility */
+[data-theme="nebula"] .size-4 {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+/* Logo sizing - keep original size for proper visibility */
+[data-theme="nebula"] .size-8 {
+  width: 2rem !important;
+  height: 2rem !important;
+}
+
+/* Ensure sidebar links maintain proper height in Nebula theme */
+[data-theme="nebula"] .h-7 {
+  height: 1.75rem !important;
+}
+
+/* UserDropdown - increase height to accommodate logo properly */
+[data-theme="nebula"] .h-12 {
+  height: 3.5rem !important;
+}
+
+/* Preserve icon container sizing in Nebula theme */
+[data-theme="nebula"] .grid.place-items-center {
+  min-width: 1rem;
+  min-height: 1rem;
+}
+
+/* Ensure flex-shrink-0 icons maintain visibility */
+[data-theme="nebula"] .flex-shrink-0 {
+  flex-shrink: 0 !important;
+}
+
+/* Preserve component icon sizing in Nebula theme */
+[data-theme="nebula"] svg {
+  flex-shrink: 0;
+}
+
+/* Ensure BrandLogo maintains proper sizing and spacing */
+[data-theme="nebula"] .max-w-16 {
+  max-width: 4rem !important;
+}
+
+/* Better spacing for UserDropdown in Nebula theme */
+[data-theme="nebula"] .h-12.flex.items-center {
+  padding: 0.75rem !important;
+  min-height: 3.5rem !important;
+}
+
+/* Specific UserDropdown button styling for Nebula theme */
+[data-theme="nebula"] .h-12.flex.items-center.rounded-md {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+[data-theme="nebula"] .h-12 .h-8.max-w-16.flex-shrink-0 {
+  width: 2rem !important;
+  height: 2rem !important;
+  margin-right: 0.75rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Preserve sidebar padding and spacing */
+[data-theme="nebula"] .mx-2 {
+  margin-left: 0.5rem !important;
+  margin-right: 0.5rem !important;
+}
+
+[data-theme="nebula"] .my-0\.5 {
+  margin-top: 0.125rem !important;
+  margin-bottom: 0.125rem !important;
+} 

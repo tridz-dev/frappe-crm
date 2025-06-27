@@ -293,6 +293,7 @@ standard_dropdown_items = [
 		"icon": "moon",
 		"route": "#",
 		"is_standard": 1,
+        "hidden":1
 	},
 	{
 		"name1": "settings",
