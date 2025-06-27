@@ -203,159 +203,205 @@
   /* This preserves the original light/dark theme behavior */
   
   [data-theme="ocean"] .text-xs,
-  [data-theme="compact"] .text-xs { font-size: var(--text-xs) !important; }
+  [data-theme="compact"] .text-xs,
+  [data-theme="ant"] .text-xs { font-size: var(--text-xs) !important; }
   
   [data-theme="ocean"] .text-sm,
-  [data-theme="compact"] .text-sm { font-size: var(--text-sm) !important; }
+  [data-theme="compact"] .text-sm,
+  [data-theme="ant"] .text-sm { font-size: var(--text-sm) !important; }
   
   [data-theme="ocean"] .text-base,
-  [data-theme="compact"] .text-base { font-size: var(--text-base) !important; }
+  [data-theme="compact"] .text-base,
+  [data-theme="ant"] .text-base { font-size: var(--text-base) !important; }
   
   [data-theme="ocean"] .text-lg,
-  [data-theme="compact"] .text-lg { font-size: var(--text-lg) !important; }
+  [data-theme="compact"] .text-lg,
+  [data-theme="ant"] .text-lg { font-size: var(--text-lg) !important; }
   
   [data-theme="ocean"] .text-xl,
-  [data-theme="compact"] .text-xl { font-size: var(--text-xl) !important; }
+  [data-theme="compact"] .text-xl,
+  [data-theme="ant"] .text-xl { font-size: var(--text-xl) !important; }
   
   [data-theme="ocean"] .text-2xl,
-  [data-theme="compact"] .text-2xl { font-size: var(--text-2xl) !important; }
+  [data-theme="compact"] .text-2xl,
+  [data-theme="ant"] .text-2xl { font-size: var(--text-2xl) !important; }
   
   [data-theme="ocean"] .text-3xl,
-  [data-theme="compact"] .text-3xl { font-size: var(--text-3xl) !important; }
+  [data-theme="compact"] .text-3xl,
+  [data-theme="ant"] .text-3xl { font-size: var(--text-3xl) !important; }
   
   /* Font family overrides for custom themes only */
   [data-theme="ocean"] .font-sans,
-  [data-theme="compact"] .font-sans { font-family: var(--font-family-sans) !important; }
+  [data-theme="compact"] .font-sans,
+  [data-theme="ant"] .font-sans { font-family: var(--font-family-sans) !important; }
   
   /* Font weight overrides for custom themes only */
   [data-theme="ocean"] .font-normal,
-  [data-theme="compact"] .font-normal { font-weight: var(--font-normal) !important; }
+  [data-theme="compact"] .font-normal,
+  [data-theme="ant"] .font-normal { font-weight: var(--font-normal) !important; }
   
   [data-theme="ocean"] .font-medium,
-  [data-theme="compact"] .font-medium { font-weight: var(--font-medium) !important; }
+  [data-theme="compact"] .font-medium,
+  [data-theme="ant"] .font-medium { font-weight: var(--font-medium) !important; }
   
   [data-theme="ocean"] .font-semibold,
-  [data-theme="compact"] .font-semibold { font-weight: var(--font-semibold) !important; }
+  [data-theme="compact"] .font-semibold,
+  [data-theme="ant"] .font-semibold { font-weight: var(--font-semibold) !important; }
   
   [data-theme="ocean"] .font-bold,
-  [data-theme="compact"] .font-bold { font-weight: var(--font-bold) !important; }
+  [data-theme="compact"] .font-bold,
+  [data-theme="ant"] .font-bold { font-weight: var(--font-bold) !important; }
   
   /* Line height overrides for custom themes only */
   [data-theme="ocean"] .leading-tight,
-  [data-theme="compact"] .leading-tight { line-height: var(--leading-tight) !important; }
+  [data-theme="compact"] .leading-tight,
+  [data-theme="ant"] .leading-tight { line-height: var(--leading-tight) !important; }
   
   [data-theme="ocean"] .leading-normal,
-  [data-theme="compact"] .leading-normal { line-height: var(--leading-normal) !important; }
+  [data-theme="compact"] .leading-normal,
+  [data-theme="ant"] .leading-normal { line-height: var(--leading-normal) !important; }
   
   [data-theme="ocean"] .leading-relaxed,
-  [data-theme="compact"] .leading-relaxed { line-height: var(--leading-relaxed) !important; }
+  [data-theme="compact"] .leading-relaxed,
+  [data-theme="ant"] .leading-relaxed { line-height: var(--leading-relaxed) !important; }
   
   /* Spacing overrides for custom themes only */
   [data-theme="ocean"] .p-1,
-  [data-theme="compact"] .p-1 { padding: var(--space-xs) !important; }
+  [data-theme="compact"] .p-1,
+  [data-theme="ant"] .p-1 { padding: var(--space-xs) !important; }
   
   [data-theme="ocean"] .p-2,
-  [data-theme="compact"] .p-2 { padding: var(--space-sm) !important; }
+  [data-theme="compact"] .p-2,
+  [data-theme="ant"] .p-2 { padding: var(--space-sm) !important; }
   
   [data-theme="ocean"] .p-3,
-  [data-theme="compact"] .p-3 { padding: var(--space-md) !important; }
+  [data-theme="compact"] .p-3,
+  [data-theme="ant"] .p-3 { padding: var(--space-md) !important; }
   
   [data-theme="ocean"] .p-4,
-  [data-theme="compact"] .p-4 { padding: var(--space-lg) !important; }
+  [data-theme="compact"] .p-4,
+  [data-theme="ant"] .p-4 { padding: var(--space-lg) !important; }
   
   [data-theme="ocean"] .px-2,
-  [data-theme="compact"] .px-2 { 
+  [data-theme="compact"] .px-2,
+  [data-theme="ant"] .px-2 { 
     padding-left: var(--component-padding-xs) !important; 
     padding-right: var(--component-padding-xs) !important; 
   }
   
   [data-theme="ocean"] .px-3,
-  [data-theme="compact"] .px-3 { 
+  [data-theme="compact"] .px-3,
+  [data-theme="ant"] .px-3 { 
     padding-left: var(--component-padding-md) !important; 
     padding-right: var(--component-padding-md) !important; 
   }
   
   [data-theme="ocean"] .gap-1,
-  [data-theme="compact"] .gap-1 { gap: var(--space-xs) !important; }
+  [data-theme="compact"] .gap-1,
+  [data-theme="ant"] .gap-1 { gap: var(--space-xs) !important; }
   
   [data-theme="ocean"] .gap-2,
-  [data-theme="compact"] .gap-2 { gap: var(--space-sm) !important; }
+  [data-theme="compact"] .gap-2,
+  [data-theme="ant"] .gap-2 { gap: var(--space-sm) !important; }
   
   [data-theme="ocean"] .gap-3,
-  [data-theme="compact"] .gap-3 { gap: var(--space-md) !important; }
+  [data-theme="compact"] .gap-3,
+  [data-theme="ant"] .gap-3 { gap: var(--space-md) !important; }
   
   [data-theme="ocean"] .gap-4,
-  [data-theme="compact"] .gap-4 { gap: var(--space-lg) !important; }
+  [data-theme="compact"] .gap-4,
+  [data-theme="ant"] .gap-4 { gap: var(--space-lg) !important; }
   
   /* Border radius overrides for custom themes only */
   [data-theme="ocean"] .rounded,
-  [data-theme="compact"] .rounded { border-radius: var(--border-radius-md) !important; }
+  [data-theme="compact"] .rounded,
+  [data-theme="ant"] .rounded { border-radius: var(--border-radius-md) !important; }
   
   [data-theme="ocean"] .rounded-sm,
-  [data-theme="compact"] .rounded-sm { border-radius: var(--border-radius-sm) !important; }
+  [data-theme="compact"] .rounded-sm,
+  [data-theme="ant"] .rounded-sm { border-radius: var(--border-radius-sm) !important; }
   
   [data-theme="ocean"] .rounded-md,
-  [data-theme="compact"] .rounded-md { border-radius: var(--border-radius-lg) !important; }
+  [data-theme="compact"] .rounded-md,
+  [data-theme="ant"] .rounded-md { border-radius: var(--border-radius-lg) !important; }
   
   [data-theme="ocean"] .rounded-lg,
-  [data-theme="compact"] .rounded-lg { border-radius: var(--border-radius-xl) !important; }
+  [data-theme="compact"] .rounded-lg,
+  [data-theme="ant"] .rounded-lg { border-radius: var(--border-radius-xl) !important; }
   
   /* Component height overrides for custom themes only */
   [data-theme="ocean"] .h-7,
-  [data-theme="compact"] .h-7 { height: var(--input-height-sm) !important; }
+  [data-theme="compact"] .h-7,
+  [data-theme="ant"] .h-7 { height: var(--input-height-sm) !important; }
   
   [data-theme="ocean"] .h-8,
-  [data-theme="compact"] .h-8 { height: var(--input-height-md) !important; }
+  [data-theme="compact"] .h-8,
+  [data-theme="ant"] .h-8 { height: var(--input-height-md) !important; }
   
   [data-theme="ocean"] .h-10,
-  [data-theme="compact"] .h-10 { height: var(--input-height-lg) !important; }
+  [data-theme="compact"] .h-10,
+  [data-theme="ant"] .h-10 { height: var(--input-height-lg) !important; }
   
   /* Additional spacing overrides for custom themes only */
   [data-theme="ocean"] .pl-2,
-  [data-theme="compact"] .pl-2 { padding-left: var(--component-padding-xs) !important; }
+  [data-theme="compact"] .pl-2,
+  [data-theme="ant"] .pl-2 { padding-left: var(--component-padding-xs) !important; }
   
   [data-theme="ocean"] .pr-2,
-  [data-theme="compact"] .pr-2 { padding-right: var(--component-padding-xs) !important; }
+  [data-theme="compact"] .pr-2,
+  [data-theme="ant"] .pr-2 { padding-right: var(--component-padding-xs) !important; }
   
   [data-theme="ocean"] .pl-2\.5,
-  [data-theme="compact"] .pl-2\.5 { padding-left: var(--component-padding-sm) !important; }
+  [data-theme="compact"] .pl-2\.5,
+  [data-theme="ant"] .pl-2\.5 { padding-left: var(--component-padding-sm) !important; }
   
   [data-theme="ocean"] .pr-2\.5,
-  [data-theme="compact"] .pr-2\.5 { padding-right: var(--component-padding-sm) !important; }
+  [data-theme="compact"] .pr-2\.5,
+  [data-theme="ant"] .pr-2\.5 { padding-right: var(--component-padding-sm) !important; }
   
   [data-theme="ocean"] .px-2\.5,
-  [data-theme="compact"] .px-2\.5 { 
+  [data-theme="compact"] .px-2\.5,
+  [data-theme="ant"] .px-2\.5 { 
     padding-left: var(--component-padding-sm) !important; 
     padding-right: var(--component-padding-sm) !important; 
   }
   
   [data-theme="ocean"] .mb-2,
-  [data-theme="compact"] .mb-2 { margin-bottom: var(--space-sm) !important; }
+  [data-theme="compact"] .mb-2,
+  [data-theme="ant"] .mb-2 { margin-bottom: var(--space-sm) !important; }
   
   [data-theme="ocean"] .mt-2,
-  [data-theme="compact"] .mt-2 { margin-top: var(--space-sm) !important; }
+  [data-theme="compact"] .mt-2,
+  [data-theme="ant"] .mt-2 { margin-top: var(--space-sm) !important; }
   
   [data-theme="ocean"] .gap-1\.5,
-  [data-theme="compact"] .gap-1\.5 { gap: calc(var(--space-xs) * 1.5) !important; }
+  [data-theme="compact"] .gap-1\.5,
+  [data-theme="ant"] .gap-1\.5 { gap: calc(var(--space-xs) * 1.5) !important; }
   
   [data-theme="ocean"] .gap-2\.5,
-  [data-theme="compact"] .gap-2\.5 { gap: calc(var(--space-sm) * 1.25) !important; }
+  [data-theme="compact"] .gap-2\.5,
+  [data-theme="ant"] .gap-2\.5 { gap: calc(var(--space-sm) * 1.25) !important; }
   
   /* Space-y overrides for custom themes only */
   [data-theme="ocean"] .space-y-1 > * + *,
-  [data-theme="compact"] .space-y-1 > * + * { margin-top: var(--space-xs) !important; }
+  [data-theme="compact"] .space-y-1 > * + *,
+  [data-theme="ant"] .space-y-1 > * + * { margin-top: var(--space-xs) !important; }
   
   [data-theme="ocean"] .space-y-1\.5 > * + *,
-  [data-theme="compact"] .space-y-1\.5 > * + * { margin-top: calc(var(--space-xs) * 1.5) !important; }
+  [data-theme="compact"] .space-y-1\.5 > * + *,
+  [data-theme="ant"] .space-y-1\.5 > * + * { margin-top: calc(var(--space-xs) * 1.5) !important; }
   
   [data-theme="ocean"] .space-y-2 > * + *,
-  [data-theme="compact"] .space-y-2 > * + * { margin-top: var(--space-sm) !important; }
+  [data-theme="compact"] .space-y-2 > * + *,
+  [data-theme="ant"] .space-y-2 > * + * { margin-top: var(--space-sm) !important; }
   
   [data-theme="ocean"] .space-y-3 > * + *,
-  [data-theme="compact"] .space-y-3 > * + * { margin-top: var(--space-md) !important; }
+  [data-theme="compact"] .space-y-3 > * + *,
+  [data-theme="ant"] .space-y-3 > * + * { margin-top: var(--space-md) !important; }
   
   [data-theme="ocean"] .space-y-4 > * + *,
-  [data-theme="compact"] .space-y-4 > * + * { margin-top: var(--space-lg) !important; }
+  [data-theme="compact"] .space-y-4 > * + *,
+  [data-theme="ant"] .space-y-4 > * + * { margin-top: var(--space-lg) !important; }
 }
 
 @layer components {
@@ -365,7 +411,10 @@
 	[data-theme="ocean"] .form-select,
 	[data-theme="compact"] .form-input,
 	[data-theme="compact"] .form-textarea,
-	[data-theme="compact"] .form-select {
+	[data-theme="compact"] .form-select,
+	[data-theme="ant"] .form-input,
+	[data-theme="ant"] .form-textarea,
+	[data-theme="ant"] .form-select {
 		height: var(--input-height-sm) !important;
 		font-size: var(--text-base) !important;
 		border-radius: var(--border-radius-md) !important;
@@ -374,7 +423,8 @@
 	
 	/* Button component overrides for custom themes only */
 	[data-theme="ocean"] .h-7.rounded,
-	[data-theme="compact"] .h-7.rounded { 
+	[data-theme="compact"] .h-7.rounded,
+	[data-theme="ant"] .h-7.rounded { 
 		height: var(--button-height-sm) !important; 
 		border-radius: var(--border-radius-md) !important;
 		font-size: var(--text-base) !important;
@@ -383,21 +433,98 @@
 	}
 	
 	[data-theme="ocean"] .h-8.rounded,
-	[data-theme="compact"] .h-8.rounded { 
+	[data-theme="compact"] .h-8.rounded,
+	[data-theme="ant"] .h-8.rounded { 
 		height: var(--button-height-md) !important; 
 		border-radius: var(--border-radius-md) !important;
 		font-size: var(--text-base) !important;
-		padding-left: var(--component-padding-sm) !important;
-		padding-right: var(--component-padding-sm) !important;
+		/* padding-left: var(--component-padding-sm) !important;
+		padding-right: var(--component-padding-sm) !important; */
 	}
 	
 	[data-theme="ocean"] .h-10.rounded-md,
-	[data-theme="compact"] .h-10.rounded-md { 
+	[data-theme="compact"] .h-10.rounded-md,
+	[data-theme="ant"] .h-10.rounded-md { 
 		height: var(--button-height-lg) !important; 
 		border-radius: var(--border-radius-lg) !important;
 		font-size: var(--text-lg) !important;
 		padding-left: var(--component-padding-md) !important;
 		padding-right: var(--component-padding-md) !important;
+	}
+	
+	/* Specific overrides for Ant theme to preserve icon and logo visibility */
+	[data-theme="ant"] .size-4 {
+		width: 1rem !important;
+		height: 1rem !important;
+	}
+	
+	/* Logo sizing - keep original size for proper visibility */
+	[data-theme="ant"] .size-8 {
+		width: 2rem !important;
+		height: 2rem !important;
+	}
+	
+	/* Ensure sidebar links maintain proper height in Ant theme */
+	[data-theme="ant"] .h-7 {
+		height: 1.75rem !important;
+	}
+	
+	/* UserDropdown - increase height to accommodate logo properly */
+	[data-theme="ant"] .h-12 {
+		height: 3.5rem !important;
+	}
+	
+	/* Preserve icon container sizing in Ant theme */
+	[data-theme="ant"] .grid.place-items-center {
+		min-width: 1rem;
+		min-height: 1rem;
+	}
+	
+	/* Ensure flex-shrink-0 icons maintain visibility */
+	[data-theme="ant"] .flex-shrink-0 {
+		flex-shrink: 0 !important;
+	}
+	
+	/* Preserve component icon sizing in Ant theme */
+	[data-theme="ant"] svg {
+		flex-shrink: 0;
+	}
+	
+	/* Ensure BrandLogo maintains proper sizing and spacing */
+	[data-theme="ant"] .max-w-16 {
+		max-width: 4rem !important;
+	}
+	
+	/* Better spacing for UserDropdown in Ant theme */
+	[data-theme="ant"] .h-12.flex.items-center {
+		padding: 0.75rem !important;
+		min-height: 3.5rem !important;
+	}
+	
+	/* Specific UserDropdown button styling for Ant theme */
+	[data-theme="ant"] .h-12.flex.items-center.rounded-md {
+		padding-top: 0.75rem !important;
+		padding-bottom: 0.75rem !important;
+		padding-left: 0.75rem !important;
+		padding-right: 0.75rem !important;
+	}
+	
+	[data-theme="ant"] .h-12 .h-8.max-w-16.flex-shrink-0 {
+		width: 2rem !important;
+		height: 2rem !important;
+		margin-right: 0.75rem !important;
+		flex-shrink: 0 !important;
+	}
+	
+	/* Preserve sidebar padding and spacing */
+	[data-theme="ant"] .mx-2 {
+		margin-left: 0.5rem !important;
+		margin-right: 0.5rem !important;
+	}
+	
+	[data-theme="ant"] .my-0\.5 {
+		margin-top: 0.125rem !important;
+		margin-bottom: 0.125rem !important;
 	}
 
 	.prose-f {

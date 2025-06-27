@@ -30,6 +30,14 @@ export const themeDefinitions = [
     preview: {
       colors: ['bg-gray-100', 'bg-gray-300', 'bg-blue-200']
     }
+  },
+  { 
+    label: 'Ant', 
+    value: 'ant',
+    description: 'Modern dark theme with vibrant accents',
+    preview: {
+      colors: ['bg-slate-900', 'bg-blue-500', 'bg-indigo-600']
+    }
   }
 ]
 

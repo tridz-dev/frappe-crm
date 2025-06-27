@@ -94,6 +94,13 @@ Themes are scoped using CSS attribute selectors:
    - **Tight spacing** (information-heavy screens)
    - **Small components** (efficient use of space)
 
+5. **Ant**
+   - **Modern dark theme** with vibrant blue accents
+   - **Balanced spacing** for professional, clean interface
+   - **Rounded design** with optimized component sizing
+   - **High contrast** colors for excellent readability
+   - **Icon-friendly** layout preserving sidebar and component visibility
+
 ## CSS Variable Categories
 
 ### Typography Variables
