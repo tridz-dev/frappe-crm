@@ -136,4 +136,191 @@ html[data-theme="nebula"] {
   --ink-cyan-1: #17A2B8 !important;
   --ink-pink-1: #E91E63 !important;
   --ink-violet-1: #9B59B6 !important;
+}
+
+/* Nebula Theme CSS Overrides */
+
+/* Base layer overrides - Typography */
+[data-theme="nebula"] .text-xs { font-size: var(--text-xs) !important; }
+[data-theme="nebula"] .text-sm { font-size: var(--text-sm) !important; }
+[data-theme="nebula"] .text-base { font-size: var(--text-base) !important; }
+[data-theme="nebula"] .text-lg { font-size: var(--text-lg) !important; }
+[data-theme="nebula"] .text-xl { font-size: var(--text-xl) !important; }
+[data-theme="nebula"] .text-2xl { font-size: var(--text-2xl) !important; }
+[data-theme="nebula"] .text-3xl { font-size: var(--text-3xl) !important; }
+
+/* Font family overrides */
+[data-theme="nebula"] .font-sans { font-family: var(--font-family-sans) !important; }
+
+/* Font weight overrides */
+[data-theme="nebula"] .font-normal { font-weight: var(--font-normal) !important; }
+[data-theme="nebula"] .font-medium { font-weight: var(--font-medium) !important; }
+[data-theme="nebula"] .font-semibold { font-weight: var(--font-semibold) !important; }
+[data-theme="nebula"] .font-bold { font-weight: var(--font-bold) !important; }
+
+/* Line height overrides */
+[data-theme="nebula"] .leading-tight { line-height: var(--leading-tight) !important; }
+[data-theme="nebula"] .leading-normal { line-height: var(--leading-normal) !important; }
+[data-theme="nebula"] .leading-relaxed { line-height: var(--leading-relaxed) !important; }
+
+/* Spacing overrides */
+[data-theme="nebula"] .p-1 { padding: var(--space-xs) !important; }
+[data-theme="nebula"] .p-2 { padding: var(--space-sm) !important; }
+[data-theme="nebula"] .p-3 { padding: var(--space-md) !important; }
+[data-theme="nebula"] .p-4 { padding: var(--space-lg) !important; }
+
+[data-theme="nebula"] .px-2 { 
+  padding-left: var(--component-padding-xs) !important; 
+  padding-right: var(--component-padding-xs) !important; 
+}
+
+[data-theme="nebula"] .px-3 { 
+  padding-left: var(--component-padding-md) !important; 
+  padding-right: var(--component-padding-md) !important; 
+}
+
+[data-theme="nebula"] .gap-1 { gap: var(--space-xs) !important; }
+[data-theme="nebula"] .gap-2 { gap: var(--space-sm) !important; }
+[data-theme="nebula"] .gap-3 { gap: var(--space-md) !important; }
+[data-theme="nebula"] .gap-4 { gap: var(--space-lg) !important; }
+
+/* Border radius overrides */
+[data-theme="nebula"] .rounded { border-radius: var(--border-radius-md) !important; }
+[data-theme="nebula"] .rounded-sm { border-radius: var(--border-radius-sm) !important; }
+[data-theme="nebula"] .rounded-md { border-radius: var(--border-radius-lg) !important; }
+[data-theme="nebula"] .rounded-lg { border-radius: var(--border-radius-xl) !important; }
+
+/* Component height overrides */
+[data-theme="nebula"] .h-7 { height: var(--input-height-sm) !important; }
+[data-theme="nebula"] .h-8 { height: var(--input-height-md) !important; }
+[data-theme="nebula"] .h-10 { height: var(--input-height-lg) !important; }
+
+/* Additional spacing overrides */
+[data-theme="nebula"] .pl-2 { padding-left: var(--component-padding-xs) !important; }
+[data-theme="nebula"] .pr-2 { padding-right: var(--component-padding-xs) !important; }
+[data-theme="nebula"] .pl-2\.5 { padding-left: var(--component-padding-sm) !important; }
+[data-theme="nebula"] .pr-2\.5 { padding-right: var(--component-padding-sm) !important; }
+[data-theme="nebula"] .px-2\.5 { 
+  padding-left: var(--component-padding-sm) !important; 
+  padding-right: var(--component-padding-sm) !important; 
+}
+
+[data-theme="nebula"] .mb-2 { margin-bottom: var(--space-sm) !important; }
+[data-theme="nebula"] .mt-2 { margin-top: var(--space-sm) !important; }
+[data-theme="nebula"] .gap-1\.5 { gap: calc(var(--space-xs) * 1.5) !important; }
+[data-theme="nebula"] .gap-2\.5 { gap: calc(var(--space-sm) * 1.25) !important; }
+
+/* Space-y overrides */
+[data-theme="nebula"] .space-y-1 > * + * { margin-top: var(--space-xs) !important; }
+[data-theme="nebula"] .space-y-1\.5 > * + * { margin-top: calc(var(--space-xs) * 1.5) !important; }
+[data-theme="nebula"] .space-y-2 > * + * { margin-top: var(--space-sm) !important; }
+[data-theme="nebula"] .space-y-3 > * + * { margin-top: var(--space-md) !important; }
+[data-theme="nebula"] .space-y-4 > * + * { margin-top: var(--space-lg) !important; }
+
+/* Component layer overrides */
+[data-theme="nebula"] .form-input,
+[data-theme="nebula"] .form-textarea,
+[data-theme="nebula"] .form-select {
+  height: var(--input-height-sm) !important;
+  font-size: var(--text-base) !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: calc(var(--space-xs) * 1.5) var(--component-padding-xs) !important;
+}
+
+/* Button component overrides */
+[data-theme="nebula"] .h-7.rounded { 
+  height: var(--button-height-sm) !important; 
+  border-radius: var(--border-radius-md) !important;
+  font-size: var(--text-base) !important;
+  padding-left: var(--component-padding-xs) !important;
+  padding-right: var(--component-padding-xs) !important;
+}
+
+[data-theme="nebula"] .h-8.rounded { 
+  height: var(--button-height-md) !important; 
+  border-radius: var(--border-radius-md) !important;
+  font-size: var(--text-base) !important;
+}
+
+[data-theme="nebula"] .h-10.rounded-md { 
+  height: var(--button-height-lg) !important; 
+  border-radius: var(--border-radius-lg) !important;
+  font-size: var(--text-lg) !important;
+  padding-left: var(--component-padding-md) !important;
+  padding-right: var(--component-padding-md) !important;
+}
+
+/* Specific overrides for Nebula theme to preserve icon and logo visibility */
+[data-theme="nebula"] .size-4 {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+/* Logo sizing - keep original size for proper visibility */
+[data-theme="nebula"] .size-8 {
+  width: 2rem !important;
+  height: 2rem !important;
+}
+
+/* Ensure sidebar links maintain proper height in Nebula theme */
+[data-theme="nebula"] .h-7 {
+  height: 1.75rem !important;
+}
+
+/* UserDropdown - increase height to accommodate logo properly */
+[data-theme="nebula"] .h-12 {
+  height: 3.5rem !important;
+}
+
+/* Preserve icon container sizing in Nebula theme */
+[data-theme="nebula"] .grid.place-items-center {
+  min-width: 1rem;
+  min-height: 1rem;
+}
+
+/* Ensure flex-shrink-0 icons maintain visibility */
+[data-theme="nebula"] .flex-shrink-0 {
+  flex-shrink: 0 !important;
+}
+
+/* Preserve component icon sizing in Nebula theme */
+[data-theme="nebula"] svg {
+  flex-shrink: 0;
+}
+
+/* Ensure BrandLogo maintains proper sizing and spacing */
+[data-theme="nebula"] .max-w-16 {
+  max-width: 4rem !important;
+}
+
+/* Better spacing for UserDropdown in Nebula theme */
+[data-theme="nebula"] .h-12.flex.items-center {
+  padding: 0.75rem !important;
+  min-height: 3.5rem !important;
+}
+
+/* Specific UserDropdown button styling for Nebula theme */
+[data-theme="nebula"] .h-12.flex.items-center.rounded-md {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+[data-theme="nebula"] .h-12 .h-8.max-w-16.flex-shrink-0 {
+  width: 2rem !important;
+  height: 2rem !important;
+  margin-right: 0.75rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Preserve sidebar padding and spacing */
+[data-theme="nebula"] .mx-2 {
+  margin-left: 0.5rem !important;
+  margin-right: 0.5rem !important;
+}
+
+[data-theme="nebula"] .my-0\.5 {
+  margin-top: 0.125rem !important;
+  margin-bottom: 0.125rem !important;
 } 
