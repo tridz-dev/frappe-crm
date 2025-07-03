@@ -535,4 +535,98 @@ The messenger system now displays status updates within the conversation timelin
 - No breaking changes to existing features
 
 *Last Updated: [Current Date]*
-*Author: CRM Development Team* 
+*Author: CRM Development Team*
+
+## [2024-06-09] Helpdesk Ticket Creation from Messenger
+
+### What was added
+- A new option 'Create Helpdesk Ticket' in the Messenger chat profile's 3-dot menu (conversation actions).
+- When enabled via the `enable_helpdesk_ticket_creation` flag in Messenger settings, this option appears for each conversation.
+- Clicking it opens a modal to input a subject and detailed explanation for the ticket.
+- Submitting the modal currently just closes it and shows a success toast (backend integration pending).
+
+### Rationale
+- Streamlines the process for CRM users to escalate or log support issues directly from a Messenger conversation.
+- Reduces context switching and improves support workflow efficiency.
+
+### Usage Instructions
+1. Ensure the `enable_helpdesk_ticket_creation` flag is enabled in Messenger settings.
+2. In any Messenger conversation, click the 3-dot menu (top right of chat profile section).
+3. Select 'Create Helpdesk Ticket'.
+4. Fill in the subject and detailed explanation in the modal.
+5. Click 'Submit'.
+6. (Future) The ticket will be created in Helpdesk; for now, only a success message is shown.
+
+### Notes
+- The modal and menu option are only visible if the feature flag is enabled.
+- No backend or data model changes are included in this update.
+- Existing Messenger features are unaffected.
+
+## [2024-07-09] Backend API: Create Helpdesk Ticket from Messenger
+
+### Purpose
+Allows Messenger users to create a Helpdesk (HD) Ticket directly from a Messenger conversation. The ticket is linked to the conversation and visible in the Messenger Conversation's HD Tickets child table.
+
+### API Endpoint
+- `crm.api.messenger.create_helpdesk_ticket_from_messenger`
+- **Method:** POST (frappe.call)
+- **Params:**
+  - `subject` (str): Ticket subject
+  - `description` (str): Ticket description
+  - `conversation_id` (str): Messenger Conversation name (primary key)
+
+### Data Flow
+1. Creates a new `HD Ticket` (with `custom_messenger_conversation` set to the Messenger Conversation name).
+2. Appends a row to the Messenger Conversation's `hd_tickets` child table (Link to HD Ticket, status).
+3. Returns the new ticket name and status.
+
+### Example Usage
+```js
+frappe.call('crm.api.messenger.create_helpdesk_ticket_from_messenger', {
+  subject: 'Subject here',
+  description: 'Details here',
+  conversation_id: 'MSG-CONV-xxxxxx'
+}).then(r => {
+  // r.message = { ticket: ..., status: ... }
+})
+```
+
+### Notes
+- No changes to existing Messenger or Helpdesk features.
+- All permissions and validations are handled by Frappe's standard DocType logic.
+- The HD Ticket will be visible in the Messenger Conversation's "HD Tickets" tab/child table.
+
+## [2024-07-09] Frontend Integration: Create Helpdesk Ticket from Messenger
+
+### UI Flow
+- User opens the 3-dot menu in a Messenger conversation and selects "Create Helpdesk Ticket" (if enabled).
+- A modal appears with fields for Subject and Detailed Explanation.
+- On submit, the frontend calls the backend API (`crm.api.messenger.create_helpdesk_ticket_from_messenger`) with the subject, description, and conversation ID.
+- The modal shows loading state and disables the submit button until the request completes.
+- On success, a toast is shown and the modal closes. On error, an error toast is shown.
+
+### Code Reference
+- See `submitHelpdeskTicket` in `Messenger.vue` for the integration logic.
+- Uses `frappe.call` to invoke the backend API.
+
+### Notes
+- The submit button is only enabled if both fields are filled and not loading.
+- No impact on existing Messenger or Helpdesk features.
+
+*Last Updated: [Current Date]*
+*Author: CRM Development Team*
+
+## [2024-07-09] UI: Show Latest Helpdesk Ticket Status in Messenger Conversation Profile
+
+### Purpose
+- Shows the latest linked Helpdesk Ticket status for the conversation, making it easy for agents to see ticket progress at a glance.
+
+### UI Placement
+- Displayed in the conversation profile section, to the left of the conversation status select box.
+- Includes a ticket icon and a distinct yellow style to differentiate it from the conversation status.
+- Only shown if a latest ticket status exists for the conversation.
+
+### Notes
+- Uses the `latest_ticket_status` field from the Messenger Conversation DocType.
+- Does not affect any existing Messenger or Helpdesk features.
+- Responsive and visually distinct from the main conversation status. 

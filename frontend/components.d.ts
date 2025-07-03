@@ -225,6 +225,8 @@ declare module 'vue' {
     TelephonySettings: typeof import('./src/components/Settings/TelephonySettings.vue')['default']
     TerritoryIcon: typeof import('./src/components/Icons/TerritoryIcon.vue')['default']
     ThemeSwitcher: typeof import('./src/components/ThemeSwitcher.vue')['default']
+    TicketIcon: typeof import('./src/components/Icons/TicketIcon.vue')['default']
+    TicketTextEditor: typeof import('./src/components/TicketTextEditor.vue')['default']
     TwilioCallUI: typeof import('./src/components/Telephony/TwilioCallUI.vue')['default']
     UnpinIcon: typeof import('./src/components/Icons/UnpinIcon.vue')['default']
     UserAvatar: typeof import('./src/components/UserAvatar.vue')['default']

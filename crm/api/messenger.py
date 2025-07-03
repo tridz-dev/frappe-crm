@@ -129,6 +129,46 @@ def on_conversation_update(doc, method):
     except Exception as e:
         frappe.log_error("Messenger Conversation Update Error", str(e))
 
+@frappe.whitelist()
+def is_helpdesk_ticket_creation_enabled():
+    if not frappe.db.exists("DocType", "Messenger Settings"):
+        return False
+    return frappe.get_cached_value("Messenger Settings", "Messenger Settings", "enable_helpdesk_ticket_creation")
+
+@frappe.whitelist()
+def create_helpdesk_ticket_from_messenger(subject, description, conversation_id):
+    import json
+    if isinstance(subject, bytes):
+        subject = subject.decode()
+    if isinstance(description, bytes):
+        description = description.decode()
+    if isinstance(conversation_id, bytes):
+        conversation_id = conversation_id.decode()
+
+    # 1. Create the HD Ticket
+    ticket_doc = frappe.get_doc({
+        "doctype": "HD Ticket",
+        "subject": subject,
+        "description": description,
+        "custom_messenger_conversation": conversation_id
+    })
+    ticket_doc.insert(ignore_permissions=True)
+    ticket_name = ticket_doc.name
+    ticket_status = ticket_doc.status if hasattr(ticket_doc, 'status') else "Open"
+
+    # 2. Link to Messenger Conversation (add to hd_tickets child table)
+    conversation = frappe.get_doc("Messenger Conversation", conversation_id)
+    conversation.latest_ticket_status = ticket_status
+    conversation.append("hd_tickets", {
+        "hd_ticket": ticket_name,
+        "subject": subject,
+        "creation_time": ticket_doc.creation,
+        "status": ticket_status
+    })
+    conversation.save(ignore_permissions=True)
+
+    frappe.db.commit()
+    return {"ticket": ticket_name, "status": ticket_status}
 
 # def validate(doc, method):
 #     """Validate messenger message document before insert."""

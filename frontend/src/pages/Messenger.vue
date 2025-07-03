@@ -193,6 +193,10 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <div v-if="selectedConversationLatestTicketStatus" class="flex items-center gap-1 px-2 py-1 rounded bg-yellow-50 border border-yellow-300 text-yellow-800 text-xs font-semibold" style="height:32px;">
+            <TicketIcon class="w-4 h-4 text-yellow-500" />
+            <span>{{ selectedConversationLatestTicketStatus }}</span>
+          </div>
           <Dropdown
             :options="statusOptions"
             placement="bottom-start"
@@ -322,12 +326,41 @@
   </div>
   <!-- Add click-outside handler for add tag dropdown -->
   <div v-if="showAddTagDropdown" class="fixed inset-0 z-40" @click="showAddTagDropdown = false"></div>
+  <!-- Helpdesk Ticket Creation Modal -->
+  <div v-if="showHelpdeskModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30" @click.self="closeHelpdeskModal">
+    <div class="bg-surface-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <h2 class="text-lg font-semibold mb-4">{{ __('Create Helpdesk Ticket') }}</h2>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-ink-gray-7 mb-1">{{ __('Subject') }}</label>
+        <Input v-model="helpdeskSubject" placeholder="Short description" class="w-full" />
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-ink-gray-7 mb-1">{{ __('Detailed Explanation') }}</label>
+        <textarea
+          v-model="helpdeskDescription"
+          rows="5"
+          class="w-full border border-outline-gray-2 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100"
+          :placeholder="__('Describe the issue or request in detail')"
+        ></textarea>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <Button appearance="minimal" @click="closeHelpdeskModal" :disabled="helpdeskModalLoading">{{ __('Cancel') }}</Button>
+        <Button
+          appearance="primary"
+          :loading="helpdeskModalLoading"
+          @click="submitHelpdeskTicket"
+        >
+          {{ __('Submit') }}
+        </Button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch, computed, onUnmounted, nextTick } from 'vue'
 import { createResource } from 'frappe-ui'
-import { Button, Input, Avatar, Badge, Dropdown, Tooltip } from 'frappe-ui'
+import { Button, Input, Avatar, Badge, Dropdown, Tooltip, TextEditor } from 'frappe-ui'
 import { useRouter, useRoute } from 'vue-router'
 import ChevronDownIcon from '@/components/Icons/ChevronDownIcon.vue'
 import MessengerArea from '@/components/MessengerArea.vue'
@@ -349,6 +382,8 @@ import MoreVerticalIcon from '@/components/Icons/MoreVerticalIcon.vue'
 import StatusIcon from '@/components/Icons/StatusIcon.vue'
 import CheckCircleIcon from '@/components/Icons/CheckCircleIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
+import TicketIcon from '@/components/Icons/TicketIcon.vue'
+import { ref as vueRef } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -402,7 +437,7 @@ function updateFilter(filters) {
   
   conversationsResource.params = {
     doctype: 'Messenger Conversation',
-    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat','status'],
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat','status','latest_ticket_status'],
     order_by: 'last_message_time desc',
     filters: {
       ...filters
@@ -472,7 +507,7 @@ function handlePlatformSelect(platform) {
   
   conversationsResource.params = {
     doctype: 'Messenger Conversation',
-    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform','status'],
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform','status','latest_ticket_status'],
     order_by: 'last_message_time desc',
     filters: platform !== 'all' ? [['platform', '=', platform]] : []
   }
@@ -496,7 +531,7 @@ const conversationsResource = createResource({
   url: 'frappe.client.get_list',
   params: {
     doctype: 'Messenger Conversation',
-    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat','status'],
+    fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform', 'block_chat','status','latest_ticket_status'],
     order_by: 'last_message_time desc',
     filters: [['block_chat', '=', 0]]
   },
@@ -966,7 +1001,7 @@ async function loadMoreConversations() {
       url: 'frappe.client.get_list',
       params: {
         doctype: 'Messenger Conversation',
-        fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform','status'],
+        fields: ['name', 'sender_id', 'last_message', 'last_message_time', 'platform','status','latest_ticket_status'],
         order_by: 'last_message_time desc',
         limit_start: nextPage * conversationLimit.value,
         limit_page_length: conversationLimit.value,
@@ -1122,18 +1157,28 @@ watch(() => conversationsResource.params.filters, (newFilters) => {
 }, { deep: true })
 
 // Add conversation menu options
-const conversationMenuOptions = computed(() => [
-  {
-    label: __('View Lead'),
-    icon: 'user',
-    onClick: () => handleViewLead()
-  },
-  {
-    label: __('Block Chat'),
-    icon: 'ban',
-    onClick: () => handleBlockChat()
+const conversationMenuOptions = computed(() => {
+  const options = [
+    {
+      label: __('View Lead'),
+      icon: 'user',
+      onClick: () => handleViewLead()
+    },
+    {
+      label: __('Block Chat'),
+      icon: 'ban',
+      onClick: () => handleBlockChat()
+    }
+  ]
+  if (enableHelpdeskTicketCreation.value) {
+    options.unshift({
+      label: __('Create Ticket'),
+      icon: 'plus',
+      onClick: () => openHelpdeskModal()
+    })
   }
-])
+  return options
+})
 
 // Add menu action handlers
 async function handleViewLead() {
@@ -1304,6 +1349,16 @@ onMounted(async () => {
         }
       }
     }
+  })
+
+  // Fetch helpdesk ticket creation flag
+  createResource({
+    url: 'crm.api.messenger.is_helpdesk_ticket_creation_enabled',
+    cache: 'Is Helpdesk Ticket Creation Enabled',
+    auto: true,
+    onSuccess: (data) => {
+      enableHelpdeskTicketCreation.value = Boolean(data)
+    },
   })
 })
 
@@ -1722,6 +1777,59 @@ const dropdownTags = computed(() => {
   }
   // Default: first 10 unselected tags
   return unselectedTags.value.slice(0, 10)
+})
+
+// --- Helpdesk Ticket Creation Feature ---
+const enableHelpdeskTicketCreation = vueRef(false)
+
+// Modal state and form fields
+const showHelpdeskModal = ref(false)
+const helpdeskSubject = ref('')
+const helpdeskDescription = ref('')
+const helpdeskAttachments = ref([])
+const helpdeskModalLoading = ref(false)
+
+function openHelpdeskModal() {
+  helpdeskSubject.value = ''
+  helpdeskDescription.value = ''
+  helpdeskAttachments.value = []
+  showHelpdeskModal.value = true
+}
+function closeHelpdeskModal() {
+  showHelpdeskModal.value = false
+}
+function submitHelpdeskTicket() {
+  helpdeskModalLoading.value = true
+  call('crm.api.messenger.create_helpdesk_ticket_from_messenger', {
+    subject: helpdeskSubject.value,
+    description: helpdeskDescription.value,
+    conversation_id: selectedConversation.value
+  })
+    .then((r) => {
+      showHelpdeskModal.value = false
+      globalStore().$toast.success(__('Helpdesk ticket created successfully'))
+    })
+    .catch((err) => {
+      globalStore().$toast.error(__('Failed to create helpdesk ticket'))
+      console.error(err)
+    })
+    .finally(() => {
+      helpdeskModalLoading.value = false
+    })
+}
+
+const isSubmitDisabled = computed(() => {
+  return (
+    helpdeskModalLoading ||
+    !helpdeskSubject.trim() ||
+    !helpdeskDescription.trim()
+  )
+})
+
+// Add computed property for latest ticket status
+const selectedConversationLatestTicketStatus = computed(() => {
+  const conversation = conversations.value.find(c => c.name === selectedConversation.value)
+  return conversation?.latest_ticket_status || null
 })
 </script>
 
