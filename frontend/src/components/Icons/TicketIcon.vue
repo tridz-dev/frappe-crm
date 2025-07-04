@@ -1,6 +1,8 @@
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-    <path d="M3.5 4A1.5 1.5 0 0 1 5 2.5h10A1.5 1.5 0 0 1 16.5 4v2.086a1 1 0 0 0 .293.707l.414.414a1 1 0 0 1 0 1.414l-.414.414a1 1 0 0 0-.293.707V16a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 16v-2.086a1 1 0 0 0-.293-.707l-.414-.414a1 1 0 0 1 0-1.414l.414-.414a1 1 0 0 0 .293-.707V4zm2 0v2.5a.5.5 0 0 1-.5.5H4v2.086a3 3 0 0 1-.879 2.121l-.414.414.414.414A3 3 0 0 1 4 13.414V16a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5v-2.5a.5.5 0 0 1 .5-.5h1V9.914a3 3 0 0 1 .879-2.121l.414-.414-.414-.414A3 3 0 0 1 16 6.586V4a.5.5 0 0 0-.5-.5H5A.5.5 0 0 0 4.5 4z"/>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+    <rect x="3" y="7" width="18" height="10" rx="2"/>
+    <path d="M3 10a2 2 0 0 0 2-2V7m14 0v1a2 2 0 0 0 2 2m0 4a2 2 0 0 0-2 2v1m-14 0v-1a2 2 0 0 0-2-2"/>
+    <path d="M8 7v10" stroke-dasharray="2,2"/>
   </svg>
 </template>
 

@@ -613,9 +613,6 @@ frappe.call('crm.api.messenger.create_helpdesk_ticket_from_messenger', {
 - The submit button is only enabled if both fields are filled and not loading.
 - No impact on existing Messenger or Helpdesk features.
 
-*Last Updated: [Current Date]*
-*Author: CRM Development Team*
-
 ## [2024-07-09] UI: Show Latest Helpdesk Ticket Status in Messenger Conversation Profile
 
 ### Purpose
@@ -629,4 +626,58 @@ frappe.call('crm.api.messenger.create_helpdesk_ticket_from_messenger', {
 ### Notes
 - Uses the `latest_ticket_status` field from the Messenger Conversation DocType.
 - Does not affect any existing Messenger or Helpdesk features.
-- Responsive and visually distinct from the main conversation status. 
+- Responsive and visually distinct from the main conversation status.
+
+## [2024-07-09] UI: View Past Helpdesk Tickets in Messenger Conversation Modal
+
+### What was added
+- If a conversation has any tickets in the `hd_tickets` child table, the Messenger menu now shows "View Tickets" with a ticket icon (instead of "Create Ticket" with a plus icon).
+- When the modal opens, the last 3 tickets (ID, subject, status, created time) are shown at the top.
+- A button at the bottom allows users to create a new ticket; clicking it reveals the ticket creation fields.
+- All ticket data is fetched from the backend using a new API (`get_last_tickets_for_conversation`).
+- Real-time updates: when a new ticket is created, the ticket list and latest status update immediately.
+
+### UI Flow
+- Open the 3-dot menu: if tickets exist, see "View Tickets"; otherwise, see "Create Ticket".
+- In the modal: see the last 3 tickets, then the option to create a new one.
+- Creating a ticket updates the list and status in real time.
+
+### Backend
+- New API: `get_last_tickets_for_conversation` returns the last N tickets for a conversation.
+
+### Notes
+- Only the last 3 tickets are shown for brevity.
+- No impact on existing features or workflows.
+
+## [2024-07-09] Improvements: Ticket List Loading, Icon Consistency, and Clickable Tickets
+
+### What was improved
+- **Ticket List Loading:** The last 3 tickets (pastTickets) now load as soon as a conversation is selected, ensuring the menu and modal always reflect the correct state.
+- **Menu Icon Consistency:** The TicketIcon in the menu dropdown now matches the size and alignment of other icons.
+- **TicketIcon Visual Update:** The TicketIcon SVG was updated to look more like a real ticket, with notched sides and a dotted line.
+- **Clickable Tickets:** Tickets in the modal are now clickable; clicking a ticket opens the Helpdesk ticket in a new tab (`/helpdesk/tickets/<ticket-id>`).
+
+### Notes
+- No impact on existing features or workflows.
+- All changes are modular and maintain UI/UX consistency.
+
+*Last Updated: [Current Date]*
+*Author: CRM Development Team*
+
+## [2024-07-09] Improvements: Ticket Status Colors in Menu and Modal
+
+### What was improved
+- **Colored Ticket Icons:** The TicketIcon in the menu dropdown and in the modal now uses color to indicate ticket status:
+  - Yellow for Open
+  - Blue for Replied
+  - Green for Resolved
+  - Gray for Closed
+- **Status Text and Badge:** The status text and badge in the modal and conversation profile also use the same color scheme for consistency.
+- **UI Consistency:** All changes maintain the look and feel of the CRM and do not affect existing features.
+
+### Notes
+- Status color mapping matches the system status dropdown for clarity.
+- No impact on existing workflows or features.
+
+*Last Updated: [Current Date]*
+*Author: CRM Development Team* 

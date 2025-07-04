@@ -193,8 +193,8 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <div v-if="selectedConversationLatestTicketStatus" class="flex items-center gap-1 px-2 py-1 rounded bg-yellow-50 border border-yellow-300 text-yellow-800 text-xs font-semibold" style="height:32px;">
-            <TicketIcon class="w-4 h-4 text-yellow-500" />
+          <div v-if="selectedConversationLatestTicketStatus" :class="`flex items-center gap-1 px-2 py-1 rounded ${getTicketStatusColor(selectedConversationLatestTicketStatus).bg} ${getTicketStatusColor(selectedConversationLatestTicketStatus).border} ${getTicketStatusColor(selectedConversationLatestTicketStatus).text} text-xs font-semibold`" style="height:32px;">
+            <TicketIcon :class="`w-4 h-4 ${getTicketStatusColor(selectedConversationLatestTicketStatus).icon}`" />
             <span>{{ selectedConversationLatestTicketStatus }}</span>
           </div>
           <Dropdown
@@ -329,29 +329,49 @@
   <!-- Helpdesk Ticket Creation Modal -->
   <div v-if="showHelpdeskModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30" @click.self="closeHelpdeskModal">
     <div class="bg-surface-white rounded-lg shadow-lg p-6 w-full max-w-md">
-      <h2 class="text-lg font-semibold mb-4">{{ __('Create Helpdesk Ticket') }}</h2>
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-ink-gray-7 mb-1">{{ __('Subject') }}</label>
-        <Input v-model="helpdeskSubject" placeholder="Short description" class="w-full" />
+      <h2 class="text-lg font-semibold mb-4">{{ __('Helpdesk Tickets') }}</h2>
+      <div v-if="pastTickets.length">
+        <div v-for="ticket in pastTickets" :key="ticket.hd_ticket" class="flex items-center justify-between border-b py-2 cursor-pointer hover:bg-surface-gray-1" @click="goToTicket(ticket.hd_ticket)">
+          <div class="flex items-center gap-2">
+            <TicketIcon :class="`w-4 h-4 ${getTicketStatusColor(ticket.status).icon}`" />
+            <span :class="`text-xs font-medium ${getTicketStatusColor(ticket.status).text}`">{{ ticket.status }}</span>
+            <span class="text-xs text-ink-gray-6">{{ ticket.subject }}</span>
+          </div>
+          <div class="flex flex-col items-end">
+            <span class="text-xs font-medium" :class="{'text-green-600': ticket.status === 'Open', 'text-gray-500': ticket.status !== 'Open'}">{{ ticket.status }}</span>
+            <span class="text-xs text-ink-gray-4">{{ formatTimeAgo(ticket.creation_time) }}</span>
+          </div>
+        </div>
       </div>
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-ink-gray-7 mb-1">{{ __('Detailed Explanation') }}</label>
-        <textarea
-          v-model="helpdeskDescription"
-          rows="5"
-          class="w-full border border-outline-gray-2 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100"
-          :placeholder="__('Describe the issue or request in detail')"
-        ></textarea>
+      <div v-else class="text-xs text-ink-gray-4 mb-4">{{ __('No tickets yet for this conversation.') }}</div>
+      <div class="flex justify-end mt-4">
+        <Button v-if="!showCreateTicketFields" appearance="primary" @click="showCreateTicketFields = true">{{ __('Create New Ticket') }}</Button>
       </div>
-      <div class="flex justify-end gap-2 mt-6">
-        <Button appearance="minimal" @click="closeHelpdeskModal" :disabled="helpdeskModalLoading">{{ __('Cancel') }}</Button>
-        <Button
-          appearance="primary"
-          :loading="helpdeskModalLoading"
-          @click="submitHelpdeskTicket"
-        >
-          {{ __('Submit') }}
-        </Button>
+      <div v-if="showCreateTicketFields">
+        <!-- Existing create ticket fields and submit button go here -->
+        <div class="mb-4 mt-4">
+          <label class="block text-sm font-medium text-ink-gray-7 mb-1">{{ __('Subject') }}</label>
+          <Input v-model="helpdeskSubject" placeholder="Short description" class="w-full" />
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-ink-gray-7 mb-1">{{ __('Detailed Explanation') }}</label>
+          <textarea
+            v-model="helpdeskDescription"
+            rows="5"
+            class="w-full border border-outline-gray-2 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100"
+            :placeholder="__('Describe the issue or request in detail')"
+          ></textarea>
+        </div>
+        <div class="flex justify-end gap-2 mt-6">
+          <Button appearance="minimal" @click="closeHelpdeskModal" :disabled="helpdeskModalLoading">{{ __('Cancel') }}</Button>
+          <Button
+            appearance="primary"
+            :loading="helpdeskModalLoading"
+            @click="submitHelpdeskTicket"
+          >
+            {{ __('Submit') }}
+          </Button>
+        </div>
       </div>
     </div>
   </div>
@@ -384,10 +404,13 @@ import CheckCircleIcon from '@/components/Icons/CheckCircleIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import TicketIcon from '@/components/Icons/TicketIcon.vue'
 import { ref as vueRef } from 'vue'
+import { useRouter as useVueRouter } from 'vue-router'
+import { markRaw } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
 const { $socket } = globalStore()
+const vueRouter = useVueRouter()
 
 // State management
 const messages = ref([])
@@ -780,8 +803,12 @@ const statusLogResource = createResource({
 async function handleConversationSelect(conversation) {
   if (!conversation) return
   
+  await fetchEnableHelpdeskTicketCreation()
   selectedConversation.value = conversation.name
   currentStatus.value = conversation.status || ''
+  
+  // Ensure tickets are fetched before menu renders
+  await fetchPastTickets()
   
   // Reset messages and status updates
   messages.value = []
@@ -1158,6 +1185,13 @@ watch(() => conversationsResource.params.filters, (newFilters) => {
 
 // Add conversation menu options
 const conversationMenuOptions = computed(() => {
+  const hasTickets = pastTickets.value.length > 0
+  let latestStatus = null
+  if (hasTickets) {
+    latestStatus = pastTickets.value[0]?.status || null
+  }
+  // Default to black icon if no status
+  const iconColor = latestStatus ? getTicketStatusColor(latestStatus).icon : 'text-gray-700'
   const options = [
     {
       label: __('View Lead'),
@@ -1172,8 +1206,8 @@ const conversationMenuOptions = computed(() => {
   ]
   if (enableHelpdeskTicketCreation.value) {
     options.unshift({
-      label: __('Create Ticket'),
-      icon: 'plus',
+      label: hasTickets ? __('View Tickets') : __('Create Ticket'),
+      icon: hasTickets ? markRaw(TicketIcon) : 'plus',
       onClick: () => openHelpdeskModal()
     })
   }
@@ -1238,20 +1272,32 @@ async function handleBlockChat() {
 // Add event listeners
 onMounted(async () => {
   await fetchUnreadCounts()
-  
-  // Wait for conversations to load before selecting from URL
+
+  // Fetch helpdesk ticket creation flag FIRST
+  await new Promise((resolve) => {
+    createResource({
+      url: 'crm.api.messenger.is_helpdesk_ticket_creation_enabled',
+      cache: 'Is Helpdesk Ticket Creation Enabled',
+      auto: true,
+      onSuccess: (data) => {
+        enableHelpdeskTicketCreation.value = Boolean(data)
+        resolve()
+      },
+      onError: () => resolve(), // resolve even if error
+    })
+  })
+
+  // Now fetch conversations
   await conversationsResource.fetch()
-  
+
   // Check if conversationId is in route params
   if (route.params.conversationId) {
     const conversation = conversations.value.find(c => c.name === route.params.conversationId)
-
-    await handleConversationSelect(conversation)
     if (conversation) {
       await handleConversationSelect(conversation)
     }
   }
-  
+
   $socket.on('messenger:message_update', (data) => {
     if (data.conversation_id === selectedConversation.value) {
       if (data.type === 'new') {
@@ -1349,16 +1395,6 @@ onMounted(async () => {
         }
       }
     }
-  })
-
-  // Fetch helpdesk ticket creation flag
-  createResource({
-    url: 'crm.api.messenger.is_helpdesk_ticket_creation_enabled',
-    cache: 'Is Helpdesk Ticket Creation Enabled',
-    auto: true,
-    onSuccess: (data) => {
-      enableHelpdeskTicketCreation.value = Boolean(data)
-    },
   })
 })
 
@@ -1808,6 +1844,7 @@ function submitHelpdeskTicket() {
     .then((r) => {
       showHelpdeskModal.value = false
       globalStore().$toast.success(__('Helpdesk ticket created successfully'))
+      onTicketCreated()
     })
     .catch((err) => {
       globalStore().$toast.error(__('Failed to create helpdesk ticket'))
@@ -1831,6 +1868,93 @@ const selectedConversationLatestTicketStatus = computed(() => {
   const conversation = conversations.value.find(c => c.name === selectedConversation.value)
   return conversation?.latest_ticket_status || null
 })
+
+// Add ref for tickets and UI state
+const pastTickets = ref([])
+const showCreateTicketFields = ref(false)
+
+// Fetch last 3 tickets for the selected conversation
+async function fetchPastTickets() {
+  console.log("selectedConversation.value",selectedConversation.value)
+  console.log("enableHelpdeskTicketCreation.value",enableHelpdeskTicketCreation.value)
+  if (!selectedConversation.value) return
+  try {
+    const tickets = await call('crm.api.messenger.get_last_tickets_for_conversation', {
+      conversation_id: selectedConversation.value,
+      limit: 3
+    })
+    pastTickets.value = tickets || []
+  } catch (e) {
+    pastTickets.value = []
+  }
+}
+
+// Watch for modal open to fetch tickets
+watch(showHelpdeskModal, (val) => {
+  if (val) {
+    fetchPastTickets()
+    showCreateTicketFields.value = false
+  }
+})
+
+// Real-time update: refetch tickets and status on ticket creation
+function onTicketCreated() {
+  fetchPastTickets()
+  conversationsResource.reload()
+}
+
+// 1. Fetch past tickets when conversation is selected
+watch(selectedConversation, (val) => {
+  if (val) {
+    fetchPastTickets()
+  }
+})
+
+// 2. Make tickets in modal clickable, redirect to /helpdesk/tickets/<ticket-id>
+function goToTicket(ticketId) {
+  window.open(`/helpdesk/tickets/${ticketId}`, '_blank')
+}
+
+// Add a function to get status color and icon color
+function getTicketStatusColor(status) {
+  switch ((status || '').toLowerCase()) {
+    case 'open':
+      return { text: 'text-yellow-700', bg: 'bg-yellow-50', border: 'border-yellow-300', icon: 'text-yellow-500' }
+    case 'replied':
+      return { text: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-300', icon: 'text-blue-500' }
+    case 'resolved':
+      return { text: 'text-green-700', bg: 'bg-green-50', border: 'border-green-300', icon: 'text-green-500' }
+    case 'closed':
+      return { text: 'text-gray-700', bg: 'bg-gray-50', border: 'border-gray-300', icon: 'text-gray-500' }
+    default:
+      return { text: 'text-gray-700', bg: 'bg-gray-50', border: 'border-gray-300', icon: 'text-gray-500' }
+  }
+}
+
+// Watch for route param changes to select conversation dynamically
+watch(() => route.params.conversationId, async (newId) => {
+  if (newId) {
+    await fetchEnableHelpdeskTicketCreation()
+    let conversation = conversations.value.find(c => c.name === newId)
+    if (!conversation) {
+      await conversationsResource.fetch()
+      conversation = conversations.value.find(c => c.name === newId)
+    }
+    if (conversation) {
+      await handleConversationSelect(conversation)
+    }
+  }
+})
+
+async function fetchEnableHelpdeskTicketCreation() {
+  // Always fetch the latest flag before selecting a conversation
+  try {
+    const data = await call('crm.api.messenger.is_helpdesk_ticket_creation_enabled')
+    enableHelpdeskTicketCreation.value = Boolean(data)
+  } catch (e) {
+    enableHelpdeskTicketCreation.value = false
+  }
+}
 </script>
 
 <style scoped>

@@ -170,6 +170,32 @@ def create_helpdesk_ticket_from_messenger(subject, description, conversation_id)
     frappe.db.commit()
     return {"ticket": ticket_name, "status": ticket_status}
 
+@frappe.whitelist()
+def get_last_tickets_for_conversation(conversation_id, limit=3):
+    """
+    Return the last N tickets for a Messenger Conversation from the hd_tickets child table.
+    Args:
+        conversation_id (str): Messenger Conversation name
+        limit (int): Number of tickets to return (default 3)
+    Returns:
+        list of dicts: [{hd_ticket, subject, status, creation_time}]
+    """
+    doc = frappe.get_doc("Messenger Conversation", conversation_id)
+    tickets = sorted(
+        [
+            {
+                "hd_ticket": row.hd_ticket,
+                "subject": row.subject,
+                "status": row.status,
+                "creation_time": row.creation_time,
+            }
+            for row in doc.hd_tickets
+        ],
+        key=lambda x: x["creation_time"],
+        reverse=True,
+    )
+    return tickets[: int(limit)]
+
 # def validate(doc, method):
 #     """Validate messenger message document before insert."""
 #     if doc.type == "Incoming" and doc.get("from"):
