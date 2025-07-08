@@ -360,11 +360,20 @@
             required
             class="!w-full"
           />
+          <Link
+            v-model="helpdeskTicketType"
+            doctype="HD Ticket Type"
+            :placeholder="__('Select Ticket Type')"
+            class="form-control !w-full"
+            :hideMe="true"
+            required
+          />
           <div>
             <div class="mb-1.5 text-xs text-ink-gray-5">{{ __('Detailed Explanation') }}</div>
             <TextEditor
               variant="outline"
-              v-model="helpdeskDescription"
+              :content="helpdeskDescription"
+              @change="val => helpdeskDescription = val"
               editor-class="!prose-sm overflow-auto min-h-[180px] max-h-80 py-1.5 px-2 rounded border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors !w-full"
               :bubbleMenu="true"
               :placeholder="__('Describe the issue or request in detail')"
@@ -423,6 +432,7 @@ import TicketIcon from '@/components/Icons/TicketIcon.vue'
 import { ref as vueRef } from 'vue'
 import { useRouter as useVueRouter } from 'vue-router'
 import { markRaw } from 'vue'
+import Link from '@/components/Controls/Link.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -1856,7 +1866,8 @@ function submitHelpdeskTicket() {
   call('crm.api.messenger.create_helpdesk_ticket_from_messenger', {
     subject: helpdeskSubject.value,
     description: helpdeskDescription.value,
-    conversation_id: selectedConversation.value
+    conversation_id: selectedConversation.value,
+    ticket_type: helpdeskTicketType.value
   })
     .then((r) => {
       showHelpdeskModal.value = false
@@ -1875,9 +1886,37 @@ function submitHelpdeskTicket() {
 const isSubmitDisabled = computed(() => {
   return (
     helpdeskModalLoading ||
-    !helpdeskSubject.trim() ||
-    !helpdeskDescription.trim()
+    !helpdeskSubject.value.trim() ||
+    !helpdeskDescription.value.trim() ||
+    !helpdeskTicketType.value
   )
+})
+
+// Add after helpdeskDescription, helpdeskSubject, etc.
+const helpdeskTicketType = ref('')
+
+// Fetch ticket types on modal open
+watch(showHelpdeskModal, async (val) => {
+  if (val) {
+    // Fetch ticket types
+    try {
+      const types = await call('frappe.client.get_list', {
+        doctype: 'HD Ticket Type',
+        fields: ['name', 'description'],
+        order_by: 'name asc',
+        limit_page_length: 100
+      })
+      // ticketTypeOptions.value = types.map(t => ({
+      //   label: t.name + (t.description ? ` - ${t.description}` : ''),
+      //   value: t.name
+      // }))
+      // if (ticketTypeOptions.value.length && !helpdeskTicketType.value) {
+      //   helpdeskTicketType.value = ticketTypeOptions.value[0].value
+      // }
+    } catch (e) {
+      // ticketTypeOptions.value = []
+    }
+  }
 })
 
 // Add computed property for latest ticket status

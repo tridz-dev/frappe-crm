@@ -136,7 +136,7 @@ def is_helpdesk_ticket_creation_enabled():
     return frappe.get_cached_value("Messenger Settings", "Messenger Settings", "enable_helpdesk_ticket_creation")
 
 @frappe.whitelist()
-def create_helpdesk_ticket_from_messenger(subject, description, conversation_id):
+def create_helpdesk_ticket_from_messenger(subject, description, conversation_id, ticket_type=None):
     import json
     if isinstance(subject, bytes):
         subject = subject.decode()
@@ -144,17 +144,25 @@ def create_helpdesk_ticket_from_messenger(subject, description, conversation_id)
         description = description.decode()
     if isinstance(conversation_id, bytes):
         conversation_id = conversation_id.decode()
+    if isinstance(ticket_type, bytes):
+        ticket_type = ticket_type.decode()
+
+    
 
     # 1. Create the HD Ticket
-    ticket_doc = frappe.get_doc({
+    ticket_data = {
         "doctype": "HD Ticket",
         "subject": subject,
         "description": description,
         "custom_messenger_conversation": conversation_id
-    })
+    }
+    if ticket_type:
+        ticket_data["ticket_type"] = ticket_type
+    ticket_doc = frappe.get_doc(ticket_data)
     ticket_doc.insert(ignore_permissions=True)
     ticket_name = ticket_doc.name
     ticket_status = ticket_doc.status if hasattr(ticket_doc, 'status') else "Open"
+
 
     # 2. Link to Messenger Conversation (add to hd_tickets child table)
     conversation = frappe.get_doc("Messenger Conversation", conversation_id)

@@ -681,3 +681,46 @@ frappe.call('crm.api.messenger.create_helpdesk_ticket_from_messenger', {
 
 *Last Updated: [Current Date]*
 *Author: CRM Development Team* 
+
+# [2024-07-10] Messenger Helpdesk Ticket Creation: Add Ticket Type Selection
+
+## What Changed
+- The Messenger helpdesk ticket creation modal now includes a **Ticket Type** select field.
+- Users must select a ticket type when creating a new Helpdesk Ticket from Messenger.
+- The list of ticket types is fetched from the `HD Ticket Type` DocType.
+- The selected ticket type is sent to the backend and set on the new HD Ticket.
+
+## Rationale
+- Ensures all tickets created from Messenger are properly categorized.
+- Aligns with helpdesk workflow and reporting requirements.
+- Matches the style and UX of other modals (Lead, Task, Note, etc).
+
+## UI/UX Details
+- The modal now shows a required select field labeled **Ticket Type** above the description field.
+- The select options are dynamically loaded from the backend (`HD Ticket Type`).
+- The submit button is disabled until a ticket type is selected.
+
+## Backend API Change
+- `crm.api.messenger.create_helpdesk_ticket_from_messenger` now accepts an additional `ticket_type` parameter (string, required).
+- The backend sets this value on the new HD Ticket. If not provided, fallback to default logic (existing behavior).
+
+### Example Usage
+```js
+call('crm.api.messenger.create_helpdesk_ticket_from_messenger', {
+  subject: 'Subject here',
+  description: 'Details here',
+  conversation_id: 'MSG-CONV-xxxxxx',
+  ticket_type: 'Support' // required
+})
+```
+
+## Usage Instructions
+1. In any Messenger conversation, open the menu and select **Create Ticket**.
+2. Fill in the subject, select a ticket type, and provide a detailed explanation.
+3. Click **Submit**. The ticket will be created in Helpdesk with the selected type.
+
+## Notes
+- Existing Messenger and Helpdesk features are unaffected.
+- The modal and API remain backward compatible.
+
+--- 

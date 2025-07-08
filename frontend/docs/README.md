@@ -1,3 +1,13 @@
+# CRM Frontend Docs
+
+## [2024-07-10] Messenger Helpdesk Ticket Type Selection
+
+- The Messenger helpdesk ticket creation modal now requires users to select a Ticket Type.
+- Ticket types are fetched from the backend (HD Ticket Type DocType).
+- The selected type is set on the new HD Ticket and used for categorization and workflow.
+- This change improves ticket classification and reporting.
+- No breaking changes; existing features are unaffected.
+
 ## Helpdesk Ticket Creation from Messenger
 
 ### Purpose
