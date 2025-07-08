@@ -7,7 +7,7 @@
           <h2 class="text-lg font-medium text-ink-gray-9">{{ __('Messages') }}</h2>
           <Button
             appearance="minimal"
-            class="text-ink-gray-4 hover:text-ink-gray-9"
+            class="text-ink-gray-4 hover:text-ink-gray-9 text-sm font-medium px-2 py-1.5 rounded gap-2"
             :icon="RefreshIcon"
             @click="conversationsResource.reload()"
           />
@@ -21,7 +21,7 @@
             <template #default>
               <Button
                 appearance="minimal"
-                class="min-w-[200px] justify-between text-ink-gray-4 hover:text-ink-gray-9"
+                class="min-w-[200px] justify-between text-ink-gray-4 hover:text-ink-gray-9 text-sm font-medium px-2 py-1.5 rounded gap-2"
                 :label="selectedPlatformFilter === 'all' ? __('All') : selectedPlatformFilter"
                 :icon-right="ChevronDownIcon"
               />
@@ -327,60 +327,77 @@
   <!-- Add click-outside handler for add tag dropdown -->
   <div v-if="showAddTagDropdown" class="fixed inset-0 z-40" @click="showAddTagDropdown = false"></div>
   <!-- Helpdesk Ticket Creation Modal -->
-  <div v-if="showHelpdeskModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30" @click.self="closeHelpdeskModal">
-    <div class="bg-surface-white rounded-lg shadow-lg p-6 w-full max-w-md">
-      <h2 class="text-lg font-semibold mb-4">{{ __('Helpdesk Tickets') }}</h2>
-      <div v-if="pastTickets.length">
-        <div v-for="ticket in pastTickets" :key="ticket.hd_ticket" class="flex items-center justify-between border-b py-2 cursor-pointer hover:bg-surface-gray-1" @click="goToTicket(ticket.hd_ticket)">
-          <div class="flex items-center gap-2">
-            <TicketIcon :class="`w-4 h-4 ${getTicketStatusColor(ticket.status).icon}`" />
-            <span :class="`text-xs font-medium ${getTicketStatusColor(ticket.status).text}`">{{ ticket.status }}</span>
-            <span class="text-xs text-ink-gray-6">{{ ticket.subject }}</span>
+  <Dialog v-model="showHelpdeskModal" :options="{ size: 'xl', class: 'crm-modal-tight' }">
+    <template #body-title>
+      <h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
+        {{ __('Helpdesk Tickets') }}
+      </h3>
+    </template>
+    <template #body-content>
+      <div class="bg-surface-modal px-0 pb-4 pt-4 flex flex-col " style="min-width:400px;">
+        <div v-if="pastTickets.length">
+          <div v-for="ticket in pastTickets" :key="ticket.hd_ticket" class="flex items-center justify-between border-b py-2 cursor-pointer hover:bg-surface-gray-1 px-4" @click="goToTicket(ticket.hd_ticket)">
+            <div class="flex items-center gap-2">
+              <TicketIcon :class="`w-4 h-4 ${getTicketStatusColor(ticket.status).icon}`" />
+              <span :class="`text-xs font-medium ${getTicketStatusColor(ticket.status).text}`">{{ ticket.status }}</span>
+              <span class="text-xs text-ink-gray-6">{{ ticket.subject }}</span>
+            </div>
+            <div class="flex flex-col items-end">
+              <span class="text-xs font-medium" :class="{'text-green-600': ticket.status === 'Open', 'text-gray-500': ticket.status !== 'Open'}">{{ ticket.status }}</span>
+              <span class="text-xs text-ink-gray-4">{{ formatTimeAgo(ticket.creation_time) }}</span>
+            </div>
           </div>
-          <div class="flex flex-col items-end">
-            <span class="text-xs font-medium" :class="{'text-green-600': ticket.status === 'Open', 'text-gray-500': ticket.status !== 'Open'}">{{ ticket.status }}</span>
-            <span class="text-xs text-ink-gray-4">{{ formatTimeAgo(ticket.creation_time) }}</span>
+        </div>
+        <div v-else class="text-xs text-ink-gray-4 mb-4 px-4">{{ __('No tickets yet for this conversation.') }}</div>
+        <div class="flex justify-end mt-4 px-4">
+          <Button v-if="!showCreateTicketFields" class="bg-surface-gray-7 text-white hover:bg-surface-gray-6" appearance="primary" @click="showCreateTicketFields = true">{{ __('Create New Ticket') }}</Button>
+        </div>
+        <div v-if="showCreateTicketFields" class="flex flex-col gap-4 mt-2 px-4">
+          <FormControl
+            v-model="helpdeskSubject"
+            :label="__('Subject')"
+            :placeholder="__('Short description')"
+            required
+            class="!w-full"
+          />
+          <div>
+            <div class="mb-1.5 text-xs text-ink-gray-5">{{ __('Detailed Explanation') }}</div>
+            <TextEditor
+              variant="outline"
+              v-model="helpdeskDescription"
+              editor-class="!prose-sm overflow-auto min-h-[180px] max-h-80 py-1.5 px-2 rounded border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors !w-full"
+              :bubbleMenu="true"
+              :placeholder="__('Describe the issue or request in detail')"
+            />
+          </div>
+          <div class="flex justify-end gap-2 mt-6">
+            <Button
+              appearance="minimal"
+              class="bg-surface-gray-2 text-ink-gray-7 hover:bg-surface-gray-3 rounded px-6 py-2 text-base font-medium"
+              @click="closeHelpdeskModal"
+              :disabled="helpdeskModalLoading"
+            >
+              {{ __('Cancel') }}
+            </Button>
+            <Button
+              appearance="primary"
+              class="bg-surface-gray-7 text-white hover:bg-surface-gray-6 rounded px-6 py-2 text-base font-medium"
+              :loading="helpdeskModalLoading"
+              @click="submitHelpdeskTicket"
+            >
+              {{ __('Submit') }}
+            </Button>
           </div>
         </div>
       </div>
-      <div v-else class="text-xs text-ink-gray-4 mb-4">{{ __('No tickets yet for this conversation.') }}</div>
-      <div class="flex justify-end mt-4">
-        <Button v-if="!showCreateTicketFields" appearance="primary" @click="showCreateTicketFields = true">{{ __('Create New Ticket') }}</Button>
-      </div>
-      <div v-if="showCreateTicketFields">
-        <!-- Existing create ticket fields and submit button go here -->
-        <div class="mb-4 mt-4">
-          <label class="block text-sm font-medium text-ink-gray-7 mb-1">{{ __('Subject') }}</label>
-          <Input v-model="helpdeskSubject" placeholder="Short description" class="w-full" />
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-ink-gray-7 mb-1">{{ __('Detailed Explanation') }}</label>
-          <textarea
-            v-model="helpdeskDescription"
-            rows="5"
-            class="w-full border border-outline-gray-2 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100"
-            :placeholder="__('Describe the issue or request in detail')"
-          ></textarea>
-        </div>
-        <div class="flex justify-end gap-2 mt-6">
-          <Button appearance="minimal" @click="closeHelpdeskModal" :disabled="helpdeskModalLoading">{{ __('Cancel') }}</Button>
-          <Button
-            appearance="primary"
-            :loading="helpdeskModalLoading"
-            @click="submitHelpdeskTicket"
-          >
-            {{ __('Submit') }}
-          </Button>
-        </div>
-      </div>
-    </div>
-  </div>
+    </template>
+  </Dialog>
 </template>
 
 <script setup>
 import { ref, onMounted, watch, computed, onUnmounted, nextTick } from 'vue'
 import { createResource } from 'frappe-ui'
-import { Button, Input, Avatar, Badge, Dropdown, Tooltip, TextEditor } from 'frappe-ui'
+import { Button, Input, Avatar, Badge, Dropdown, Tooltip, TextEditor, Dialog, FormControl } from 'frappe-ui'
 import { useRouter, useRoute } from 'vue-router'
 import ChevronDownIcon from '@/components/Icons/ChevronDownIcon.vue'
 import MessengerArea from '@/components/MessengerArea.vue'
@@ -1974,5 +1991,14 @@ async function fetchEnableHelpdeskTicketCreation() {
 .overflow-y-auto::-webkit-scrollbar-thumb {
   background-color: rgb(var(--outline-gray-1));
   border-radius: 3px;
+}
+
+:deep(.crm-modal-tight .frappe-dialog) {
+  border-radius: 16px !important;
+  padding: 0 !important;
+  max-width: 700px;
+}
+:deep(.crm-modal-tight .frappe-dialog__body) {
+  padding: 0 !important;
 }
 </style> 
