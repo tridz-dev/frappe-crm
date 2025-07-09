@@ -58,6 +58,15 @@ def on_update(doc, method):
                 "name":doc.name
             }
         )
+        if doc.message_direction == "Outgoing" and doc.is_auto_generated_outgoing_message == 1 and doc.status == 'sent':
+            frappe.publish_realtime(
+                "messenger:message_update",
+                {
+                    "message": doc.as_dict(),
+                    "conversation_id": doc.conversation,
+                    "type": "new"
+                }
+            )
         # Emit conversation update event
         if doc.message_direction == "Outgoing":
             return

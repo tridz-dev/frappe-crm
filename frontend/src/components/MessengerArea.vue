@@ -17,7 +17,7 @@
           <!-- Message Content -->
           <div class="flex flex-col gap-2">
             <!-- Text Message -->
-            <div v-if="!message.content_type || message.content_type === 'text'"
+            <div v-if="!message.content_type || message.content_type === 'text' || message.content_type === 'flow'"
               v-html="formatMessage(message.message)"
             />
 
