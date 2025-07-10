@@ -49,7 +49,6 @@ def set_conversation_tags(conversation_name, tags):
 def on_update(doc, method):
     """Trigger realtime updates when messenger message is updated."""
     try:
-        print("Message status update .......", doc.status)
         frappe.publish_realtime(
             "messenger:message_status_update",
             {
@@ -65,6 +64,14 @@ def on_update(doc, method):
                     "message": doc.as_dict(),
                     "conversation_id": doc.conversation,
                     "type": "new"
+                }
+            )
+            conversation = frappe.get_doc("Messenger Conversation", doc.conversation)
+            frappe.publish_realtime(
+                "messenger:conversation_update",
+                {
+                    "conversation": conversation.as_dict(),
+                    "type": "update"
                 }
             )
         # Emit conversation update event
