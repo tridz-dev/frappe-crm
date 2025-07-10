@@ -433,6 +433,7 @@ import { ref as vueRef } from 'vue'
 import { useRouter as useVueRouter } from 'vue-router'
 import { markRaw } from 'vue'
 import Link from '@/components/Controls/Link.vue'
+import { createToast } from '@/utils'
 
 const router = useRouter()
 const route = useRoute()
@@ -1264,11 +1265,19 @@ async function handleViewLead() {
         hash: '#data'
       })
     } else {
-      globalStore().$toast.error(__('No lead found for this conversation'))
+      createToast({
+        title: __('No lead found for this conversation'),
+        icon: 'x',
+        iconClasses: 'text-ink-red-4',
+      })
     }
   } catch (error) {
     console.error('Failed to fetch lead:', error)
-    globalStore().$toast.error(__('Failed to fetch lead information'))
+    createToast({
+      title: __('Failed to fetch lead information'),
+      icon: 'x',
+      iconClasses: 'text-ink-red-4',
+    })
   }
 }
 
@@ -1289,10 +1298,18 @@ async function handleBlockChat() {
     conversations.value = conversations.value.filter(c => c.name !== selectedConversation.value)
     selectedConversation.value = null
     
-    globalStore().$toast.success(__('Chat blocked successfully'))
+    createToast({
+      title: __('Chat blocked successfully'),
+      icon: 'check',
+      iconClasses: 'text-ink-green-3',
+    })
   } catch (error) {
     console.error('Failed to block chat:', error)
-    globalStore().$toast.error(__('Failed to block chat'))
+    createToast({
+      title: __('Failed to block chat'),
+      icon: 'x',
+      iconClasses: 'text-ink-red-4',
+    })
   }
 }
 
@@ -1479,10 +1496,18 @@ async function handleStatusChange(status) {
       }
     }
     
-    globalStore().$toast.success(__('Status updated successfully'))
+    createToast({
+      title: __('Status updated successfully'),
+      icon: 'check',
+      iconClasses: 'text-ink-green-3',
+    })
   } catch (error) {
     console.error('Failed to update status:', error)
-    globalStore().$toast.error(__('Failed to update status'))
+    createToast({
+      title: __('Failed to update status'),
+      icon: 'x',
+      iconClasses: 'text-ink-red-4',
+    })
   }
 }
 
@@ -1871,11 +1896,19 @@ function submitHelpdeskTicket() {
   })
     .then((r) => {
       showHelpdeskModal.value = false
-      globalStore().$toast.success(__('Helpdesk ticket created successfully'))
+      createToast({
+        title: __('Helpdesk ticket created successfully'),
+        icon: 'check',
+        iconClasses: 'text-ink-green-3',
+      })
       onTicketCreated()
     })
     .catch((err) => {
-      globalStore().$toast.error(__('Failed to create helpdesk ticket'))
+      createToast({
+        title: __('Failed to create helpdesk ticket'),
+        icon: 'x',
+        iconClasses: 'text-ink-red-4',
+      })
       console.error(err)
     })
     .finally(() => {
