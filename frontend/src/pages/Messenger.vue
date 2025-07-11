@@ -140,156 +140,161 @@
 
     <!-- Right Column: Chat View -->
     <div class="flex-1 flex flex-col bg-surface-white" v-if="selectedConversation">
-      <!-- Chat Header -->
-      <div class="flex items-center justify-between p-4 border-b border-outline-gray-1">
-        <div class="flex items-center gap-4">
-          <Avatar
-            :label="selectedConversationTitle"
-            :image="selectedConversationProfile"
-            size="md"
-            class="flex-shrink-0"
-          />
+      <div v-if="conversationLoading" class="flex-1 flex items-center justify-center">
+        <span class="text-ink-gray-4 text-lg">{{ __('Loading conversation...') }}</span>
+      </div>
+      <template v-else>
+        <!-- Chat Header -->
+        <div class="flex items-center justify-between p-4 border-b border-outline-gray-1">
           <div class="flex items-center gap-4">
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="text-base font-medium text-ink-gray-9">
-                  {{ selectedConversationTitle }}
-                </h3>
+            <Avatar
+              :label="selectedConversationTitle"
+              :image="selectedConversationProfile"
+              size="md"
+              class="flex-shrink-0"
+            />
+            <div class="flex items-center gap-4">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base font-medium text-ink-gray-9">
+                    {{ selectedConversationTitle }}
+                  </h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p class="text-sm text-ink-gray-3">{{ selectedConversationPlatform }}</p>
+                </div>
               </div>
+              <!-- Tag pills and plus button aligned here -->
               <div class="flex items-center gap-2">
-                <p class="text-sm text-ink-gray-3">{{ selectedConversationPlatform }}</p>
-              </div>
-            </div>
-            <!-- Tag pills and plus button aligned here -->
-            <div class="flex items-center gap-2">
-              <template v-for="(tag, idx) in selectedTags.slice(0,2)" :key="tag.tag_name">
-                <span :class="'px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer border ' + (tagColorMap[tag.color] || 'border-outline-gray-2 text-ink-gray-6')">
-                  {{ tag.tag_name }}
-                  <span class="ml-1 cursor-pointer" @click.stop="removeTag(tag)">&times;</span>
-                </span>
-              </template>
-              <span v-if="selectedTags.length > 2" class="px-2 py-0.5 rounded-full text-xs font-medium border border-outline-gray-2 text-ink-gray-6 cursor-pointer" @click="showAllTags = true">
-                +{{ selectedTags.length - 2 }}
-              </span>
-              <span v-if="unselectedTags.length" class="relative">
-                <span class="px-2 py-0.5 rounded-full text-xs font-medium border border-dashed border-outline-gray-3 text-ink-gray-6 cursor-pointer" @click="() => { showAddTagDropdown = !showAddTagDropdown; tagSearchQuery = '' }">
-                  +
-                </span>
-                <div v-if="showAddTagDropdown" class="absolute left-0 mt-2 min-w-max bg-surface-white border rounded shadow z-50">
-                  <input
-                    v-model="tagSearchQuery"
-                    type="text"
-                    placeholder="Search tags..."
-                    class="w-full px-2 py-1 border-b border-outline-gray-1 outline-none text-sm"
-                    @click.stop
-                  />
-                  <div v-for="tag in dropdownTags" :key="tag.tag_name" @click="addTag(tag)" :class="'px-3 py-1 cursor-pointer hover:bg-surface-gray-1 ' + (tagColorMap[tag.color] || '')">
+                <template v-for="(tag, idx) in selectedTags.slice(0,2)" :key="tag.tag_name">
+                  <span :class="'px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer border ' + (tagColorMap[tag.color] || 'border-outline-gray-2 text-ink-gray-6')">
                     {{ tag.tag_name }}
-                  </div>
-                  <div v-if="dropdownTags.length === 0" class="px-3 py-2 text-ink-gray-2 text-sm">No tags found</div>
-                </div>
-              </span>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <div v-if="selectedConversationLatestTicketStatus" :class="`flex items-center gap-1 px-2 py-1 rounded ${getTicketStatusColor(selectedConversationLatestTicketStatus).bg} ${getTicketStatusColor(selectedConversationLatestTicketStatus).border} ${getTicketStatusColor(selectedConversationLatestTicketStatus).text} text-xs font-semibold`" style="height:32px;">
-            <TicketIcon :class="`w-4 h-4 ${getTicketStatusColor(selectedConversationLatestTicketStatus).icon}`" />
-            <span>{{ selectedConversationLatestTicketStatus }}</span>
-          </div>
-          <Dropdown
-            :options="statusOptions"
-            placement="bottom-start"
-            @select="handleStatusChange"
-          >
-            <template #default>
-              <Button
-                appearance="minimal"
-                class="flex items-center gap-2 text-sm text-ink-gray-3 hover:text-ink-gray-9 border border-outline-gray-1 rounded-md px-3 py-1.5"
-                :label="currentStatus"
-                :icon-right="ChevronDownIcon"
-              />
-            </template>
-          </Dropdown>
-          <AssignTo
-            v-if="selectedConversation"
-            :data="currentConversation"
-            doctype="Messenger Conversation"
-            v-model="assignees"
-          />
-          <Dropdown :options="conversationMenuOptions" placement="bottom-end">
-            <template #default>
-              <Button
-                appearance="minimal"
-                class="text-ink-gray-4 hover:text-ink-gray-9"
-                :icon="MoreVerticalIcon"
-              />
-            </template>
-          </Dropdown>
-        </div>
-      </div>
-
-      <!-- Messages Area with infinite scroll -->
-      <div 
-        ref="messagesContainer" 
-        class="flex-1 overflow-y-auto p-4"
-        @scroll="handleMessagesScroll"
-      >
-        <!-- Loading indicator for messages -->
-        <div v-if="messagesLoading" class="p-4 text-center text-ink-gray-3">
-          {{ __('Loading older messages...') }}
-        </div>
-        
-        <!-- Messages and Status Updates -->
-        <template v-if="Object.keys(groupedTimeline).length > 0">
-          <div v-for="(items, dateKey) in groupedTimeline" :key="dateKey">
-            <!-- Date Header -->
-            <div class="flex justify-center my-4">
-              <div class="bg-surface-gray-1 rounded-full px-4 py-1 text-sm text-ink-gray-4">
-                {{ formatDate(items[0].timestamp) }}
-              </div>
-            </div>
-            <!-- Items for this date -->
-            <div v-for="item in items" :key="item.type === 'message' ? item.name : `status-${item.changed_on}`">
-              <!-- Status Update Info Block -->
-              <div v-if="item.type === 'status'" class="flex justify-center my-4">
-                <div class="bg-surface-gray-1 border border-outline-gray-1 rounded-lg px-4 py-2 text-sm">
-                  <div class="flex items-center gap-2">
-                    <component 
-                      :is="getStatusIcon(item.status)"
-                      :class="getStatusColor(item.status)"
+                    <span class="ml-1 cursor-pointer" @click.stop="removeTag(tag)">&times;</span>
+                  </span>
+                </template>
+                <span v-if="selectedTags.length > 2" class="px-2 py-0.5 rounded-full text-xs font-medium border border-outline-gray-2 text-ink-gray-6 cursor-pointer" @click="showAllTags = true">
+                  +{{ selectedTags.length - 2 }}
+                </span>
+                <span v-if="unselectedTags.length" class="relative">
+                  <span class="px-2 py-0.5 rounded-full text-xs font-medium border border-dashed border-outline-gray-3 text-ink-gray-6 cursor-pointer" @click="() => { showAddTagDropdown = !showAddTagDropdown; tagSearchQuery = '' }">
+                    +
+                  </span>
+                  <div v-if="showAddTagDropdown" class="absolute left-0 mt-2 min-w-max bg-surface-white border rounded shadow z-50">
+                    <input
+                      v-model="tagSearchQuery"
+                      type="text"
+                      placeholder="Search tags..."
+                      class="w-full px-2 py-1 border-b border-outline-gray-1 outline-none text-sm"
+                      @click.stop
                     />
-                    <span class="text-ink-gray-4">{{ __('Status changed to') }}</span>
-                    <span class="font-medium text-ink-gray-7">{{ item.status }}</span>
-                    <span class="text-ink-gray-4">{{ __('by') }}</span>
-                    <span class="font-medium text-ink-gray-7">{{ item.changed_by }}</span>
+                    <div v-for="tag in dropdownTags" :key="tag.tag_name" @click="addTag(tag)" :class="'px-3 py-1 cursor-pointer hover:bg-surface-gray-1 ' + (tagColorMap[tag.color] || '')">
+                      {{ tag.tag_name }}
+                    </div>
+                    <div v-if="dropdownTags.length === 0" class="px-3 py-2 text-ink-gray-2 text-sm">No tags found</div>
                   </div>
-                </div>
+                </span>
               </div>
-              <!-- Message -->
-              <MessengerArea 
-                v-else-if="item.type === 'message'"
-                :messages="[item]"
-                @reply="handleReply"
-              />
             </div>
           </div>
-        </template>
-        
-        <!-- Empty state -->
-        <div v-else class="flex items-center justify-center h-full">
-          <div class="text-center text-ink-gray-3">
-            {{ __('No messages yet') }}
+          <div class="flex items-center gap-2">
+            <div v-if="selectedConversationLatestTicketStatus" :class="`flex items-center gap-1 px-2 py-1 rounded ${getTicketStatusColor(selectedConversationLatestTicketStatus).bg} ${getTicketStatusColor(selectedConversationLatestTicketStatus).border} ${getTicketStatusColor(selectedConversationLatestTicketStatus).text} text-xs font-semibold`" style="height:32px;">
+              <TicketIcon :class="`w-4 h-4 ${getTicketStatusColor(selectedConversationLatestTicketStatus).icon}`" />
+              <span>{{ selectedConversationLatestTicketStatus }}</span>
+            </div>
+            <Dropdown
+              :options="statusOptions"
+              placement="bottom-start"
+              @select="handleStatusChange"
+            >
+              <template #default>
+                <Button
+                  appearance="minimal"
+                  class="flex items-center gap-2 text-sm text-ink-gray-3 hover:text-ink-gray-9 border border-outline-gray-1 rounded-md px-3 py-1.5"
+                  :label="currentStatus"
+                  :icon-right="ChevronDownIcon"
+                />
+              </template>
+            </Dropdown>
+            <AssignTo
+              v-if="selectedConversation"
+              :data="currentConversation"
+              doctype="Messenger Conversation"
+              v-model="assignees"
+            />
+            <Dropdown :options="conversationMenuOptions" placement="bottom-end">
+              <template #default>
+                <Button
+                  appearance="minimal"
+                  class="text-ink-gray-4 hover:text-ink-gray-9"
+                  :icon="MoreVerticalIcon"
+                />
+              </template>
+            </Dropdown>
           </div>
         </div>
-      </div>
 
-      <!-- Message Input -->
-      <MessengerBox
-        :conversation="selectedConversation"
-        v-model:reply="reply"
-        @send="handleSendMessage"
-      />
+        <!-- Messages Area with infinite scroll -->
+        <div 
+          ref="messagesContainer" 
+          class="flex-1 overflow-y-auto p-4"
+          @scroll="handleMessagesScroll"
+        >
+          <!-- Loading indicator for messages -->
+          <div v-if="messagesLoading" class="p-4 text-center text-ink-gray-3">
+            {{ __('Loading older messages...') }}
+          </div>
+          
+          <!-- Messages and Status Updates -->
+          <template v-if="Object.keys(groupedTimeline).length > 0">
+            <div v-for="(items, dateKey) in groupedTimeline" :key="dateKey">
+              <!-- Date Header -->
+              <div class="flex justify-center my-4">
+                <div class="bg-surface-gray-1 rounded-full px-4 py-1 text-sm text-ink-gray-4">
+                  {{ formatDate(items[0].timestamp) }}
+                </div>
+              </div>
+              <!-- Items for this date -->
+              <div v-for="item in items" :key="item.type === 'message' ? item.name : `status-${item.changed_on}`">
+                <!-- Status Update Info Block -->
+                <div v-if="item.type === 'status'" class="flex justify-center my-4">
+                  <div class="bg-surface-gray-1 border border-outline-gray-1 rounded-lg px-4 py-2 text-sm">
+                    <div class="flex items-center gap-2">
+                      <component 
+                        :is="getStatusIcon(item.status)"
+                        :class="getStatusColor(item.status)"
+                      />
+                      <span class="text-ink-gray-4">{{ __('Status changed to') }}</span>
+                      <span class="font-medium text-ink-gray-7">{{ item.status }}</span>
+                      <span class="text-ink-gray-4">{{ __('by') }}</span>
+                      <span class="font-medium text-ink-gray-7">{{ item.changed_by }}</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Message -->
+                <MessengerArea 
+                  v-else-if="item.type === 'message'"
+                  :messages="[item]"
+                  @reply="handleReply"
+                />
+              </div>
+            </div>
+          </template>
+          
+          <!-- Empty state -->
+          <div v-else class="flex items-center justify-center h-full">
+            <div class="text-center text-ink-gray-3">
+              {{ __('No messages yet') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Input -->
+        <MessengerBox
+          :conversation="selectedConversation"
+          v-model:reply="reply"
+          @send="handleSendMessage"
+        />
+      </template>
     </div>
 
     <!-- Empty State -->
@@ -461,6 +466,9 @@ const currentStatus = ref('')
 
 // Add filter functionality
 const list = ref(null)
+
+// Add conversation loading state for UI
+const conversationLoading = ref(false)
 
 // Add a computed property to track current filters
 const currentFilters = computed(() => {
@@ -827,142 +835,146 @@ const statusLogResource = createResource({
   auto: false
 })
 
-// Update handleConversationSelect to fetch tags
+// Update handleConversationSelect to manage loading state for all data
 async function handleConversationSelect(conversation) {
   if (!conversation) return
-  
-  await fetchEnableHelpdeskTicketCreation()
-  selectedConversation.value = conversation.name
-  currentStatus.value = conversation.status || ''
-  
-  // Ensure tickets are fetched before menu renders
-  await fetchPastTickets()
-  
-  // Reset messages and status updates
-  messages.value = []
-  statusUpdates.value = []
-  
-  // Fetch tags for the selected conversation
+  conversationLoading.value = true
   try {
-    const tags = await call('crm.api.messenger.get_conversation_tags', { conversation_name: conversation.name })
-    conversationTags.value[conversation.name] = tags || []
-  } catch (e) {
-    conversationTags.value[conversation.name] = []
-  }
-  
-  // Fetch status logs from parent doc
-  try {
-    if (!statusLogResource.params) {
-      statusLogResource.params = {
-        doctype: 'Messenger Conversation',
-        name: conversation.name,
-        fields: ['status_log']
-      }
-    } else {
-      statusLogResource.params.name = conversation.name
+    await fetchEnableHelpdeskTicketCreation()
+    selectedConversation.value = conversation.name
+    currentStatus.value = conversation.status || ''
+
+    // Ensure tickets are fetched before menu renders
+    await fetchPastTickets()
+
+    // Reset messages and status updates
+    messages.value = []
+    statusUpdates.value = []
+
+    // Fetch tags for the selected conversation
+    try {
+      const tags = await call('crm.api.messenger.get_conversation_tags', { conversation_name: conversation.name })
+      conversationTags.value[conversation.name] = tags || []
+    } catch (e) {
+      conversationTags.value[conversation.name] = []
     }
-    await statusLogResource.fetch()
-    statusUpdates.value = statusLogResource.data.status_log || []
-  } catch (error) {
-    console.error('Failed to fetch status logs:', error)
-  }
-  
-  // Reset message pagination
-  messagePage.value = 0
-  hasMoreMessages.value = true
-  
-  // Fetch assignees for the conversation
-  try {
-    const assigneesResource = createResource({
-      url: 'frappe.client.get_list',
+
+    // Fetch status logs from parent doc
+    try {
+      if (!statusLogResource.params) {
+        statusLogResource.params = {
+          doctype: 'Messenger Conversation',
+          name: conversation.name,
+          fields: ['status_log']
+        }
+      } else {
+        statusLogResource.params.name = conversation.name
+      }
+      await statusLogResource.fetch()
+      statusUpdates.value = statusLogResource.data.status_log || []
+    } catch (error) {
+      console.error('Failed to fetch status logs:', error)
+    }
+
+    // Reset message pagination
+    messagePage.value = 0
+    hasMoreMessages.value = true
+
+    // Fetch assignees for the conversation
+    try {
+      const assigneesResource = createResource({
+        url: 'frappe.client.get_list',
+        params: {
+          doctype: 'ToDo',
+          fields: ['allocated_to'],
+          filters: [
+            ['reference_type', '=', 'Messenger Conversation'],
+            ['reference_name', '=', conversation.name],
+            ['status', '=', 'Open']
+          ]
+        }
+      })
+
+      const assigneesList = await assigneesResource.fetch()
+
+      const userIds = [...new Set(assigneesList.map(a => a.allocated_to))]
+
+      const userDetailsResource = createResource({
+        url: 'frappe.client.get_list',
+        params: {
+          doctype: 'User',
+          fields: ['name', 'full_name'],
+          filters: [['name', 'in', userIds]]
+        }
+      })
+      const userDetails = await userDetailsResource.fetch()
+
+      const userMap = Object.fromEntries(
+        userDetails.map(user => [user.name, user.full_name])
+      )
+
+      assignees.value = assigneesList.map(a => ({
+        name: a.allocated_to,
+        image: null,
+        label: userMap[a.allocated_to] || a.allocated_to
+      }))
+    } catch (error) {
+      console.error('Failed to fetch assignees:', error)
+    }
+
+    // First get total count of messages
+    const countResource = createResource({
+      url: 'frappe.client.get_count',
       params: {
-        doctype: 'ToDo',
-        fields: ['allocated_to'],
-        filters: [
-          ['reference_type', '=', 'Messenger Conversation'],
-          ['reference_name', '=', conversation.name],
-          ['status', '=', 'Open']
-        ]
+        doctype: 'Messenger Message',
+        filters: [['conversation', '=', conversation.name]]
       }
     })
 
-    const assigneesList = await assigneesResource.fetch()
+    const totalMessages = await countResource.fetch()
 
-    const userIds = [...new Set(assigneesList.map(a => a.allocated_to))]
-
-    const userDetailsResource = createResource({
-      url: 'frappe.client.get_list',
-      params: {
-        doctype: 'User',
-        fields: ['name', 'full_name'],
-        filters: [['name', 'in', userIds]]
-      }
-    })
-    const userDetails = await userDetailsResource.fetch()
-
-    const userMap = Object.fromEntries(
-      userDetails.map(user => [user.name, user.full_name])
-    )
-
-    assignees.value = assigneesList.map(a => ({
-      name: a.allocated_to,
-      image: null,
-      label: userMap[a.allocated_to] || a.allocated_to
-    }))
-  } catch (error) {
-    console.error('Failed to fetch assignees:', error)
-  }
-  
-  // First get total count of messages
-  const countResource = createResource({
-    url: 'frappe.client.get_count',
-    params: {
+    // Update message resource params to get latest batch of messages
+    messagesResource.params = {
       doctype: 'Messenger Message',
-      filters: [['conversation', '=', conversation.name]]
+      fields: [
+        'name',
+        'message',
+        'sender_id',
+        'sender_user',
+        'timestamp',
+        'message_direction',
+        'conversation',
+        'is_read',
+        'content_type',
+        'attach',
+        'status'
+      ],
+      filters: [['conversation', '=', conversation.name]],
+      order_by: 'timestamp asc',
+      limit_start: Math.max(0, totalMessages - messageLimit.value),
+      limit_page_length: messageLimit.value
     }
-  })
-  
-  const totalMessages = await countResource.fetch()
-  
-  // Update message resource params to get latest batch of messages
-  messagesResource.params = {
-    doctype: 'Messenger Message',
-    fields: [
-      'name',
-      'message',
-      'sender_id',
-      'sender_user',
-      'timestamp',
-      'message_direction',
-      'conversation',
-      'is_read',
-      'content_type',
-      'attach',
-      'status'
-    ],
-    filters: [['conversation', '=', conversation.name]],
-    order_by: 'timestamp asc',
-    limit_start: Math.max(0, totalMessages - messageLimit.value),
-    limit_page_length: messageLimit.value
-  }
-  
-  await messagesResource.reload()
-  messages.value = messagesResource.data
-  
-  // Mark messages as read after loading them
-  if (unreadMessageCounts.value[conversation.name] > 0) {
-    await markMessagesAsRead(conversation.name)
-  }
-  
-  // Set hasMoreMessages based on whether there are older messages
-  hasMoreMessages.value = totalMessages > messageLimit.value
-  
-  // Scroll to bottom after messages load
-  setTimeout(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+
+    await messagesResource.reload()
+    messages.value = messagesResource.data
+
+    // Mark messages as read after loading them
+    if (unreadMessageCounts.value[conversation.name] > 0) {
+      await markMessagesAsRead(conversation.name)
     }
-  }, 100)
+
+    // Set hasMoreMessages based on whether there are older messages
+    hasMoreMessages.value = totalMessages > messageLimit.value
+
+    // Scroll to bottom after messages load
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    }, 100)
+  } finally {
+    conversationLoading.value = false
+  }
 }
 
 // Modify handleSendMessage to use the scrollToBottom function
@@ -1032,11 +1044,6 @@ watch(selectedConversation, async (newVal) => {
     await messagesResource.reload()
   }
 })
-
-// Handle message reply
-function handleReply(message) {
-  reply.value = message
-}
 
 // Only fetch conversations if messenger is enabled
 watch(messengerEnabled, (enabled) => {
