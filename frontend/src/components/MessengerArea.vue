@@ -45,7 +45,7 @@
             </div>
 
             <!-- Document Message -->
-            <div v-else-if="message.content_type === 'file'" class="flex items-center gap-2">
+            <div v-else-if="message.content_type === 'file' || message.content_type === 'document'" class="flex items-center gap-2">
               <DocumentIcon
                 class="size-10 cursor-pointer rounded-md text-gray-400"
                 @click="() => openFileInNewTab(message.attach)"
