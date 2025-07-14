@@ -730,7 +730,7 @@ function openQuickEntryModal() {
 function viewMessengerConversation() {
   if (lead.data?.custom_messenger_conversation) {
     router.push({
-      name: 'Messenger',
+      name: 'MessengerDetail',
       params: { conversationId: lead.data.custom_messenger_conversation }
     })
   }

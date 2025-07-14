@@ -8,14 +8,33 @@ const routes = [
     path: '/',
     name: 'Home',
   },
+  // New nested Messenger routes
   {
     path: '/messenger',
-    name: 'MessengerList',
+    component: () => import('@/pages/MessengerLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'MessengerList',
+        component: () => import('@/pages/MessengerPlaceholder.vue'),
+      },
+      {
+        path: ':conversationId',
+        name: 'MessengerDetail',
+        component: () => import('@/pages/MessengerDetail.vue'),
+        props: true,
+      },
+    ],
+  },
+  // Keep old MessengerList and Messenger routes for migration/testing
+  {
+    path: '/messenger-old',
+    name: 'MessengerListOld',
     component: () => import('@/pages/MessengerList.vue'),
   },
   {
-    path: '/messenger/:conversationId',
-    name: 'Messenger',
+    path: '/messenger-old/:conversationId',
+    name: 'MessengerOld',
     component: () => import('@/pages/Messenger.vue'),
     props: true,
   },
