@@ -411,7 +411,7 @@ const conversationMenuOptions = computed(() => {
 // --- Assignees (same logic as Messenger.vue) ---
 async function fetchAssignees(conversationId) {
   // This function is now handled by get_conversation_details API
-  console.log('fetchAssignees is deprecated, use get_conversation_details instead')
+  // console.log('fetchAssignees is deprecated, use get_conversation_details instead')
 }
 
 // --- Message & Status Log Ordering (interleaved, same as Messenger.vue) ---
@@ -435,11 +435,11 @@ const groupedTimeline = computed(() => {
 // --- Tag Management (same as Messenger.vue) ---
 async function fetchAllTags() {
   // This function is now handled by get_cached_data API
-  console.log('fetchAllTags is deprecated, use get_cached_data instead')
+  // console.log('fetchAllTags is deprecated, use get_cached_data instead')
 }
 async function fetchConversationTags(conversationId) {
   // This function is now handled by get_conversation_details API
-  console.log('fetchConversationTags is deprecated, use get_conversation_details instead')
+  // console.log('fetchConversationTags is deprecated, use get_conversation_details instead')
 }
 async function saveConversationTags() {
   if (!selectedConversation.value) return
@@ -515,7 +515,7 @@ function goToTicket(ticketId) {
 async function fetchMessages(conversationId) {
   // This function is now handled by get_conversation_details API
   // Keeping for backward compatibility but it's no longer used
-  console.log('fetchMessages is deprecated, use get_conversation_details instead')
+  // console.log('fetchMessages is deprecated, use get_conversation_details instead')
 }
 
 // --- Infinite Scroll: Load More Messages (like Messenger.vue) ---
@@ -560,7 +560,7 @@ async function loadMoreMessages() {
 
 // --- Fetch Conversation Details ---
 async function fetchConversation(conversationId) {
-  console.log('fetchConversation called with:', conversationId)
+  // console.log('fetchConversation called with:', conversationId)
   if (!conversationId) {
     selectedConversation.value = null
     currentConversation.value = null
@@ -582,7 +582,7 @@ async function fetchConversation(conversationId) {
       pastTickets.value = cachedData.past_tickets || []
       allTags.value = cachedData.all_tags || []
       enableHelpdeskTicketCreation.value = cachedData.helpdesk_enabled || false
-      console.log('Loaded conversation from cache')
+      // console.log('Loaded conversation from cache')
       return
     }
     
@@ -626,7 +626,7 @@ async function fetchConversation(conversationId) {
         helpdesk_enabled: enableHelpdeskTicketCreation.value
       })
       
-      console.log('All data fetched successfully')
+      // console.log('All data fetched successfully')
     }
   } catch (err) {
     console.error('Error fetching conversation:', err)
@@ -654,7 +654,7 @@ async function fetchPastTickets(conversationId) {
 // --- Fetch Helpdesk Ticket Creation Flag ---
 async function fetchEnableHelpdeskTicketCreation() {
   // This function is now handled by get_cached_data API
-  console.log('fetchEnableHelpdeskTicketCreation is deprecated, use get_cached_data instead')
+  // console.log('fetchEnableHelpdeskTicketCreation is deprecated, use get_cached_data instead')
 }
 
 // --- Format Time Ago Function ---
@@ -754,7 +754,7 @@ function onMessageUpdate(data) {
 }
 
 function onMessageSent(data) {
-  console.log('Message sent event received in detail:', data)
+  // console.log('Message sent event received in detail: autoooo ', data)
   if (data.conversation_id === selectedConversation.value) {
     // Update the sent message in the list
     const messageIndex = messages.value.findIndex(m => m.name === data.message.name)
@@ -769,11 +769,11 @@ function onMessageSent(data) {
 }
 
 function onUnreadUpdate(data) {
-  console.log('Unread update received in detail:', data)
+  // console.log('Unread update received in detail:', data)
   if (data.conversation_id === selectedConversation.value) {
     // Update unread count for current conversation
     // This is handled by the layout, but we can update local state if needed
-    console.log('Unread count updated for current conversation:', data.unread_count)
+    // console.log('Unread count updated for current conversation:', data.unread_count)
     
     // If unread count is 0, we can update any local state that tracks unread messages
     if (data.unread_count === 0) {
@@ -790,13 +790,13 @@ function onUnreadUpdate(data) {
 function setupMessageSocketListeners() {
   cleanupMessageSocketListeners() // Always clean up first to avoid duplicates
   $socket.on('messenger:message_update', onMessageUpdate)
-  // $socket.on('messenger:message_sent', onMessageSent)
+  $socket.on('messenger:message_auto_sent', onMessageSent)
   $socket.on('messenger:unread_update', onUnreadUpdate)
 }
 
 function cleanupMessageSocketListeners() {
   $socket.off('messenger:message_update', onMessageUpdate)
-  // $socket.off('messenger:message_sent', onMessageSent)
+  $socket.off('messenger:message_auto_sent', onMessageSent)
   $socket.off('messenger:unread_update', onUnreadUpdate)
 }
 
@@ -1015,11 +1015,11 @@ async function handleSendMessage(messageData) {
 const markMessagesAsReadResource = createResource({
   url: 'frappe_messenger.frappe_messenger.doctype.messenger_message.messenger_message.mark_messages_as_read',
   onSuccess: (response) => {
-    console.log('markMessagesAsReadResource success:', response)
-    console.log('selectedConversation.value:', selectedConversation.value)
+    // console.log('markMessagesAsReadResource success:', response)
+    // console.log('selectedConversation.value:', selectedConversation.value)
     if (selectedConversation.value) {
       // Update unread count if needed
-      console.log('Messages marked as read, unread count:', response)
+      // console.log('Messages marked as read, unread count:', response)
     }
   }
 })

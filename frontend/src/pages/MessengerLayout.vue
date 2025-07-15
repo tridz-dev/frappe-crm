@@ -515,7 +515,7 @@ watch(() => conversationsResource.data, async () => {
 
 // --- SOCKET HANDLERS ---
 function onMessageUpdate(data) {
-  console.log('Message update received in layout:', data)
+  // console.log('Message update received in layout:', data)
   // console.log('Current selected conversation:', selectedConversation.value)
   // console.log('Available conversations:', conversations.value.map(c => c.name))
   
@@ -532,26 +532,26 @@ function onMessageUpdate(data) {
         last_message_time: data.message.timestamp
       }
       
-      console.log('Updated conversation from message:', {
-        old: oldConversation,
-        new: conversations.value[conversationIndex]
-      })
+      // console.log('Updated conversation from message:', {
+      //   old: oldConversation,
+      //   new: conversations.value[conversationIndex]
+      // })
       
       // Re-sort conversations by last message time
       conversations.value.sort((a, b) => new Date(b.last_message_time) - new Date(a.last_message_time))
       
-      console.log('Conversations after sorting:', conversations.value.map(c => ({
-        name: c.name,
-        last_message: c.last_message,
-        last_message_time: c.last_message_time
-      })))
+      // console.log('Conversations after sorting:', conversations.value.map(c => ({
+      //   name: c.name,
+      //   last_message: c.last_message,
+      //   last_message_time: c.last_message_time
+      // })))
     } else {
-      console.log('Conversation not found in list, available conversations:', conversations.value.map(c => c.name))
-      console.log('This might be a new conversation that needs to be fetched')
+      // console.log('Conversation not found in list, available conversations:', conversations.value.map(c => c.name))
+      // console.log('This might be a new conversation that needs to be fetched')
       
       // Try to fetch the conversation if it's not in the list
       if (data.conversation_id) {
-        console.log('Attempting to fetch conversation:', data.conversation_id)
+        // console.log('Attempting to fetch conversation:', data.conversation_id)
         refreshConversationList()
       }
     }
@@ -559,7 +559,7 @@ function onMessageUpdate(data) {
 }
 
 function onMessageSent(data) {
-  console.log('Message sent event received in layout:', data)
+  // console.log('Message sent event received in layout:', data)
   const conversationIndex = conversations.value.findIndex(c => c.name === data.conversation_id)
   if (conversationIndex !== -1) {
     // Update the conversation's last message and timestamp
@@ -569,7 +569,7 @@ function onMessageSent(data) {
       last_message_time: data.message.timestamp
     }
     
-    console.log('Updated conversation from sent message:', conversations.value[conversationIndex])
+    // console.log('Updated conversation from sent message:', conversations.value[conversationIndex])
     
     // Re-sort conversations by last message time
     conversations.value.sort((a, b) => new Date(b.last_message_time) - new Date(a.last_message_time))
@@ -579,32 +579,32 @@ function onMessageSent(data) {
 }
 
 function onUnreadUpdate(data) {
-  console.log('Unread update received in layout:', data)
+  // console.log('Unread update received in layout:', data)
   // console.log('Current unread counts before update:', unreadMessageCounts.value)
   
   if (data.conversation_id) {
     const oldCount = unreadMessageCounts.value[data.conversation_id] || 0
     unreadMessageCounts.value[data.conversation_id] = data.unread_count
     
-    console.log('Unread count updated for conversation:', {
-      conversation_id: data.conversation_id,
-      old_count: oldCount,
-      new_count: data.unread_count,
-      change: data.unread_count - oldCount
-    })
+    // console.log('Unread count updated for conversation:', {
+    //   conversation_id: data.conversation_id,
+    //   old_count: oldCount,
+    //   new_count: data.unread_count,
+    //   change: data.unread_count - oldCount
+    // })
     
-    console.log('Current unread counts after update:', unreadMessageCounts.value)
+    // console.log('Current unread counts after update:', unreadMessageCounts.value)
   } else {
     console.log('No conversation_id in unread update data')
   }
 }
 
 function onConversationUpdate(data) {
-  console.log("Conversation update received in layout:", data)
+  // console.log("Conversation update received in layout:", data)
   if (data.type === 'update') {
     const index = conversations.value.findIndex(c => c.name === data.conversation.name)
-    console.log('Found conversation index:', index, 'for conversation:', data.conversation.name)
-    console.log('Available conversations:', conversations.value.map(c => c.name))
+    // console.log('Found conversation index:', index, 'for conversation:', data.conversation.name)
+    // console.log('Available conversations:', conversations.value.map(c => c.name))
     
     if (index !== -1) {
       // Fetch user profile if not already available
@@ -620,12 +620,12 @@ function onConversationUpdate(data) {
         profile: userProfiles.value[data.conversation.sender_id]?.profile || null
       }
       
-      console.log('Updated existing conversation:', conversations.value[index])
+      // console.log('Updated existing conversation:', conversations.value[index])
       
       // Re-sort conversations by last message time
       conversations.value.sort((a, b) => new Date(b.last_message_time) - new Date(a.last_message_time))
     } else {
-      console.log('Conversation not found, adding new conversation')
+      // console.log('Conversation not found, adding new conversation')
       // New conversation - fetch user profile and add to list
       fetchUserProfile(data.conversation.sender_id).then(() => {
         const newConversation = {
@@ -634,7 +634,7 @@ function onConversationUpdate(data) {
           profile: userProfiles.value[data.conversation.sender_id]?.profile || null
         }
         
-        console.log('Adding new conversation:', newConversation)
+        // console.log('Adding new conversation:', newConversation)
         
         conversations.value = [
           newConversation,
@@ -679,7 +679,7 @@ watch(messengerEnabled, (enabled) => {
 
 // Add function to refresh conversation list
 function refreshConversationList() {
-  console.log('Refreshing conversation list')
+  // console.log('Refreshing conversation list')
   conversationsResource.reload()
   // Remove fetchUnreadCounts() as the API already returns unread counts
   // fetchUnreadCounts()
@@ -687,7 +687,7 @@ function refreshConversationList() {
 
 // Add watcher to track current conversation from route
 watch(() => router.currentRoute.value.params.conversationId, (newConversationId) => {
-  console.log('Route conversation ID changed:', newConversationId)
+  // console.log('Route conversation ID changed:', newConversationId)
   selectedConversation.value = newConversationId || null
   
   // Only refresh if we have a valid conversation ID

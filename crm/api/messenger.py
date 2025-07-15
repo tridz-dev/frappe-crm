@@ -73,11 +73,28 @@ def on_update(doc, method):
                 "messenger:conversation_update",
                 {"conversation": conversation.as_dict(), "type": "update"},
             )
+             # Handle auto-generated outgoing messages
+            if (
+                doc.is_auto_generated_outgoing_message == 1
+                and doc.status == "sent"
+            ):
+                frappe.publish_realtime(
+                    "messenger:message_auto_sent",
+                    {
+                        "message": doc.as_dict(),
+                        "conversation_id": doc.conversation,
+                        "type": "new",
+                    },
+                )
             return
 
         # Handle incoming messages
         if doc.message_direction == "Incoming":
             # Emit conversation update event
+            attachment_content_types = ["file", "image", "video", "audio", "document"]
+            if doc.content_type in attachment_content_types:
+                if not doc.attach:
+                    return
             conversation = frappe.get_doc("Messenger Conversation", doc.conversation)
             frappe.publish_realtime(
                 "messenger:conversation_update",
@@ -109,25 +126,7 @@ def on_update(doc, method):
                 {"conversation_id": doc.conversation, "unread_count": unread_count},
             )
 
-        # Handle auto-generated outgoing messages
-        if (
-            doc.message_direction == "Outgoing"
-            and doc.is_auto_generated_outgoing_message == 1
-            and doc.status == "sent"
-        ):
-            frappe.publish_realtime(
-                "messenger:message_update",
-                {
-                    "message": doc.as_dict(),
-                    "conversation_id": doc.conversation,
-                    "type": "new",
-                },
-            )
-            conversation = frappe.get_doc("Messenger Conversation", doc.conversation)
-            frappe.publish_realtime(
-                "messenger:conversation_update",
-                {"conversation": conversation.as_dict(), "type": "update"},
-            )
+       
 
     except Exception as e:
         frappe.log_error("Messenger Update Error", str(e))
