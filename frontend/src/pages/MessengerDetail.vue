@@ -297,7 +297,18 @@ const tagSearchQuery = ref('')
 const selectedTags = ref([])
 const allTags = ref([])
 const unselectedTags = computed(() => allTags.value.filter(tag => !selectedTags.value.find(t => t.tag_name === tag.tag_name)))
-const dropdownTags = computed(() => unselectedTags.value.slice(0, 10))
+
+// --- Tag Search Logic (frontend-only, no backend calls) ---
+const dropdownTags = computed(() => {
+  if (!tagSearchQuery.value) {
+    return unselectedTags.value.slice(0, 10)
+  }
+  // Filter unselected tags by search query (case-insensitive)
+  return unselectedTags.value.filter(tag =>
+    tag.tag_name.toLowerCase().includes(tagSearchQuery.value.toLowerCase())
+  ).slice(0, 10)
+})
+
 const showHelpdeskModal = ref(false)
 const helpdeskSubject = ref('')
 const helpdeskDescription = ref('')
