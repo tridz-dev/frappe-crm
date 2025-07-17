@@ -175,6 +175,20 @@ You need Docker, docker-compose and git setup on your machine. Refer [Docker doc
 -   Username: Administrator
 -   Password: admin
 
+### Theme Customization (New!)
+
+You can now personalize your CRM and Messenger experience with different visual themes. Go to **Settings > General** and choose from:
+
+- **Light**: Clean and bright interface
+- **Dark**: Easy on the eyes
+- **Compact** (BETA): Dense, space-efficient layout
+- **Ant** (BETA): Modern dark theme with vibrant accents
+- **Nebula** (BETA): Cosmic dashboard with stellar accents
+- **Aurora** (BETA): Clean, professional dashboard with light blue accents
+
+*Note: The new themes (Compact, Ant, Nebula, Aurora) are currently in beta and may change in future updates.*
+
+
 ## Learn and connect
 
 -   [Telegram Public Group](https://t.me/frappecrm)
