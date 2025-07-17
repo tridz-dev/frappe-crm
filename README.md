@@ -188,6 +188,9 @@ You can now personalize your CRM and Messenger experience with different visual 
 
 *Note: The new themes (Compact, Ant, Nebula, Aurora) are currently in beta and may change in future updates.*
 
+### Messaging Integration
+
+You can use Frappe Messenger directly from the CRM frontend/UI for unified messaging across platforms. To enable messaging features, install the Frappe Messenger app in your site. For full details and setup instructions, see the [Frappe Messenger README](https://github.com/tridz-dev/frappe_messenger).
 
 ## Learn and connect
 
