@@ -1,5 +1,7 @@
 import frappe
 from frappe import _
+from frappe.utils import now_datetime
+
 
 
 @frappe.whitelist()
@@ -10,7 +12,10 @@ def is_messenger_enabled():
     return frappe.get_cached_value(
         "Messenger Settings", "Messenger Settings", "enabled"
     )
-
+@frappe.whitelist()
+def get_server_time():
+    """Return the current server time (now_datetime) as a string."""
+    return now_datetime()
 
 @frappe.whitelist()
 def is_messenger_installed():

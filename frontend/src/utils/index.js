@@ -348,3 +348,28 @@ export function getRandom(len = 4) {
 
   return text
 }
+
+// Frappe-style time ago utility for Messenger
+export function frappeTimeAgo(date) {
+  if (!date) return ''
+  const d = dayjsLocal(date)
+  const now = dayjsLocal()
+  const diffSeconds = now.diff(d, 'second')
+  const diffMinutes = now.diff(d, 'minute')
+  const diffHours = now.diff(d, 'hour')
+  const diffDays = now.diff(d, 'day')
+
+  if (d.isSame(now, 'day')) {
+    if (diffSeconds < 60) return 'Just now'
+    if (diffMinutes < 60) return diffMinutes === 1 ? '1 minute ago' : `${diffMinutes} minutes ago`
+    if (diffHours < 24) return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`
+    return 'Today'
+  } else if (d.add(1, 'day').isSame(now, 'day')) {
+    return 'Yesterday'
+  } else if (diffDays < 7) {
+    return diffDays === 1 ? '1 day ago' : `${diffDays} days ago`
+  } else {
+    // Use user/system date format
+    return formatDate(date, 'ddd, MMM D, YYYY')
+  }
+}

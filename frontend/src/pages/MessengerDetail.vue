@@ -110,7 +110,7 @@
             <!-- Date Header -->
             <div class="flex justify-center my-4">
               <div class="bg-surface-gray-1 rounded-full px-4 py-1 text-sm text-ink-gray-4">
-                {{ formatDate(items[0].timestamp) }}
+                {{ getDateSeparatorLabel(items[0].timestamp) }}
               </div>
             </div>
             <!-- Items for this date (reversed) -->
@@ -152,7 +152,7 @@
       <MessengerBox
         :conversation="selectedConversation"
         v-model:reply="reply"
-        @send="handleSendMessage"
+        @send="handleSendMessageWithServerTime"
       />
     </template>
     <template v-else>
@@ -199,7 +199,7 @@
             </div>
             <div class="flex flex-col items-end">
               <span class="text-xs font-medium" :class="{'text-green-600': ticket.status === 'Open', 'text-gray-500': ticket.status !== 'Open'}">{{ ticket.status }}</span>
-              <span class="text-xs text-ink-gray-4">{{ formatTimeAgo(ticket.creation_time) }}</span>
+              <span class="text-xs text-ink-gray-4">{{ frappeTimeAgo(ticket.creation_time) }}</span>
             </div>
           </div>
         </div>
@@ -261,7 +261,7 @@
 <script setup>
 import { nextTick, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { createResource, call } from 'frappe-ui'
+import { createResource, call ,dayjsLocal} from 'frappe-ui'
 import { Button, Avatar, Dropdown, Tooltip, TextEditor, Dialog, FormControl } from 'frappe-ui'
 import MessengerArea from '@/components/MessengerArea.vue'
 import MessengerBox from '@/components/MessengerBox.vue'
@@ -271,7 +271,7 @@ import AssignTo from '@/components/AssignTo.vue'
 import MoreVerticalIcon from '@/components/Icons/MoreVerticalIcon.vue'
 import TicketIcon from '@/components/Icons/TicketIcon.vue'
 import Link from '@/components/Controls/Link.vue'
-import { createToast } from '@/utils'
+import { createToast, formatDate, timeAgo, frappeTimeAgo } from '@/utils'
 import StatusIcon from '@/components/Icons/StatusIcon.vue'
 import CheckCircleIcon from '@/components/Icons/CheckCircleIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
@@ -882,19 +882,6 @@ const selectedConversationPlatform = computed(() => {
     default: return `${currentConversation.value.platform} DM`
   }
 })
-function formatDate(dateString) {
-  const date = new Date(dateString)
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-  if (date.toDateString() === today.toDateString()) {
-    return 'Today'
-  } else if (date.toDateString() === yesterday.toDateString()) {
-    return 'Yesterday'
-  } else {
-    return date.toLocaleDateString()
-  }
-}
 
 function getTicketStatusColor(status) {
   switch ((status || '').toLowerCase()) {
@@ -969,7 +956,21 @@ function getCurrentConversation() {
 }
 
 // --- Send Message (same as Messenger.vue) ---
-async function handleSendMessage(messageData) {
+async function handleSendMessageWithServerTime(messageData) {
+  // Fetch server time first
+  let serverTime = null
+  try {
+    serverTime = await call('crm.api.messenger.get_server_time')
+  } catch (err) {
+    console.error('Error fetching server time:', err)
+    // Optionally, show a toast or fallback
+    return
+  }
+  // Now call the original handleSendMessage, passing serverTime as an argument
+  await handleSendMessage(messageData, serverTime)
+}
+
+async function handleSendMessage(messageData, serverTime = null) {
   const conv = getCurrentConversation()
   if (!conv) return
 
@@ -987,7 +988,7 @@ async function handleSendMessage(messageData) {
     conversation: messageData.conversation,
     message_direction: 'Outgoing',
     recipient_id: conv.sender_id,
-    timestamp: timestamp,
+    timestamp: serverTime || timestamp,
     content_type: messageData.content_type || 'text',
     attach: messageData.attach || '',
     reply_to: messageData.reply_to || '',
@@ -998,13 +999,11 @@ async function handleSendMessage(messageData) {
     const response = await sendMessageResource.submit({
       doc: newMessage
     })
-    
-    // Add message to local messages array
     messages.value.push({
       ...newMessage,
       name: response.name
     })
-    
+
     // Emit socket event to update conversation list in real-time
     // $socket.emit('messenger:message_sent', {
     //   conversation_id: selectedConversation.value,
@@ -1094,6 +1093,19 @@ async function handleBlockChat() {
 async function fetchStatusUpdates(conversationId) {
   // This function is now handled by get_conversation_details API
   console.log('fetchStatusUpdates is deprecated, use get_conversation_details instead')
+}
+
+// Add this helper function in <script setup>
+function getDateSeparatorLabel(dateString) {
+  const d = dayjsLocal(dateString)
+  const now = dayjsLocal()
+  if (d.isSame(now, 'day')) {
+    return 'Today'
+  } else if (d.add(1, 'day').isSame(now, 'day')) {
+    return 'Yesterday'
+  } else {
+    return formatDate(dateString, 'ddd, MMM D, YYYY')
+  }
 }
 </script>
 

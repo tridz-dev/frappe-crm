@@ -82,7 +82,7 @@
               <p class="text-sm font-medium text-ink-gray-9 truncate">
                 {{ conversation.title }}
               </p>
-              <p class="text-xs text-ink-gray-3">{{ formatTimeAgo(conversation.last_message_time) }}</p>
+              <p class="text-xs text-ink-gray-3">{{ frappeTimeAgo(conversation.last_message_time) }}</p>
             </div>
             <!-- Second row: Last message (left), unread count (right) and/or assignees if no unread count -->
             <div class="flex items-center justify-between mt-0.5">
@@ -172,6 +172,7 @@ import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
 import { messengerEnabled } from '@/composables/settings'
 import { globalStore } from '@/stores/global'
 import Filter from '@/components/Filter.vue'
+import { formatDate, timeAgo, frappeTimeAgo } from '@/utils'
 
 const router = useRouter()
 const route = useRoute()
@@ -364,39 +365,6 @@ function handleConversationSelect(conversation) {
     name: 'MessengerDetail',
     params: { conversationId: conversation.name }
   })
-}
-
-function formatTimeAgo(timestamp) {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  const now = new Date()
-  const diff = now - date
-  const seconds = Math.floor(diff / 1000)
-  if (seconds < 60) {
-    return __('Just now')
-  }
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) {
-    return minutes === 1 ? __('1 minute ago') : __('{0} minutes ago', [minutes])
-  }
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) {
-    return hours === 1 ? __('1 hour ago') : __('{0} hours ago', [hours])
-  }
-  const days = Math.floor(hours / 24)
-  if (days < 7) {
-    return days === 1 ? __('1 day ago') : __('{0} days ago', [days])
-  }
-  const weeks = Math.floor(days / 7)
-  if (weeks < 4) {
-    return weeks === 1 ? __('1 week ago') : __('{0} weeks ago', [weeks])
-  }
-  const months = Math.floor(days / 30)
-  if (months < 12) {
-    return months === 1 ? __('1 month ago') : __('{0} months ago', [months])
-  }
-  const years = Math.floor(months / 12)
-  return years === 1 ? __('1 year ago') : __('{0} years ago', [years])
 }
 
 async function fetchUnreadCounts() {

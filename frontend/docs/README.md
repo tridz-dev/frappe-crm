@@ -22,4 +22,8 @@ Allows CRM users to create a Helpdesk (HD) Ticket directly from a Messenger conv
 - The option is only visible if the feature flag is enabled in Messenger settings.
 - The modal UI is consistent with Helpdesk ticket creation standards.
 - No backend changes are included in this update.
-- Existing Messenger features and menu actions are unaffected. 
+- Existing Messenger features and menu actions are unaffected.
+
+## Important notes or dependencies
+
+- Always use the shared `formatDate` and `timeAgo` utilities from `@/utils` for all date and time formatting in Messenger components. See `messenger-date-time-standardization.md` for details. 
