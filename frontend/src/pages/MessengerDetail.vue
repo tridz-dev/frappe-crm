@@ -277,10 +277,12 @@ import CheckCircleIcon from '@/components/Icons/CheckCircleIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import { markRaw } from 'vue'
 import { globalStore } from '@/stores/global'
+import { useMessengerStore } from '@/stores/messenger'
 
 const route = useRoute()
 const router = useRouter()
 const { $socket } = globalStore()
+const messengerStore = useMessengerStore()
 
 // --- State ---
 const selectedConversation = ref(null)
@@ -374,6 +376,11 @@ async function handleStatusChange(status) {
       }
     }).submit()
     currentStatus.value = status
+    // Invalidate cache and trigger refresh from the store
+    if (conversationCache.value.has(selectedConversation.value)) {
+      conversationCache.value.delete(selectedConversation.value)
+    }
+    messengerStore.refreshConversationList()
     createToast({
       title: __('Status updated successfully'),
       icon: 'check',
@@ -844,8 +851,9 @@ onMounted(() => {
   $socket.on('messenger:conversation_status_update', (data) => {
     // console.log('Conversation status update received:', data, 'Current conversation:', selectedConversation.value)
     if (data.conversation_id === selectedConversation.value) {
-      // console.log('Processing status update for current conversation')
-      currentStatus.value = data.status
+      // Re-fetch conversation details to ensure everything is up-to-date
+      fetchConversation(selectedConversation.value)
+      // Optionally, update status log for timeline
       if (data.status_log) {
         statusUpdates.value.push(data.status_log)
       }
