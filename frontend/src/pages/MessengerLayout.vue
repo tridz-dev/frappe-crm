@@ -166,6 +166,7 @@ import { globalStore } from '@/stores/global'
 import { useMessengerStore } from '@/stores/messenger'
 import Filter from '@/components/Filter.vue'
 import { frappeTimeAgo } from '@/utils'
+import { createResource, call } from 'frappe-ui'
 
 const router = useRouter()
 const route = useRoute()
@@ -178,7 +179,7 @@ const list = computed({
   set: (value) => (messengerStore.list = value),
 })
 
-const platformOptions = ref([])
+// const platformOptions = ref([])
 
 const tagColorMap = {
   black: 'border-ink-gray-9 text-ink-gray-9',
@@ -199,6 +200,42 @@ const tagColorMap = {
 function updateFilter(filters) {
   messengerStore.updateFilters(filters)
 }
+
+const platformsResource = createResource({
+  url: 'frappe.client.get_list',
+  params: {
+    doctype: 'Messenger Platform',
+    fields: ['platform'],
+    order_by: 'platform asc',
+    filters: [['disabled', '=', 0]]
+  },
+  onSuccess: (data) => {
+    platformOptions.value = [
+      { 
+        label: __('All'), 
+        value: 'all',
+        onClick: () => handlePlatformSelect('all'),
+        icon: ChatIcon
+      },
+      ...data.map(platform => ({
+        label: platform.platform,
+        value: platform.platform,
+        onClick: () => handlePlatformSelect(platform.platform),
+        icon: getPlatformIcon(platform.platform)
+      }))
+    ]
+  },
+  auto: true
+})
+
+const platformOptions = ref([
+  { 
+    label: __('All'), 
+    value: 'all',
+    onClick: () => handlePlatformSelect('all'),
+    icon: ChatIcon
+  }
+])
 
 function handlePlatformSelect(platform) {
   messengerStore.updatePlatformFilter(platform)
