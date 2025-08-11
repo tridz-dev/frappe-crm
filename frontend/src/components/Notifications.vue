@@ -53,6 +53,9 @@
               :class="[n.read ? 'bg-transparent' : 'bg-surface-gray-7']"
             />
             <WhatsAppIcon v-if="n.type == 'WhatsApp'" class="size-7" />
+            <MessengerIcon v-else-if="n.type == 'Messenger'" class="size-7" />
+            <InstagramIcon v-else-if="n.type == 'Instagram'" class="size-7" />
+            <ChatIcon v-else-if="n.type == 'Custom'" class="size-7" />
             <UserAvatar v-else :user="n.from_user.name" size="lg" />
           </div>
           <div>
@@ -88,6 +91,9 @@
 </template>
 <script setup>
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
+import MessengerIcon from '@/components/Icons/Messenger.vue'
+import InstagramIcon from '@/components/Icons/InstagramIcon.vue'
+import ChatIcon from '@/components/Icons/ChatIcon.vue'
 import MarkAsDoneIcon from '@/components/Icons/MarkAsDoneIcon.vue'
 import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -144,6 +150,10 @@ function getRoute(notification) {
   if (notification.route_name === 'Deal') {
     params = {
       dealId: notification.reference_name,
+    }
+  }else if (notification.route_name === 'MessengerDetail'){
+    params = {
+      conversationId: notification.reference_name,
     }
   }
 
